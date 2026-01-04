@@ -1,0 +1,1052 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Intranet Académica</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
+        
+        /* Scrollbar Personalizado */
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        
+        .hidden { display: none !important; }
+        
+        /* Animaciones */
+        .fade-in { animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Estilos de Inputs */
+        .input-classic {
+            width: 100%;
+            padding: 0.65rem 0.75rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+            background-color: #fff;
+        }
+        .input-classic:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        .label-classic {
+            display: block;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.025em;
+            margin-bottom: 0.25rem;
+        }
+
+        /* Tarjeta Carnet - Efecto Premium */
+        .id-card-bg {
+            background: linear-gradient(135deg, #1e3a8a 0%, #172554 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        .id-card-bg::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%);
+            transform: rotate(45deg);
+        }
+    </style>
+</head>
+<body class="text-slate-800 h-screen flex flex-col overflow-hidden">
+
+    <!-- HEADER -->
+    <header class="bg-white border-b border-gray-200 sticky top-0 z-50 shrink-0">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex flex-col md:flex-row justify-between items-center gap-4">
+            <!-- LOGO AREA -->
+            <div class="flex items-center gap-3">
+                <div class="h-10 w-10 bg-blue-900 rounded-lg flex items-center justify-center text-white shadow-md overflow-hidden">
+                    <i data-lucide="school" class="h-6 w-6"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold text-slate-800 leading-none">Academia Virtual</h1>
+                    <span class="text-xs text-slate-500 font-medium">Panel de Administración</span>
+                </div>
+            </div>
+
+            <!-- NAVIGATION -->
+            <nav class="flex p-1 bg-gray-100 rounded-xl">
+                <button onclick="switchTab('registro')" id="btn-registro" class="px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 transition-all bg-white text-blue-700 shadow-sm">
+                    <i data-lucide="user-plus" class="w-4 h-4"></i> Registro
+                </button>
+                <button onclick="switchTab('salones')" id="btn-salones" class="px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 transition-all text-slate-500 hover:text-slate-700">
+                    <i data-lucide="clipboard-list" class="w-4 h-4"></i> Aulas
+                </button>
+                <button onclick="switchTab('finanzas')" id="btn-finanzas" class="px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 transition-all text-slate-500 hover:text-slate-700">
+                    <i data-lucide="bar-chart-3" class="w-4 h-4"></i> Finanzas
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main class="flex-1 overflow-auto bg-slate-50/50 p-4 md:p-6 w-full">
+        <div class="max-w-7xl mx-auto h-full">
+            
+            <!-- PESTAÑA REGISTRO -->
+            <section id="tab-registro" class="fade-in grid grid-cols-1 lg:grid-cols-12 gap-6 h-full">
+                <!-- Formulario (Izquierda) -->
+                <div class="lg:col-span-8 bg-white p-6 rounded-2xl shadow-sm border border-slate-200 overflow-y-auto custom-scrollbar">
+                    <div class="flex justify-between items-center mb-6 pb-4 border-b border-slate-100">
+                        <h2 id="form-title" class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                            <div class="p-1.5 bg-blue-50 rounded text-blue-600"><i data-lucide="user-plus" class="w-5 h-5"></i></div>
+                            Nuevo Registro
+                        </h2>
+                        <button id="btn-cancel-edit" onclick="resetForm()" class="hidden text-xs font-bold text-slate-500 hover:text-red-500 flex items-center gap-1 bg-slate-100 px-3 py-1.5 rounded-full transition-colors">
+                            <i data-lucide="x" class="w-3 h-3"></i> Cancelar Edición
+                        </button>
+                    </div>
+
+                    <form id="registrationForm" class="space-y-6">
+                        <input type="hidden" id="edit-id" value="">
+
+                        <!-- Sección 1: Apoderado -->
+                        <div class="space-y-4">
+                            <h3 class="text-xs font-bold text-blue-600 uppercase tracking-wider flex items-center gap-2">
+                                <span class="w-5 h-5 rounded-full bg-blue-100 flex items-center justify-center text-[10px]">1</span>
+                                Datos del Apoderado y Pago
+                            </h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="label-classic">DNI Apoderado</label>
+                                    <input required id="guardianDni" placeholder="Ingrese DNI" class="input-classic">
+                                </div>
+                                <div>
+                                    <label class="label-classic">Nombres</label>
+                                    <input required id="guardianName" placeholder="Nombres completos" class="input-classic">
+                                </div>
+                                <div>
+                                    <label class="label-classic">Apellidos</label>
+                                    <input required id="guardianLastName" placeholder="Apellidos completos" class="input-classic">
+                                </div>
+                                <div>
+                                    <label class="label-classic">Teléfono</label>
+                                    <input required id="guardianPhone" placeholder="999 999 999" class="input-classic">
+                                </div>
+                                <div class="md:col-span-2">
+                                    <label class="label-classic">Correo Electrónico</label>
+                                    <input required id="guardianEmail" type="email" placeholder="ejemplo@correo.com" class="input-classic">
+                                </div>
+                                
+                                <!-- Zona de Pago -->
+                                <div class="md:col-span-2 bg-slate-50 p-4 rounded-xl border border-slate-200 mt-2">
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                            <label class="label-classic">Link del Voucher</label>
+                                            <div class="relative">
+                                                <i data-lucide="link" class="absolute left-3 top-2.5 text-slate-400 w-4 h-4"></i>
+                                                <input required id="paymentVoucherLink" placeholder="https://..." class="input-classic pl-9">
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label class="label-classic">Monto Pagado (S/.)</label>
+                                            <div class="relative">
+                                                <span class="absolute left-3 top-2.5 text-slate-400 text-sm font-bold">S/.</span>
+                                                <input required id="paymentAmount" type="number" placeholder="0.00" oninput="checkAutoLogic()" class="input-classic pl-9 font-bold text-slate-700">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr class="border-slate-100">
+
+                        <!-- Sección 2: Alumno -->
+                        <div class="space-y-4">
+                            <h3 class="text-xs font-bold text-blue-600 uppercase tracking-wider flex items-center gap-2">
+                                <span class="w-5 h-5 rounded-full bg-blue-100 flex items-center justify-center text-[10px]">2</span>
+                                Datos del Alumno
+                            </h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="label-classic">Nombres Alumno</label>
+                                    <input required id="studentName" placeholder="Nombres" class="input-classic">
+                                </div>
+                                <div>
+                                    <label class="label-classic">Apellidos Alumno</label>
+                                    <input required id="studentLastName" placeholder="Apellidos" class="input-classic">
+                                </div>
+                                <div class="flex gap-4">
+                                    <div class="w-1/3">
+                                        <label class="label-classic">Género</label>
+                                        <select id="gender" class="input-classic">
+                                            <option value="M">Masc.</option>
+                                            <option value="F">Fem.</option>
+                                        </select>
+                                    </div>
+                                    <div class="w-2/3">
+                                        <label class="label-classic">Fecha Nacimiento</label>
+                                        <input required id="dob" type="date" class="input-classic" onchange="calculateAge()">
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="label-classic">Edad (Auto)</label>
+                                    <input readonly id="age" placeholder="-" class="input-classic bg-slate-100 text-slate-500">
+                                </div>
+                                <div class="md:col-span-2">
+                                    <label class="label-classic">Departamento</label>
+                                    <select id="department" class="input-classic">
+                                        <!-- JS fills this -->
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr class="border-slate-100">
+
+                        <!-- Sección 3: Académico -->
+                        <div class="space-y-4">
+                            <h3 class="text-xs font-bold text-blue-600 uppercase tracking-wider flex items-center gap-2">
+                                <span class="w-5 h-5 rounded-full bg-blue-100 flex items-center justify-center text-[10px]">3</span>
+                                Modalidad y Horario
+                            </h3>
+                            
+                            <div>
+                                <label class="label-classic">Fecha de Inicio de Clases</label>
+                                <input required id="startDate" type="date" class="input-classic font-semibold text-blue-900 bg-blue-50/50">
+                                <p id="duration-preview" class="text-xs text-emerald-600 mt-1.5 font-semibold flex items-center gap-1 h-4"></p>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="label-classic">Modalidad</label>
+                                    <div class="flex bg-slate-100 p-1 rounded-lg">
+                                        <button type="button" onclick="setModality('GRUPAL')" id="btn-mod-grupal" class="flex-1 py-1.5 rounded-md text-xs font-bold transition-all bg-white text-blue-700 shadow-sm border border-slate-200">GRUPAL</button>
+                                        <button type="button" onclick="setModality('INDIVIDUAL')" id="btn-mod-individual" class="flex-1 py-1.5 rounded-md text-xs font-bold transition-all text-slate-500 hover:text-slate-700">INDIVIDUAL</button>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="label-classic">Descuento</label>
+                                    <div onclick="toggleDiscount()" id="discount-container" class="cursor-pointer border border-slate-200 rounded-lg p-2 flex items-center gap-2 bg-white hover:bg-slate-50 transition-colors h-[38px]">
+                                        <i data-lucide="ticket-percent" class="w-4 h-4 text-slate-400"></i>
+                                        <span class="text-sm text-slate-600 select-none">Aplicar Descuento</span>
+                                        <i data-lucide="check-circle-2" id="check-icon" class="w-4 h-4 text-emerald-500 ml-auto hidden"></i>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="label-classic">Seleccionar Salón / Horario</label>
+                                <div class="relative">
+                                    <select required id="schedule" class="input-classic appearance-none bg-white">
+                                        <!-- JS fills this -->
+                                    </select>
+                                    <i data-lucide="chevron-down" class="absolute right-3 top-3 text-slate-400 w-4 h-4 pointer-events-none"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="pt-4">
+                            <button type="submit" id="btn-submit" class="w-full py-3.5 rounded-xl font-bold text-white shadow-lg shadow-blue-500/30 transform active:scale-[0.98] transition-all bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 flex items-center justify-center gap-2">
+                                <i data-lucide="save" class="w-5 h-5"></i>
+                                REGISTRAR ALUMNO
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Panel Derecho (Cupos y Lista) -->
+                <div class="lg:col-span-4 space-y-6 flex flex-col h-full overflow-hidden">
+                    <!-- Cupos -->
+                    <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 shrink-0">
+                        <h3 class="text-sm font-bold text-slate-800 mb-4 uppercase tracking-wide">Disponibilidad Actual</h3>
+                        <div id="quota-container" class="space-y-3">
+                            <!-- JS fills this -->
+                        </div>
+                    </div>
+                    
+                    <!-- Directorio -->
+                    <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex flex-col flex-1 min-h-0">
+                        <h3 class="text-sm font-bold text-slate-800 mb-4 uppercase tracking-wide flex justify-between items-center">
+                            Directorio
+                            <span class="bg-blue-100 text-blue-700 text-[10px] px-2 py-0.5 rounded-full" id="student-count">0</span>
+                        </h3>
+                        <div class="relative mb-3 shrink-0">
+                            <i data-lucide="search" class="absolute left-3 top-2.5 text-slate-400 w-4 h-4"></i>
+                            <input id="search-input" onkeyup="renderStudentList()" placeholder="Buscar alumno..." class="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:bg-white focus:ring-2 focus:ring-blue-100 outline-none transition-all">
+                        </div>
+                        <div id="student-list" class="flex-1 overflow-y-auto pr-1 space-y-2 custom-scrollbar">
+                            <!-- List filled by JS -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- PESTAÑA SALONES -->
+            <section id="tab-salones" class="hidden fade-in h-full flex flex-col gap-6">
+                <div class="flex justify-center mb-2 shrink-0">
+                    <div class="bg-white p-1.5 rounded-xl shadow-sm border border-slate-200 inline-flex gap-1">
+                        <button onclick="filterClassrooms('GRUPAL')" id="filter-grupal" class="px-6 py-2 rounded-lg text-sm font-bold transition-all bg-blue-50 text-blue-700 border border-blue-100">Grupales</button>
+                        <button onclick="filterClassrooms('INDIVIDUAL')" id="filter-individual" class="px-6 py-2 rounded-lg text-sm font-bold transition-all text-slate-500 hover:bg-slate-50 border border-transparent">Individuales</button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 flex-1 min-h-0">
+                    <!-- Lista de Salones -->
+                    <div id="classroom-list" class="md:col-span-1 space-y-3 overflow-y-auto pr-2 custom-scrollbar pb-10">
+                        <!-- Filled by JS -->
+                    </div>
+
+                    <!-- Detalle Salón y Asistencia -->
+                    <div class="md:col-span-2 bg-white rounded-2xl shadow-sm border border-slate-200 flex flex-col h-full overflow-hidden relative">
+                        <!-- Empty State -->
+                        <div id="classroom-detail-empty" class="absolute inset-0 flex flex-col items-center justify-center text-slate-300 z-0">
+                            <i data-lucide="calendar-days" class="w-20 h-20 mb-4 opacity-50"></i>
+                            <p class="font-medium">Selecciona un aula para gestionar</p>
+                        </div>
+                        
+                        <div id="classroom-detail-content" class="hidden flex flex-col h-full z-10 bg-white">
+                            <!-- Header Salón -->
+                            <div class="p-6 border-b border-slate-100 bg-slate-50/50 rounded-t-2xl shrink-0">
+                                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4">
+                                    <div>
+                                        <h2 id="detail-name" class="text-2xl font-bold text-slate-800"></h2>
+                                        <div class="flex items-center gap-2 mt-1">
+                                            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                                            <span class="text-xs text-slate-500 font-medium">Clase Activa</span>
+                                        </div>
+                                    </div>
+                                    <a id="detail-meet-btn" href="#" target="_blank" class="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-xl font-bold flex items-center gap-2 shadow-lg shadow-emerald-500/20 text-sm transition-transform active:scale-95">
+                                        <i data-lucide="video" class="w-4 h-4"></i> 
+                                        INICIAR REUNIÓN
+                                    </a>
+                                </div>
+                                
+                                <div class="flex items-center gap-2 bg-white border border-slate-200 rounded-lg p-2 mb-4 shadow-sm">
+                                    <div class="p-1.5 bg-blue-50 rounded-md text-blue-600"><i data-lucide="link" class="w-4 h-4"></i></div>
+                                    <input id="detail-link-input" onchange="updateClassroomLink()" class="flex-1 text-xs text-slate-600 font-mono bg-transparent border-none focus:ring-0" value="">
+                                </div>
+
+                                <div class="flex justify-between items-center">
+                                    <div class="text-sm font-bold text-slate-700">Registro de Asistencia</div>
+                                    <div class="flex items-center gap-2">
+                                        <label class="text-[10px] font-bold text-slate-400 uppercase">Fecha:</label>
+                                        <input id="attendance-date" type="date" class="border border-slate-200 rounded-lg px-2 py-1 text-xs bg-white focus:ring-2 focus:ring-blue-100 outline-none" onchange="renderAttendanceTable()">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Tabla Asistencia -->
+                            <div class="flex-1 overflow-auto p-0">
+                                <table class="w-full text-left border-collapse">
+                                    <thead class="bg-slate-50 sticky top-0 z-10">
+                                        <tr>
+                                            <th class="px-6 py-3 border-b border-slate-100 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Alumno</th>
+                                            <th class="px-6 py-3 border-b border-slate-100 text-[10px] font-bold text-slate-400 uppercase tracking-wider text-center">Estado</th>
+                                            <th class="px-6 py-3 border-b border-slate-100 text-[10px] font-bold text-slate-400 uppercase tracking-wider text-right">Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="attendance-tbody" class="divide-y divide-slate-50">
+                                        <!-- Filled by JS -->
+                                    </tbody>
+                                </table>
+                                <div id="no-students-msg" class="text-center py-12 text-slate-400 text-sm hidden">
+                                    No hay alumnos registrados en este salón.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- PESTAÑA FINANZAS -->
+            <section id="tab-finanzas" class="hidden fade-in grid grid-cols-1 lg:grid-cols-2 gap-6 h-full overflow-y-auto">
+                 <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                    <h3 class="text-lg font-bold text-slate-800 mb-8 flex items-center gap-2">
+                        <div class="p-1.5 bg-emerald-50 rounded text-emerald-600"><i data-lucide="trending-up" class="w-5 h-5"></i></div>
+                        Reporte de Ingresos
+                    </h3>
+                    
+                    <div class="text-center mb-8">
+                        <span class="text-sm text-slate-400 font-medium">Total Recaudado</span>
+                        <div class="text-4xl font-black text-slate-800 mt-1">S/. <span id="total-earnings">0.00</span></div>
+                    </div>
+
+                    <div class="h-48 flex items-end justify-around pb-0 border-b border-slate-100 gap-8 px-8">
+                        <div class="flex flex-col items-center w-full group cursor-default">
+                            <div id="grupal-earnings-text" class="text-xs font-bold text-blue-600 mb-2 opacity-0 group-hover:opacity-100 transition-opacity">S/. 0</div>
+                            <div id="grupal-bar" class="w-full max-w-[60px] bg-gradient-to-t from-blue-600 to-blue-400 rounded-t-lg shadow-lg shadow-blue-200 transition-all duration-700" style="height: 4px;"></div>
+                            <div class="mt-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Grupal</div>
+                        </div>
+                        <div class="flex flex-col items-center w-full group cursor-default">
+                            <div id="indiv-earnings-text" class="text-xs font-bold text-indigo-600 mb-2 opacity-0 group-hover:opacity-100 transition-opacity">S/. 0</div>
+                            <div id="indiv-bar" class="w-full max-w-[60px] bg-gradient-to-t from-indigo-600 to-indigo-400 rounded-t-lg shadow-lg shadow-indigo-200 transition-all duration-700" style="height: 4px;"></div>
+                            <div class="mt-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Individual</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col">
+                    <h3 class="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2">
+                        <div class="p-1.5 bg-red-50 rounded text-red-500"><i data-lucide="map-pin" class="w-5 h-5"></i></div>
+                        Análisis Demográfico
+                    </h3>
+                    <div id="market-list" class="space-y-4 flex-1 overflow-y-auto pr-2 custom-scrollbar">
+                        <!-- Filled by JS -->
+                    </div>
+                    
+                    <button onclick="clearAllData()" class="mt-4 text-xs text-red-500 hover:text-red-700 font-bold underline text-center">Borrar todos los datos (Reiniciar)</button>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- MODAL CARNET (ID CARD) -->
+    <div id="card-modal" class="hidden fixed inset-0 bg-slate-900/60 flex items-center justify-center z-[60] p-4 backdrop-blur-sm transition-opacity" onclick="closeModal()">
+        <div class="bg-white rounded-3xl shadow-2xl p-8 max-w-sm w-full relative transform transition-all scale-100" onclick="event.stopPropagation()">
+            <button onclick="closeModal()" class="absolute top-4 right-4 text-slate-300 hover:text-slate-500 transition-colors"><i data-lucide="x-circle" class="w-6 h-6"></i></button>
+            <h3 class="text-lg font-bold text-slate-800 mb-6 text-center">Credencial Oficial</h3>
+            
+            <!-- Card Visual -->
+            <div class="w-full id-card-bg rounded-2xl overflow-hidden shadow-xl text-white relative h-[450px] flex flex-col border border-white/10">
+                <!-- Decorative Header -->
+                <div class="text-center p-5 border-b border-white/10 bg-white/5 backdrop-blur-sm">
+                    <h4 class="font-black text-xl tracking-wider uppercase drop-shadow-md">Academia Virtual</h4>
+                    <p class="text-[10px] text-blue-200 font-medium tracking-widest mt-1">ESTUDIANTE VALIDADO</p>
+                </div>
+                
+                <div class="flex-1 flex flex-col items-center justify-center p-6 space-y-5">
+                    <!-- Avatar con Placeholder -->
+                    <div class="relative">
+                        <div class="w-28 h-28 bg-white rounded-full flex items-center justify-center border-4 border-blue-300/30 shadow-inner overflow-hidden">
+                            <i data-lucide="user" class="w-12 h-12 text-slate-300"></i>
+                        </div>
+                        <div class="absolute bottom-1 right-1 bg-green-500 border-2 border-white w-5 h-5 rounded-full" title="Activo"></div>
+                    </div>
+
+                    <div class="text-center">
+                        <h2 id="card-name" class="text-2xl font-bold leading-tight drop-shadow-sm">Nombre</h2>
+                        <h2 id="card-lastname" class="text-lg font-medium text-blue-100">Apellido</h2>
+                    </div>
+
+                    <div class="w-full space-y-2 bg-white/10 rounded-xl p-4 backdrop-blur-sm border border-white/5">
+                        <div class="flex justify-between items-center border-b border-white/10 pb-2">
+                            <span class="text-[10px] text-blue-200 uppercase font-bold">Código</span>
+                            <span id="card-code" class="font-mono font-bold text-yellow-300 text-sm">---</span>
+                        </div>
+                        <div class="flex justify-between items-center border-b border-white/10 pb-2 pt-1">
+                            <span class="text-[10px] text-blue-200 uppercase font-bold">Modalidad</span>
+                            <span id="card-modality" class="font-bold text-xs text-white">---</span>
+                        </div>
+                        <div class="flex justify-between items-center pt-1">
+                            <span class="text-[10px] text-blue-200 uppercase font-bold">Renovación</span>
+                            <span id="card-renewal" class="font-bold text-xs text-emerald-300 bg-emerald-900/40 px-2 py-0.5 rounded">---</span>
+                        </div>
+                    </div>
+                    
+                    <div class="text-[10px] text-center text-blue-200/60 max-w-[200px] leading-tight">
+                        <span id="card-classroom" class="block font-bold text-white mb-1">---</span>
+                    </div>
+                </div>
+                
+                <div class="bg-slate-900/40 p-2 text-center backdrop-blur-md">
+                    <p class="text-[9px] text-slate-300 font-mono">ID ÚNICO • CICLO ACADÉMICO 2026</p>
+                </div>
+            </div>
+
+            <button class="mt-6 w-full bg-slate-800 text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-slate-900 transition-colors shadow-lg">
+                <i data-lucide="download" class="w-4 h-4"></i> Descargar Imagen
+            </button>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        // --- DATA ---
+        const QUOTAS = {
+            GRUPAL: { total: 40, regular: 25, discount: 15, classCapacity: 8 }, 
+            INDIVIDUAL: { total: 9, regular: 5, discount: 4, classCapacity: 1 }
+        };
+
+        const INITIAL_CLASSROOMS = [
+            // Lunes y Miércoles (Grupales)
+            { id: 'G-BAS1', name: 'Básico 1 Grupal', type: 'GRUPAL', schedule: 'Lun y Mié (09:00 - 10:00)', enrolled: [], meetLink: 'https://meet.google.com/bas-ico-uno' },
+            { id: 'G-BAS2', name: 'Básico 2 Grupal', type: 'GRUPAL', schedule: 'Lun y Mié (10:30 - 11:30)', enrolled: [], meetLink: 'https://meet.google.com/bas-ico-dos' },
+            { id: 'G-BAS3', name: 'Básico 3 Grupal', type: 'GRUPAL', schedule: 'Lun y Mié (12:00 - 13:00)', enrolled: [], meetLink: 'https://meet.google.com/bas-ico-tres' },
+            { id: 'G-BAS4', name: 'Básico 4 Grupal', type: 'GRUPAL', schedule: 'Lun y Mié (15:00 - 16:00)', enrolled: [], meetLink: 'https://meet.google.com/bas-ico-cua' },
+            { id: 'G-BAS5', name: 'Básico 5 Grupal', type: 'GRUPAL', schedule: 'Lun y Mié (16:30 - 17:30)', enrolled: [], meetLink: 'https://meet.google.com/bas-ico-cin' },
+            // Martes y Jueves (Individuales)
+            { id: 'I-CL1', name: 'Clase Individual 1', type: 'INDIVIDUAL', schedule: 'Mar y Jue (09:00 - 10:00)', enrolled: [], meetLink: 'https://meet.google.com/ind-vid-001' },
+            { id: 'I-CL2', name: 'Clase Individual 2', type: 'INDIVIDUAL', schedule: 'Mar y Jue (10:30 - 11:30)', enrolled: [], meetLink: 'https://meet.google.com/ind-vid-002' },
+            { id: 'I-CL3', name: 'Clase Individual 3', type: 'INDIVIDUAL', schedule: 'Mar y Jue (12:00 - 13:00)', enrolled: [], meetLink: 'https://meet.google.com/ind-vid-003' },
+            { id: 'I-CL4', name: 'Clase Individual 4', type: 'INDIVIDUAL', schedule: 'Mar y Jue (15:00 - 16:00)', enrolled: [], meetLink: 'https://meet.google.com/ind-vid-004' },
+            { id: 'I-CL5', name: 'Clase Individual 5', type: 'INDIVIDUAL', schedule: 'Mar y Jue (16:30 - 17:30)', enrolled: [], meetLink: 'https://meet.google.com/ind-vid-005' },
+            // Sábados (Individuales)
+            { id: 'I-CL6', name: 'Clase Individual 6', type: 'INDIVIDUAL', schedule: 'Sábado (09:00 - 10:00)', enrolled: [], meetLink: 'https://meet.google.com/ind-vid-006' },
+            { id: 'I-CL7', name: 'Clase Individual 7', type: 'INDIVIDUAL', schedule: 'Sábado (10:30 - 11:30)', enrolled: [], meetLink: 'https://meet.google.com/ind-vid-007' },
+            { id: 'I-CL8', name: 'Clase Individual 8', type: 'INDIVIDUAL', schedule: 'Sábado (15:00 - 16:00)', enrolled: [], meetLink: 'https://meet.google.com/ind-vid-008' },
+            { id: 'I-CL9', name: 'Clase Individual 9', type: 'INDIVIDUAL', schedule: 'Sábado (16:30 - 17:30)', enrolled: [], meetLink: 'https://meet.google.com/ind-vid-009' }
+        ];
+
+        const DEPARTAMENTOS = ["Amazonas", "Áncash", "Apurímac", "Arequipa", "Ayacucho", "Cajamarca", "Callao", "Cusco", "Huancavelica", "Huánuco", "Ica", "Junín", "La Libertad", "Lambayeque", "Lima", "Loreto", "Madre de Dios", "Moquegua", "Pasco", "Piura", "Puno", "San Martín", "Tacna", "Tumbes", "Ucayali"];
+
+        // State Global Variables
+        let classrooms = [];
+        let students = [];
+        let counts = { grupalRegular: 0, grupalDiscount: 0, individualRegular: 0, individualDiscount: 0 };
+        let attendanceData = {}; 
+        let currentModality = 'GRUPAL';
+        let hasDiscount = false;
+        let selectedClassroomId = null;
+        let classroomViewFilter = 'GRUPAL';
+
+        // --- INIT ---
+        window.onload = () => {
+            loadSystemData(); // Load data from localStorage
+            initDepartments();
+            updateScheduleOptions();
+            renderQuotas();
+            renderStudentList();
+            renderClassrooms();
+            renderAnalytics();
+            
+            document.getElementById('attendance-date').valueAsDate = new Date();
+            document.getElementById('startDate').value = "2026-01-05";
+            lucide.createIcons();
+        };
+
+        // --- LOCAL STORAGE LOGIC ---
+        function saveSystemData() {
+            const dataToSave = {
+                students: students,
+                attendanceData: attendanceData
+            };
+            localStorage.setItem('academy_sys_v1', JSON.stringify(dataToSave));
+        }
+
+        function loadSystemData() {
+            const savedData = localStorage.getItem('academy_sys_v1');
+            if (savedData) {
+                const parsed = JSON.parse(savedData);
+                students = parsed.students || [];
+                attendanceData = parsed.attendanceData || {};
+                
+                // Reconstruct Classrooms and Counts from Students list
+                classrooms = JSON.parse(JSON.stringify(INITIAL_CLASSROOMS)); // Reset base
+                counts = { grupalRegular: 0, grupalDiscount: 0, individualRegular: 0, individualDiscount: 0 };
+                
+                students.forEach(s => {
+                    // Update Enrolled
+                    const cls = classrooms.find(c => c.id === s.assignedClassId);
+                    if(cls) cls.enrolled.push(s.id);
+                    
+                    // Update Counts
+                    const key = s.modality === 'GRUPAL' ? (s.hasDiscount ? 'grupalDiscount' : 'grupalRegular') : (s.hasDiscount ? 'individualDiscount' : 'individualRegular');
+                    counts[key]++;
+                });
+            } else {
+                // First run
+                classrooms = JSON.parse(JSON.stringify(INITIAL_CLASSROOMS));
+            }
+        }
+
+        function clearAllData() {
+            if(confirm("¿Estás seguro de que quieres borrar TODOS los datos? Esta acción no se puede deshacer.")) {
+                localStorage.removeItem('academy_sys_v1');
+                location.reload();
+            }
+        }
+
+        function switchTab(tabId) {
+            ['registro', 'salones', 'finanzas'].forEach(t => {
+                document.getElementById('tab-' + t).classList.add('hidden');
+                document.getElementById('btn-' + t).classList.remove('bg-white', 'text-blue-700', 'shadow-sm', 'border', 'border-slate-200');
+                document.getElementById('btn-' + t).classList.add('text-slate-500', 'hover:text-slate-700');
+            });
+            document.getElementById('tab-' + tabId).classList.remove('hidden');
+            document.getElementById('btn-' + tabId).classList.add('bg-white', 'text-blue-700', 'shadow-sm');
+            document.getElementById('btn-' + tabId).classList.remove('text-slate-500', 'hover:text-slate-700');
+            
+            if(tabId === 'finanzas') renderAnalytics();
+        }
+
+        // --- LOGIC ---
+        function initDepartments() {
+            const sel = document.getElementById('department');
+            DEPARTAMENTOS.forEach(d => {
+                const opt = document.createElement('option');
+                opt.value = d; opt.innerText = d;
+                sel.appendChild(opt);
+            });
+            sel.value = 'Lima';
+        }
+
+        function calculateAge() {
+            const dob = document.getElementById('dob').value;
+            if(!dob) return;
+            const today = new Date();
+            const birthDate = new Date(dob);
+            let age = today.getFullYear() - birthDate.getFullYear();
+            const m = today.getMonth() - birthDate.getMonth();
+            if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) age--;
+            document.getElementById('age').value = age;
+        }
+
+        function setModality(mod) {
+            currentModality = mod;
+            document.getElementById('btn-mod-grupal').className = `flex-1 py-1.5 rounded-md text-xs font-bold transition-all ${mod === 'GRUPAL' ? 'bg-white text-blue-700 shadow-sm border border-slate-200' : 'text-slate-500 hover:text-slate-700'}`;
+            document.getElementById('btn-mod-individual').className = `flex-1 py-1.5 rounded-md text-xs font-bold transition-all ${mod === 'INDIVIDUAL' ? 'bg-white text-blue-700 shadow-sm border border-slate-200' : 'text-slate-500 hover:text-slate-700'}`;
+            updateScheduleOptions();
+        }
+
+        function toggleDiscount() {
+            hasDiscount = !hasDiscount;
+            const container = document.getElementById('discount-container');
+            const icon = document.getElementById('check-icon');
+            if(hasDiscount) {
+                container.classList.add('border-emerald-500', 'bg-emerald-50');
+                container.classList.remove('border-slate-200', 'bg-white');
+                icon.classList.remove('hidden');
+            } else {
+                container.classList.remove('border-emerald-500', 'bg-emerald-50');
+                container.classList.add('border-slate-200', 'bg-white');
+                icon.classList.add('hidden');
+            }
+        }
+
+        function checkAutoLogic() {
+            const val = parseFloat(document.getElementById('paymentAmount').value);
+            const preview = document.getElementById('duration-preview');
+            
+            if(val === 180 || val === 360) {
+                if(!hasDiscount) toggleDiscount();
+                preview.innerHTML = '<i data-lucide="clock" class="w-3 h-3"></i> Duración: 2 Meses (Enero - Febrero)';
+            } else if (val === 100 || val === 200) {
+                preview.innerHTML = '<i data-lucide="clock" class="w-3 h-3"></i> Duración: 1 Mes';
+            } else {
+                preview.innerHTML = '';
+            }
+            lucide.createIcons();
+        }
+
+        function updateScheduleOptions() {
+            const select = document.getElementById('schedule');
+            select.innerHTML = '';
+            const schedules = [...new Set(classrooms.filter(c => c.type === currentModality).map(c => c.schedule))];
+            schedules.forEach(s => {
+                const opt = document.createElement('option');
+                opt.value = s; opt.innerText = s;
+                select.appendChild(opt);
+            });
+        }
+
+        document.getElementById('registrationForm').onsubmit = function(e) {
+            e.preventDefault();
+            const formData = {
+                guardianName: document.getElementById('guardianName').value,
+                guardianLastName: document.getElementById('guardianLastName').value,
+                guardianDni: document.getElementById('guardianDni').value,
+                guardianPhone: document.getElementById('guardianPhone').value,
+                guardianEmail: document.getElementById('guardianEmail').value,
+                paymentVoucherLink: document.getElementById('paymentVoucherLink').value,
+                paymentAmount: parseFloat(document.getElementById('paymentAmount').value || 0),
+                studentName: document.getElementById('studentName').value,
+                studentLastName: document.getElementById('studentLastName').value,
+                gender: document.getElementById('gender').value,
+                dob: document.getElementById('dob').value,
+                age: document.getElementById('age').value,
+                department: document.getElementById('department').value,
+                modality: currentModality,
+                hasDiscount: hasDiscount,
+                schedule: document.getElementById('schedule').value,
+                startDate: document.getElementById('startDate').value
+            };
+
+            const editId = document.getElementById('edit-id').value;
+            if (editId) {
+                handleUpdate({id: parseInt(editId), ...formData});
+            } else {
+                handleRegister(formData);
+            }
+        };
+
+        function calculateRenewalDate(startDate, amount) {
+            const start = new Date(startDate);
+            let monthsToAdd = 1; 
+            if (amount === 180 || amount === 360) monthsToAdd = 2;
+            const renewalDate = new Date(start.setMonth(start.getMonth() + monthsToAdd));
+            return renewalDate.toLocaleDateString('es-PE');
+        }
+
+        function handleRegister(data) {
+            if(!checkQuota(data.modality, data.hasDiscount)) { alert("No hay cupos disponibles."); return; }
+            const clsIndex = classrooms.findIndex(c => c.type === data.modality && c.schedule === data.schedule && c.enrolled.length < QUOTAS[data.modality].classCapacity);
+            if (clsIndex === -1) { alert("No hay salón disponible en ese horario."); return; }
+
+            const discountCode = data.hasDiscount ? `DESC-26-${Math.random().toString(36).substr(2,4).toUpperCase()}` : null;
+            const renewalDate = calculateRenewalDate(data.startDate, data.paymentAmount);
+            const newStudent = { 
+                ...data, id: Date.now(), assignedClassId: classrooms[clsIndex].id, 
+                discountCode, registrationDate: new Date().toLocaleDateString(), renewalDate
+            };
+
+            students.push(newStudent);
+            classrooms[clsIndex].enrolled.push(newStudent.id);
+            updateCounts(data.modality, data.hasDiscount, 1);
+            
+            saveSystemData(); // SAVE TO LOCAL STORAGE
+
+            alert(`Registrado con éxito. Código: ${discountCode || 'N/A'}`);
+            resetForm(); renderQuotas(); renderStudentList(); renderClassrooms();
+        }
+
+        function handleUpdate(updatedData) {
+            const oldStudent = students.find(s => s.id === updatedData.id);
+            const modalityChanged = oldStudent.modality !== updatedData.modality;
+            const discountChanged = oldStudent.hasDiscount !== updatedData.hasDiscount;
+            const scheduleChanged = oldStudent.schedule !== updatedData.schedule;
+
+            if(modalityChanged || discountChanged || scheduleChanged) {
+                 const max = QUOTAS[updatedData.modality][updatedData.hasDiscount ? 'discount' : 'regular'];
+                 const currentKey = updatedData.modality === 'GRUPAL' ? (updatedData.hasDiscount ? 'grupalDiscount' : 'grupalRegular') : (updatedData.hasDiscount ? 'individualDiscount' : 'individualRegular');
+                 if((modalityChanged || discountChanged) && counts[currentKey] >= max) { alert("Sin cupos para el cambio."); return; }
+                 
+                 const oldCls = classrooms.find(c => c.id === oldStudent.assignedClassId);
+                 if(oldCls) oldCls.enrolled = oldCls.enrolled.filter(id => id !== oldStudent.id);
+                 updateCounts(oldStudent.modality, oldStudent.hasDiscount, -1);
+
+                 const newCls = classrooms.find(c => c.type === updatedData.modality && c.schedule === updatedData.schedule && c.enrolled.length < QUOTAS[updatedData.modality].classCapacity);
+                 if(!newCls) {
+                     alert("Sin salón disponible.");
+                     if(oldCls) oldCls.enrolled.push(oldStudent.id);
+                     updateCounts(oldStudent.modality, oldStudent.hasDiscount, 1);
+                     return;
+                 }
+                 newCls.enrolled.push(updatedData.id);
+                 updatedData.assignedClassId = newCls.id;
+                 updateCounts(updatedData.modality, updatedData.hasDiscount, 1);
+            } else {
+                updatedData.assignedClassId = oldStudent.assignedClassId;
+            }
+            
+            updatedData.renewalDate = calculateRenewalDate(updatedData.startDate, updatedData.paymentAmount);
+            updatedData.discountCode = oldStudent.discountCode;
+            updatedData.registrationDate = oldStudent.registrationDate;
+
+            students = students.map(s => s.id === updatedData.id ? updatedData : s);
+            saveSystemData(); // SAVE TO LOCAL STORAGE
+            
+            alert("Datos actualizados.");
+            resetForm(); renderQuotas(); renderStudentList(); renderClassrooms();
+            if(selectedClassroomId) renderAttendanceTable();
+        }
+
+        function checkQuota(mod, isDisc) {
+            const max = QUOTAS[mod][isDisc ? 'discount' : 'regular'];
+            const key = mod === 'GRUPAL' ? (isDisc ? 'grupalDiscount' : 'grupalRegular') : (isDisc ? 'individualDiscount' : 'individualRegular');
+            return counts[key] < max;
+        }
+
+        function updateCounts(mod, isDisc, delta) {
+            const key = mod === 'GRUPAL' ? (isDisc ? 'grupalDiscount' : 'grupalRegular') : (isDisc ? 'individualDiscount' : 'individualRegular');
+            counts[key] += delta;
+        }
+
+        function resetForm() {
+            document.getElementById('registrationForm').reset();
+            document.getElementById('edit-id').value = '';
+            document.getElementById('form-title').innerHTML = '<div class="p-1.5 bg-blue-50 rounded text-blue-600"><i data-lucide="user-plus" class="w-5 h-5"></i></div> Nuevo Registro';
+            document.getElementById('btn-submit').innerHTML = '<i data-lucide="save" class="w-5 h-5"></i> REGISTRAR ALUMNO';
+            document.getElementById('btn-submit').className = "w-full py-3.5 rounded-xl font-bold text-white shadow-lg shadow-blue-500/30 transform active:scale-[0.98] transition-all bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 flex items-center justify-center gap-2";
+            document.getElementById('btn-cancel-edit').classList.add('hidden');
+            
+            document.getElementById('startDate').value = "2026-01-05";
+            document.getElementById('duration-preview').innerHTML = "";
+            setModality('GRUPAL');
+            hasDiscount = false; toggleDiscount(); hasDiscount = false;
+            lucide.createIcons();
+        }
+
+        function editStudent(id) {
+            const s = students.find(st => st.id === id);
+            if(!s) return;
+            
+            document.getElementById('edit-id').value = s.id;
+            document.getElementById('guardianDni').value = s.guardianDni;
+            document.getElementById('guardianName').value = s.guardianName;
+            document.getElementById('guardianLastName').value = s.guardianLastName;
+            document.getElementById('guardianPhone').value = s.guardianPhone;
+            document.getElementById('guardianEmail').value = s.guardianEmail;
+            document.getElementById('paymentVoucherLink').value = s.paymentVoucherLink;
+            document.getElementById('paymentAmount').value = s.paymentAmount;
+            document.getElementById('studentName').value = s.studentName;
+            document.getElementById('studentLastName').value = s.studentLastName;
+            document.getElementById('gender').value = s.gender;
+            document.getElementById('dob').value = s.dob;
+            document.getElementById('age').value = s.age;
+            document.getElementById('department').value = s.department;
+            
+            document.getElementById('startDate').value = s.startDate || "2026-01-05";
+            checkAutoLogic(); 
+
+            setModality(s.modality);
+            if(s.hasDiscount !== hasDiscount) toggleDiscount();
+            setTimeout(() => { document.getElementById('schedule').value = s.schedule; }, 0);
+
+            document.getElementById('form-title').innerHTML = '<div class="p-1.5 bg-orange-50 rounded text-orange-500"><i data-lucide="edit-3" class="w-5 h-5"></i></div> Editar Alumno';
+            document.getElementById('btn-submit').innerHTML = '<i data-lucide="refresh-cw" class="w-5 h-5"></i> GUARDAR CAMBIOS';
+            document.getElementById('btn-submit').className = "w-full py-3.5 rounded-xl font-bold text-white shadow-lg shadow-orange-500/30 transform active:scale-[0.98] transition-all bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 flex items-center justify-center gap-2";
+            document.getElementById('btn-cancel-edit').classList.remove('hidden');
+            
+            switchTab('registro');
+            lucide.createIcons();
+        }
+
+        function renderQuotas() {
+            const container = document.getElementById('quota-container');
+            const makeCard = (title, reg, maxR, disc, maxD, color) => `
+                <div class="p-3 rounded-xl border border-slate-100 bg-slate-50/50 hover:bg-white transition-colors">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="font-bold text-slate-700 text-xs uppercase flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full ${color === 'blue' ? 'bg-blue-500' : 'bg-indigo-500'}"></span> ${title}
+                        </span>
+                    </div>
+                    <div class="flex gap-2 text-xs">
+                        <div class="flex-1 bg-white p-2 rounded-lg border border-slate-200 text-center">
+                            <span class="block text-slate-400 text-[9px] uppercase tracking-wider mb-0.5">Regular</span>
+                            <span class="font-black text-slate-700 text-sm">${reg}/${maxR}</span>
+                        </div>
+                        <div class="flex-1 bg-white p-2 rounded-lg border border-slate-200 text-center">
+                            <span class="block text-slate-400 text-[9px] uppercase tracking-wider mb-0.5">Dscto</span>
+                            <span class="font-black text-sm ${disc===0?'text-red-500':'text-emerald-500'}">${disc}/${maxD}</span>
+                        </div>
+                    </div>
+                </div>`;
+            container.innerHTML = 
+                makeCard("Grupal", QUOTAS.GRUPAL.regular - counts.grupalRegular, QUOTAS.GRUPAL.regular, QUOTAS.GRUPAL.discount - counts.grupalDiscount, QUOTAS.GRUPAL.discount, 'blue') +
+                makeCard("Individual", QUOTAS.INDIVIDUAL.regular - counts.individualRegular, QUOTAS.INDIVIDUAL.regular, QUOTAS.INDIVIDUAL.discount - counts.individualDiscount, QUOTAS.INDIVIDUAL.discount, 'indigo');
+        }
+
+        function renderStudentList() {
+            const term = document.getElementById('search-input').value.toLowerCase();
+            const list = document.getElementById('student-list');
+            list.innerHTML = '';
+            
+            const filtered = students.filter(s => s.studentName.toLowerCase().includes(term) || s.studentLastName.toLowerCase().includes(term));
+            document.getElementById('student-count').innerText = filtered.length;
+
+            if(filtered.length === 0) { list.innerHTML = '<div class="text-center py-8 text-slate-400 text-xs italic">No se encontraron resultados</div>'; return; }
+
+            filtered.forEach(s => {
+                const el = document.createElement('div');
+                el.className = 'p-3 rounded-xl border border-slate-100 bg-white hover:border-blue-200 hover:shadow-md transition-all flex justify-between items-center group cursor-pointer';
+                el.onclick = () => editStudent(s.id);
+                el.innerHTML = `
+                    <div class="min-w-0 pr-2">
+                        <p class="font-bold text-slate-700 text-sm truncate">${s.studentLastName}, ${s.studentName}</p>
+                        <p class="text-[10px] text-slate-400 truncate font-medium mt-0.5">${s.schedule}</p>
+                    </div>
+                    <div class="flex gap-1">
+                        <button onclick="event.stopPropagation(); showCard(${s.id})" class="p-1.5 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors" title="Carnet"><i data-lucide="id-card" class="w-4 h-4"></i></button>
+                    </div>
+                `;
+                list.appendChild(el);
+            });
+            lucide.createIcons();
+        }
+
+        function filterClassrooms(type) {
+            classroomViewFilter = type;
+            document.getElementById('filter-grupal').className = `px-6 py-2 rounded-lg text-sm font-bold transition-all ${type === 'GRUPAL' ? 'bg-blue-50 text-blue-700 border border-blue-100' : 'text-slate-500 hover:bg-slate-50 border border-transparent'}`;
+            document.getElementById('filter-individual').className = `px-6 py-2 rounded-lg text-sm font-bold transition-all ${type === 'INDIVIDUAL' ? 'bg-blue-50 text-blue-700 border border-blue-100' : 'text-slate-500 hover:bg-slate-50 border border-transparent'}`;
+            selectedClassroomId = null;
+            document.getElementById('classroom-detail-empty').classList.remove('hidden');
+            document.getElementById('classroom-detail-content').classList.add('hidden');
+            renderClassrooms();
+        }
+
+        function renderClassrooms() {
+            const list = document.getElementById('classroom-list');
+            list.innerHTML = '';
+            classrooms.filter(c => c.type === classroomViewFilter).forEach(c => {
+                const isFull = c.enrolled.length >= QUOTAS[c.type].classCapacity;
+                const isSelected = selectedClassroomId === c.id;
+                const div = document.createElement('div');
+                div.className = `p-4 rounded-xl border cursor-pointer transition-all ${isSelected ? 'border-blue-500 bg-blue-50/50 shadow-md ring-1 ring-blue-500' : 'border-slate-200 bg-white hover:border-blue-300 hover:shadow-sm'}`;
+                div.onclick = () => selectClassroom(c.id);
+                div.innerHTML = `
+                    <div class="flex justify-between items-start mb-2"><h3 class="font-bold text-slate-700 text-sm leading-tight">${c.name}</h3><span class="text-[10px] font-mono bg-slate-100 px-1.5 py-0.5 rounded text-slate-500">${c.id}</span></div>
+                    <div class="flex items-center gap-1.5 text-xs text-slate-500 mb-3"><i data-lucide="clock" class="w-3 h-3"></i><span>${c.schedule}</span></div>
+                    <div class="flex justify-between items-center text-[10px] font-bold"><span class="bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">${c.enrolled.length} Inscritos</span>${isFull ? '<span class="text-red-500">LLENO</span>' : ''}</div>
+                `;
+                list.appendChild(div);
+            });
+            lucide.createIcons();
+        }
+
+        function selectClassroom(id) {
+            selectedClassroomId = id;
+            renderClassrooms();
+            const cls = classrooms.find(c => c.id === id);
+            document.getElementById('classroom-detail-empty').classList.add('hidden');
+            document.getElementById('classroom-detail-content').classList.remove('hidden');
+            document.getElementById('detail-name').innerText = cls.name;
+            document.getElementById('detail-meet-btn').href = cls.meetLink;
+            document.getElementById('detail-link-input').value = cls.meetLink;
+            renderAttendanceTable();
+        }
+
+        function updateClassroomLink() {
+            if(!selectedClassroomId) return;
+            const newLink = document.getElementById('detail-link-input').value;
+            const cls = classrooms.find(c => c.id === selectedClassroomId);
+            cls.meetLink = newLink;
+            document.getElementById('detail-meet-btn').href = newLink;
+        }
+
+        function renderAttendanceTable() {
+            if(!selectedClassroomId) return;
+            const cls = classrooms.find(c => c.id === selectedClassroomId);
+            const classStudents = students.filter(s => cls.enrolled.includes(s.id));
+            const tbody = document.getElementById('attendance-tbody');
+            tbody.innerHTML = '';
+            
+            const date = document.getElementById('attendance-date').value;
+            
+            if(classStudents.length === 0) { document.getElementById('no-students-msg').classList.remove('hidden'); } 
+            else {
+                document.getElementById('no-students-msg').classList.add('hidden');
+                classStudents.forEach(s => {
+                    const status = attendanceData[date] && attendanceData[date][s.id];
+                    const tr = document.createElement('tr');
+                    tr.className = 'hover:bg-slate-50 transition-colors group';
+                    tr.innerHTML = `
+                        <td class="px-6 py-4 border-b border-slate-50"><div class="font-bold text-sm text-slate-700">${s.studentLastName}, ${s.studentName}</div><div class="text-[10px] text-blue-500 font-medium flex gap-1 mt-0.5"><a href="${s.paymentVoucherLink}" target="_blank" class="hover:underline flex items-center gap-1"><i data-lucide="external-link" class="w-3 h-3"></i> Voucher</a></div></td>
+                        <td class="px-6 py-4 border-b border-slate-50 text-center">${status ? `<span class="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide ${status==='A'?'bg-emerald-100 text-emerald-700':status==='F'?'bg-red-100 text-red-700':'bg-amber-100 text-amber-700'}">${status === 'A' ? 'Presente' : status === 'F' ? 'Falta' : 'Tardanza'}</span>` : '<span class="text-slate-300 text-xs">-</span>'}</td>
+                        <td class="px-6 py-4 border-b border-slate-50 text-right">
+                            <div class="flex justify-end gap-1 opacity-100 lg:opacity-0 group-hover:opacity-100 transition-opacity">
+                                <button onclick="markAttendance(${s.id}, 'A')" class="w-8 h-8 rounded-lg border text-xs font-bold transition-all ${status==='A'?'bg-emerald-500 text-white border-emerald-500 shadow-md shadow-emerald-200':'text-emerald-600 border-emerald-100 hover:bg-emerald-50'}">A</button>
+                                <button onclick="markAttendance(${s.id}, 'T')" class="w-8 h-8 rounded-lg border text-xs font-bold transition-all ${status==='T'?'bg-amber-400 text-white border-amber-400 shadow-md shadow-amber-200':'text-amber-500 border-amber-100 hover:bg-amber-50'}">T</button>
+                                <button onclick="markAttendance(${s.id}, 'F')" class="w-8 h-8 rounded-lg border text-xs font-bold transition-all ${status==='F'?'bg-red-500 text-white border-red-500 shadow-md shadow-red-200':'text-red-500 border-red-100 hover:bg-red-50'}">F</button>
+                            </div>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            }
+            lucide.createIcons();
+        }
+
+        function markAttendance(studentId, status) {
+            const date = document.getElementById('attendance-date').value;
+            if(!attendanceData[date]) attendanceData[date] = {};
+            attendanceData[date][studentId] = status;
+            saveSystemData(); // SAVE TO LOCAL STORAGE
+            renderAttendanceTable();
+        }
+
+        function renderAnalytics() {
+            const total = students.reduce((acc, s) => acc + s.paymentAmount, 0);
+            const grupal = students.filter(s => s.modality === 'GRUPAL').reduce((acc, s) => acc + s.paymentAmount, 0);
+            const indiv = students.filter(s => s.modality === 'INDIVIDUAL').reduce((acc, s) => acc + s.paymentAmount, 0);
+            const max = Math.max(grupal, indiv, 1);
+
+            document.getElementById('total-earnings').innerText = total.toFixed(2);
+            document.getElementById('grupal-earnings-text').innerText = 'S/. ' + grupal;
+            document.getElementById('indiv-earnings-text').innerText = 'S/. ' + indiv;
+            document.getElementById('grupal-bar').style.height = Math.max(4, (grupal/max)*100) + '%';
+            document.getElementById('indiv-bar').style.height = Math.max(4, (indiv/max)*100) + '%';
+
+            const counts = {};
+            students.forEach(s => counts[s.department] = (counts[s.department] || 0) + 1);
+            const sorted = Object.entries(counts).sort(([,a], [,b]) => b - a);
+            const list = document.getElementById('market-list');
+            list.innerHTML = '';
+            
+            if(sorted.length === 0) list.innerHTML = '<p class="text-center text-slate-300 text-xs mt-10">No hay datos registrados aún.</p>';
+            
+            sorted.forEach(([name, count], i) => {
+                const pct = (count / students.length) * 100;
+                list.innerHTML += `
+                    <div class="mb-3">
+                        <div class="flex justify-between text-xs mb-1.5 font-medium">
+                            <span class="text-slate-600 flex items-center gap-2">
+                                <span class="w-4 h-4 rounded-full bg-slate-100 flex items-center justify-center text-[9px] font-bold text-slate-500">${i+1}</span>
+                                ${name}
+                            </span>
+                            <span class="text-slate-800 font-bold">${count}</span>
+                        </div>
+                        <div class="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
+                            <div class="bg-red-500 h-1.5 rounded-full" style="width: ${pct}%"></div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        // --- ID CARD FIX: SAFETY CHECKS ---
+        function showCard(id) {
+            console.log("Opening card for:", id);
+            // Uso de igualdad laxa (==) para evitar problemas de tipos string/number
+            const s = students.find(st => st.id == id);
+            
+            if (!s) {
+                alert("Error: No se encontró la información del alumno.");
+                return;
+            }
+
+            // Manejo seguro si el salón fue eliminado en una actualización previa
+            const cls = classrooms.find(c => c.id === s.assignedClassId);
+            const classroomName = cls ? cls.name : 'Sin Asignación (Salón Eliminado)';
+
+            // Elementos DOM
+            const nameEl = document.getElementById('card-name');
+            const lastEl = document.getElementById('card-lastname');
+            const codeEl = document.getElementById('card-code');
+            const modEl = document.getElementById('card-modality');
+            const classEl = document.getElementById('card-classroom');
+            const renewEl = document.getElementById('card-renewal');
+
+            // Asignación segura
+            if(nameEl) nameEl.innerText = s.studentName || 'Sin Nombre';
+            if(lastEl) lastEl.innerText = s.studentLastName || '';
+            if(codeEl) codeEl.innerText = s.discountCode || `STU-${s.id}`;
+            if(modEl) modEl.innerText = s.modality || '-';
+            if(classEl) classEl.innerText = classroomName;
+            if(renewEl) renewEl.innerText = s.renewalDate || '---';
+            
+            const modal = document.getElementById('card-modal');
+            if(modal) {
+                modal.classList.remove('hidden');
+                modal.style.display = 'flex'; // Forzar display flex
+            }
+            
+            if(window.lucide) lucide.createIcons();
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('card-modal');
+            if(modal) {
+                modal.classList.add('hidden');
+                modal.style.display = ''; // Limpiar estilo inline
+            }
+        }
+    </script>
+</body>
+</html>
