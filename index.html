@@ -161,14 +161,6 @@
                                 <p class="text-[10px] text-slate-400 mt-1">* Se muestran solo horarios con vacantes disponibles.</p>
                             </div>
                             
-                            <div class="bg-blue-50/50 p-4 rounded-xl border border-blue-100/50">
-                                <label class="label-classic flex items-center gap-2">
-                                    <i data-lucide="play-circle" class="w-3.5 h-3.5 text-blue-600"></i> Link de Clases Grabadas
-                                </label>
-                                <input id="recordedClassesLink" placeholder="https://drive.google.com/..." class="input-classic border-blue-200 focus:border-blue-500">
-                                <p class="text-[10px] text-blue-400 mt-1.5 font-medium">Este enlace aparecerá en el portal del alumno para que acceda a sus grabaciones.</p>
-                            </div>
-
                         </div>
                         <div class="pt-4">
                             <button type="submit" id="btn-submit" class="w-full py-3.5 rounded-xl font-bold text-white shadow-lg shadow-blue-500/30 transform active:scale-[0.98] transition-all bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 flex items-center justify-center gap-2">
@@ -182,16 +174,6 @@
                     <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 shrink-0">
                         <h3 class="text-sm font-bold text-slate-800 mb-4 uppercase tracking-wide">Cupos Generales</h3>
                         <div id="quota-container" class="space-y-3"></div>
-                    </div>
-                    
-                    <!-- Widget informativo -->
-                    <div class="bg-gradient-to-br from-indigo-600 to-blue-700 p-5 rounded-2xl shadow-lg text-white flex-1 flex flex-col justify-center items-center text-center">
-                        <div class="mb-4 bg-white/20 p-3 rounded-full backdrop-blur-sm">
-                            <i data-lucide="database" class="w-8 h-8 text-white"></i>
-                        </div>
-                        <h3 class="text-lg font-bold mb-2">Base de Datos Centralizada</h3>
-                        <p class="text-sm text-blue-100 leading-relaxed mb-4">Gestiona, busca y administra todos los alumnos desde la nueva pestaña "Base de Datos".</p>
-                        <button onclick="switchTab('database')" class="bg-white text-blue-700 px-4 py-2 rounded-lg text-sm font-bold hover:bg-blue-50 transition-colors shadow-sm">Ir a Base de Datos</button>
                     </div>
                 </div>
             </section>
@@ -683,8 +665,7 @@
                 modality: window.currentModality,
                 hasDiscount: window.hasDiscount,
                 schedule: document.getElementById('schedule').value,
-                startDate: document.getElementById('startDate').value,
-                recordedClassesLink: document.getElementById('recordedClassesLink').value
+                startDate: document.getElementById('startDate').value
             };
             const editId = document.getElementById('edit-id').value;
             if (editId) handleUpdate({id: parseInt(editId), ...formData});
@@ -753,7 +734,6 @@
             document.getElementById('btn-cancel-edit').classList.add('hidden');
             document.getElementById('startDate').value = new Date().toISOString().split('T')[0];
             document.getElementById('duration-preview').innerHTML = "";
-            document.getElementById('recordedClassesLink').value = ""; 
             setModality('GRUPAL');
             window.hasDiscount = false; toggleDiscount(); window.hasDiscount = false;
             lucide.createIcons();
@@ -777,7 +757,6 @@
             document.getElementById('age').value = s.age;
             document.getElementById('department').value = s.department;
             document.getElementById('startDate').value = s.startDate;
-            document.getElementById('recordedClassesLink').value = s.recordedClassesLink || ""; 
             checkAutoLogic();
             setModality(s.modality);
             if(s.hasDiscount !== window.hasDiscount) toggleDiscount();
@@ -798,7 +777,8 @@
             let filtered = window.students.filter(s => 
                 s.studentName.toLowerCase().includes(term) || 
                 s.studentLastName.toLowerCase().includes(term) ||
-                (s.discountCode && s.discountCode.toLowerCase().includes(term))
+                (s.discountCode && s.discountCode.toLowerCase().includes(term)) ||
+                (!s.discountCode && `stu-${s.id}`.includes(term)) // Búsqueda fallback por ID
             );
 
             document.getElementById('db-count').innerText = filtered.length;
@@ -824,7 +804,7 @@
                     <td class="px-4 py-3 align-middle">${statusBadge}</td>
                     <td class="px-4 py-3 align-middle">
                         <div class="font-bold text-sm text-slate-700">${s.studentLastName}, ${s.studentName}</div>
-                        <div class="text-[10px] font-mono text-slate-400">${s.discountCode || 'S/C'}</div>
+                        <div class="text-[10px] font-mono text-slate-400">${s.discountCode || 'STU-' + s.id}</div>
                     </td>
                     <td class="px-4 py-3 align-middle"><div class="text-xs text-slate-600 bg-slate-100 px-2 py-1 rounded inline-block">${clsName}</div></td>
                     <td class="px-4 py-3 align-middle font-mono text-xs font-bold ${s.active ? 'text-blue-600' : 'text-slate-400'}">
