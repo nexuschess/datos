@@ -7,296 +7,238 @@
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
-    <!-- Marked para renderizar Markdown de la IA -->
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Oswald:wght@400;500;700&display=swap" rel="stylesheet">
 
     <style>
-        body { 
-            font-family: 'Inter', sans-serif; 
-            background-color: #f8fafc;
-            background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
-            background-size: 24px 24px;
-        }
-        
-        /* Scrollbar Premium */
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+        body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
-        
-        /* Utilidades */
         .hidden { display: none !important; }
-        .fade-in { animation: fadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+        .fade-in { animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .input-classic { width: 100%; padding: 0.65rem 0.75rem; border: 1px solid #e2e8f0; border-radius: 0.5rem; font-size: 0.875rem; transition: all 0.2s; background-color: #fff; }
+        .input-classic:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
+        .label-classic { display: block; font-size: 0.75rem; font-weight: 600; color: #64748b; text-transform: uppercase; margin-bottom: 0.25rem; }
         
-        /* Inputs Modernos */
-        .input-classic { width: 100%; padding: 0.75rem 1rem; border: 1px solid #e2e8f0; border-radius: 0.75rem; font-size: 0.875rem; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); background-color: #fff; color: #334155; }
-        .input-classic:focus { outline: none; border-color: #6366f1; box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1); }
-        .input-classic::placeholder { color: #94a3b8; }
-        .label-classic { display: block; font-size: 0.70rem; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.35rem; }
-        
-        /* Glass Effect */
-        .glass-panel { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(8px); border: 1px solid rgba(255, 255, 255, 0.5); }
-
-        /* Markdown Styles para IA */
-        .prose-sm p { margin-bottom: 0.5em; }
-        .prose-sm strong { color: #4f46e5; font-weight: 700; }
-        .prose-sm ul { list-style-type: disc; padding-left: 1.5em; margin-bottom: 0.5em; }
-
         /* Estilos Carnet */
-        .pro-card { width: 320px; height: 500px; background: linear-gradient(145deg, #0f172a 0%, #1e293b 100%); border-radius: 24px; position: relative; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); font-family: 'Inter', sans-serif; border: 1px solid rgba(255,255,255,0.1); }
-        .pro-card::before { content: ''; position: absolute; inset: 0; background-image: radial-gradient(circle at 10% 10%, rgba(56, 189, 248, 0.1) 1px, transparent 1px), radial-gradient(circle at 90% 90%, rgba(168, 85, 247, 0.1) 1px, transparent 1px); background-size: 20px 20px; opacity: 0.6; }
-        .card-header-glow { position: absolute; top: -60px; left: -60px; width: 220px; height: 220px; background: radial-gradient(circle, rgba(59,130,246,0.5) 0%, transparent 70%); filter: blur(30px); }
-        .card-chip { width: 48px; height: 36px; background: linear-gradient(135deg, #fbbf24 0%, #b45309 100%); border-radius: 8px; position: relative; overflow: hidden; border: 1px solid rgba(255,255,255,0.2); box-shadow: inset 0 0 10px rgba(0,0,0,0.2); }
-        .card-chip::after { content: ''; position: absolute; inset: 0; border: 1px solid rgba(0,0,0,0.2); border-radius: 8px; background: repeating-linear-gradient(90deg, transparent 0, transparent 10px, rgba(0,0,0,0.1) 10px, rgba(0,0,0,0.1) 12px); }
-        .hologram-strip { position: absolute; bottom: 85px; right: -20px; width: 150px; height: 150px; background: linear-gradient(135deg, transparent 40%, rgba(255,255,255,0.15) 50%, transparent 60%); transform: rotate(-45deg); pointer-events: none; }
-        .qr-placeholder { width: 64px; height: 64px; background: white; padding: 4px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+        .pro-card { width: 320px; height: 500px; background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); border-radius: 20px; position: relative; overflow: hidden; box-shadow: 0 20px 40px -10px rgba(0,0,0,0.5); font-family: 'Inter', sans-serif; border: 1px solid rgba(255,255,255,0.1); }
+        .pro-card::before { content: ''; position: absolute; inset: 0; background-image: radial-gradient(circle at 10% 10%, rgba(56, 189, 248, 0.1) 1px, transparent 1px), radial-gradient(circle at 90% 90%, rgba(168, 85, 247, 0.1) 1px, transparent 1px); background-size: 20px 20px; opacity: 0.5; }
+        .card-header-glow { position: absolute; top: -50px; left: -50px; width: 200px; height: 200px; background: radial-gradient(circle, rgba(59,130,246,0.4) 0%, transparent 70%); filter: blur(20px); }
+        .card-chip { width: 45px; height: 35px; background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%); border-radius: 6px; position: relative; overflow: hidden; border: 1px solid rgba(255,255,255,0.2); box-shadow: inset 0 0 10px rgba(0,0,0,0.2); }
+        .card-chip::after { content: ''; position: absolute; inset: 0; border: 1px solid rgba(0,0,0,0.3); border-radius: 6px; background: repeating-linear-gradient(90deg, transparent 0, transparent 10px, rgba(0,0,0,0.1) 10px, rgba(0,0,0,0.1) 11px); }
+        .hologram-strip { position: absolute; bottom: 85px; right: -20px; width: 150px; height: 150px; background: linear-gradient(135deg, transparent 40%, rgba(255,255,255,0.1) 50%, transparent 60%); transform: rotate(-45deg); pointer-events: none; }
+        .qr-placeholder { width: 60px; height: 60px; background: white; padding: 4px; border-radius: 8px; }
         
         /* Status Badges */
-        .status-badge { padding: 4px 10px; border-radius: 999px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; display: inline-flex; align-items: center; gap: 4px; }
-        .status-active { background-color: #ecfdf5; color: #059669; border: 1px solid #a7f3d0; }
-        .status-inactive { background-color: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
+        .status-badge { padding: 2px 8px; border-radius: 999px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+        .status-active { background-color: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
+        .status-inactive { background-color: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; }
 
         /* Tooltip Arrow */
         .tooltip-arrow { position: absolute; bottom: -4px; left: 50%; transform: translateX(-50%) rotate(45deg); width: 8px; height: 8px; background-color: #1e293b; }
     </style>
 </head>
-<body class="text-slate-800 h-screen flex flex-col overflow-hidden relative antialiased selection:bg-indigo-100 selection:text-indigo-700">
+<body class="text-slate-800 h-screen flex flex-col overflow-hidden relative">
 
-    <div id="loader" class="absolute inset-0 z-[100] bg-white flex flex-col items-center justify-center transition-opacity duration-500">
-        <div class="relative">
-            <div class="w-16 h-16 border-4 border-slate-100 border-t-indigo-600 rounded-full animate-spin"></div>
-            <div class="absolute inset-0 flex items-center justify-center">
-                <div class="w-2 h-2 bg-indigo-600 rounded-full"></div>
-            </div>
-        </div>
-        <p class="mt-6 text-xs font-bold text-slate-400 uppercase tracking-widest animate-pulse">Cargando Sistema...</p>
+    <div id="loader" class="absolute inset-0 z-[100] bg-white flex flex-col items-center justify-center">
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-900"></div>
+        <p class="mt-4 text-sm font-bold text-slate-500 animate-pulse">Conectando con la Nube...</p>
     </div>
 
-    <!-- Header Glassmorphism -->
-    <header class="sticky top-0 z-50 shrink-0 border-b border-white/50 bg-white/80 backdrop-blur-md shadow-sm">
+    <header class="bg-white border-b border-gray-200 sticky top-0 z-50 shrink-0">
         <div class="max-w-7xl mx-auto px-4 py-3 flex flex-col md:flex-row justify-between items-center gap-4">
-            <div class="flex items-center gap-4">
-                <div class="h-11 w-11 bg-gradient-to-br from-indigo-900 to-slate-900 rounded-xl flex items-center justify-center text-white shadow-lg shadow-indigo-900/20 transform hover:scale-105 transition-transform duration-300">
-                    <i data-lucide="layout-grid" class="h-6 w-6"></i>
+            <div class="flex items-center gap-3">
+                <div class="h-10 w-10 bg-blue-900 rounded-lg flex items-center justify-center text-white shadow-md">
+                    <i data-lucide="server" class="h-6 w-6"></i>
                 </div>
                 <div>
-                    <h1 class="text-xl font-bold text-slate-800 leading-none tracking-tight">Nexus Chess <span class="font-light text-slate-400">|</span> Admin</h1>
-                    <div class="flex items-center gap-2 mt-0.5">
-                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                        <span class="text-[10px] text-slate-500 font-semibold uppercase tracking-wider">Sistema Online</span>
-                    </div>
+                    <h1 class="text-xl font-bold text-slate-800 leading-none">Academia Virtual <span class="text-blue-600 text-xs bg-blue-50 px-2 py-0.5 rounded-full ml-1 border border-blue-100">ONLINE</span></h1>
+                    <span class="text-xs text-slate-500 font-medium">Panel de Administración</span>
                 </div>
             </div>
-            <nav class="flex p-1.5 bg-slate-100/50 rounded-xl overflow-x-auto max-w-full border border-white/50 backdrop-blur-sm">
-                <button onclick="switchTab('registro')" id="btn-registro" class="whitespace-nowrap px-5 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 transition-all bg-white text-indigo-700 shadow-sm ring-1 ring-black/5">
+            <nav class="flex p-1 bg-gray-100 rounded-xl overflow-x-auto max-w-full">
+                <button onclick="switchTab('registro')" id="btn-registro" class="whitespace-nowrap px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 transition-all bg-white text-blue-700 shadow-sm">
                     <i data-lucide="user-plus" class="w-4 h-4"></i> Registro
                 </button>
-                <button onclick="switchTab('salones')" id="btn-salones" class="whitespace-nowrap px-5 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition-all text-slate-500 hover:text-slate-900 hover:bg-white/60">
+                <button onclick="switchTab('salones')" id="btn-salones" class="whitespace-nowrap px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 transition-all text-slate-500 hover:text-slate-700">
                     <i data-lucide="clipboard-list" class="w-4 h-4"></i> Aulas
                 </button>
-                <button onclick="switchTab('finanzas')" id="btn-finanzas" class="whitespace-nowrap px-5 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition-all text-slate-500 hover:text-slate-900 hover:bg-white/60">
+                <button onclick="switchTab('finanzas')" id="btn-finanzas" class="whitespace-nowrap px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 transition-all text-slate-500 hover:text-slate-700">
                     <i data-lucide="bar-chart-3" class="w-4 h-4"></i> Finanzas
                 </button>
-                <button onclick="switchTab('database')" id="btn-database" class="whitespace-nowrap px-5 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition-all text-slate-500 hover:text-slate-900 hover:bg-white/60">
-                    <i data-lucide="database" class="w-4 h-4"></i> Data
+                <button onclick="switchTab('database')" id="btn-database" class="whitespace-nowrap px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 transition-all text-slate-500 hover:text-slate-700">
+                    <i data-lucide="database" class="w-4 h-4"></i> Base de Datos
                 </button>
             </nav>
         </div>
     </header>
 
-    <main class="flex-1 overflow-auto p-4 md:p-6 w-full">
+    <main class="flex-1 overflow-auto bg-slate-50/50 p-4 md:p-6 w-full">
         <div class="max-w-7xl mx-auto h-full">
             
             <!-- TAB REGISTRO -->
-            <section id="tab-registro" class="fade-in grid grid-cols-1 lg:grid-cols-12 gap-6 h-full pb-10">
-                <div class="lg:col-span-8 bg-white p-8 rounded-3xl shadow-lg shadow-slate-200/50 border border-slate-100 overflow-y-auto custom-scrollbar">
-                    <div class="flex justify-between items-center mb-8 pb-4 border-b border-slate-50">
-                        <h2 id="form-title" class="text-xl font-bold text-slate-800 flex items-center gap-3">
-                            <div class="p-2 bg-indigo-50 rounded-lg text-indigo-600"><i data-lucide="user-plus" class="w-5 h-5"></i></div>
+            <section id="tab-registro" class="fade-in grid grid-cols-1 lg:grid-cols-12 gap-6 h-full">
+                <div class="lg:col-span-8 bg-white p-6 rounded-2xl shadow-sm border border-slate-200 overflow-y-auto custom-scrollbar">
+                    <div class="flex justify-between items-center mb-6 pb-4 border-b border-slate-100">
+                        <h2 id="form-title" class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                            <div class="p-1.5 bg-blue-50 rounded text-blue-600"><i data-lucide="user-plus" class="w-5 h-5"></i></div>
                             Nuevo Registro
                         </h2>
-                        <button id="btn-cancel-edit" onclick="resetForm()" class="hidden px-4 py-2 text-xs font-bold text-slate-500 hover:text-red-600 flex items-center gap-2 bg-slate-50 hover:bg-red-50 rounded-lg transition-colors border border-slate-200 hover:border-red-100">
-                            <i data-lucide="x" class="w-3 h-3"></i> Cancelar
+                        <button id="btn-cancel-edit" onclick="resetForm()" class="hidden text-xs font-bold text-slate-500 hover:text-red-500 flex items-center gap-1 bg-slate-100 px-3 py-1.5 rounded-full transition-colors">
+                            <i data-lucide="x" class="w-3 h-3"></i> Cancelar Edición
                         </button>
                     </div>
 
-                    <form id="registrationForm" class="space-y-8">
+                    <form id="registrationForm" class="space-y-6">
                         <input type="hidden" id="edit-id" value="">
-                        <!-- Sección 1 -->
-                        <div class="space-y-5">
-                            <h3 class="text-xs font-bold text-indigo-600 uppercase tracking-widest flex items-center gap-3">
-                                <span class="w-6 h-6 rounded-full bg-indigo-100 flex items-center justify-center text-[10px] ring-4 ring-white">1</span> Datos del Apoderado
+                        <div class="space-y-4">
+                            <h3 class="text-xs font-bold text-blue-600 uppercase tracking-wider flex items-center gap-2">
+                                <span class="w-5 h-5 rounded-full bg-blue-100 flex items-center justify-center text-[10px]">1</span> Datos del Apoderado
                             </h3>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-5 pl-3 border-l-2 border-slate-100">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div><label class="label-classic">DNI Apoderado</label><input required id="guardianDni" placeholder="Ingrese DNI" class="input-classic"></div>
                                 <div><label class="label-classic">Nombres</label><input required id="guardianName" placeholder="Nombres" class="input-classic"></div>
                                 <div><label class="label-classic">Apellidos</label><input required id="guardianLastName" placeholder="Apellidos" class="input-classic"></div>
                                 <div><label class="label-classic">Teléfono</label><input required id="guardianPhone" placeholder="999 999 999" class="input-classic"></div>
                                 <div class="md:col-span-2"><label class="label-classic">Correo Electrónico</label><input required id="guardianEmail" type="email" placeholder="email@ejemplo.com" class="input-classic"></div>
-                                
-                                <div class="md:col-span-2 bg-slate-50 p-5 rounded-2xl border border-slate-200/60 mt-2 shadow-inner">
-                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                                        <div><label class="label-classic">Link del Voucher</label><input required id="paymentVoucherLink" placeholder="https://..." class="input-classic bg-white"></div>
-                                        <div>
-                                            <label class="label-classic">Monto Pagado (S/.)</label>
-                                            <div class="relative">
-                                                <span class="absolute left-3 top-3 text-slate-400 font-bold">S/.</span>
-                                                <input required id="paymentAmount" type="number" placeholder="0.00" oninput="checkAutoLogic()" class="input-classic pl-10 font-bold text-slate-700 bg-white">
-                                            </div>
-                                        </div>
+                                <div class="md:col-span-2 bg-slate-50 p-4 rounded-xl border border-slate-200 mt-2">
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div><label class="label-classic">Link del Voucher</label><input required id="paymentVoucherLink" placeholder="https://..." class="input-classic"></div>
+                                        <div><label class="label-classic">Monto Pagado (S/.)</label><input required id="paymentAmount" type="number" placeholder="0.00" oninput="checkAutoLogic()" class="input-classic font-bold text-slate-700"></div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        
-                        <!-- Sección 2 -->
-                        <div class="space-y-5">
-                            <h3 class="text-xs font-bold text-indigo-600 uppercase tracking-widest flex items-center gap-3">
-                                <span class="w-6 h-6 rounded-full bg-indigo-100 flex items-center justify-center text-[10px] ring-4 ring-white">2</span> Datos del Alumno
+                        <hr class="border-slate-100">
+                        <div class="space-y-4">
+                            <h3 class="text-xs font-bold text-blue-600 uppercase tracking-wider flex items-center gap-2">
+                                <span class="w-5 h-5 rounded-full bg-blue-100 flex items-center justify-center text-[10px]">2</span> Datos del Alumno
                             </h3>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-5 pl-3 border-l-2 border-slate-100">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div><label class="label-classic">Nombres Alumno</label><input required id="studentName" placeholder="Nombres" class="input-classic"></div>
                                 <div><label class="label-classic">Apellidos Alumno</label><input required id="studentLastName" placeholder="Apellidos" class="input-classic"></div>
-                                <div class="flex gap-5">
+                                <div class="flex gap-4">
                                     <div class="w-1/3"><label class="label-classic">Género</label><select id="gender" class="input-classic"><option value="M">Masc.</option><option value="F">Fem.</option></select></div>
-                                    <div class="w-2/3"><label class="label-classic">Nacimiento</label><input required id="dob" type="date" class="input-classic text-slate-600" onchange="calculateAge()"></div>
+                                    <div class="w-2/3"><label class="label-classic">Fecha Nacimiento</label><input required id="dob" type="date" class="input-classic" onchange="calculateAge()"></div>
                                 </div>
-                                <div><label class="label-classic">Edad</label><input readonly id="age" placeholder="-" class="input-classic bg-slate-50 font-semibold text-center"></div>
+                                <div><label class="label-classic">Edad</label><input readonly id="age" placeholder="-" class="input-classic bg-slate-100"></div>
                                 <div class="md:col-span-2"><label class="label-classic">Departamento</label><select id="department" class="input-classic"></select></div>
                             </div>
                         </div>
-
-                        <!-- Sección 3 -->
-                        <div class="space-y-5">
-                            <h3 class="text-xs font-bold text-indigo-600 uppercase tracking-widest flex items-center gap-3">
-                                <span class="w-6 h-6 rounded-full bg-indigo-100 flex items-center justify-center text-[10px] ring-4 ring-white">3</span> Modalidad y Horario
+                        <hr class="border-slate-100">
+                        <div class="space-y-4">
+                            <h3 class="text-xs font-bold text-blue-600 uppercase tracking-wider flex items-center gap-2">
+                                <span class="w-5 h-5 rounded-full bg-blue-100 flex items-center justify-center text-[10px]">3</span> Modalidad y Horario
                             </h3>
-                            <div class="pl-3 border-l-2 border-slate-100 space-y-5">
+                            <div>
+                                <label class="label-classic">Fecha de Inicio de Clases</label>
+                                <input required id="startDate" type="date" class="input-classic font-semibold text-blue-900 bg-blue-50/50">
+                                <p id="duration-preview" class="text-xs text-emerald-600 mt-1.5 font-semibold flex items-center gap-1 h-4"></p>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
-                                    <label class="label-classic">Inicio de Clases</label>
-                                    <input required id="startDate" type="date" class="input-classic font-semibold text-indigo-700 bg-indigo-50/30 border-indigo-100">
-                                    <p id="duration-preview" class="text-xs text-emerald-600 mt-2 font-bold flex items-center gap-1.5 h-4"></p>
-                                </div>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                                    <div>
-                                        <label class="label-classic">Modalidad</label>
-                                        <div class="flex bg-slate-100 p-1.5 rounded-xl border border-slate-200">
-                                            <button type="button" onclick="setModality('GRUPAL')" id="btn-mod-grupal" class="flex-1 py-2 rounded-lg text-xs font-bold transition-all bg-white text-indigo-700 shadow-sm ring-1 ring-black/5">GRUPAL</button>
-                                            <button type="button" onclick="setModality('INDIVIDUAL')" id="btn-mod-individual" class="flex-1 py-2 rounded-lg text-xs font-bold transition-all text-slate-500 hover:text-slate-700 hover:bg-slate-200/50">INDIVIDUAL</button>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <label class="label-classic">Descuento</label>
-                                        <div onclick="toggleDiscount()" id="discount-container" class="cursor-pointer border border-slate-200 rounded-xl p-2.5 flex items-center gap-3 bg-white hover:border-emerald-300 hover:shadow-sm transition-all h-[46px] group">
-                                            <div class="bg-slate-100 rounded-lg p-1 group-hover:bg-emerald-100 transition-colors"><i data-lucide="ticket-percent" class="w-4 h-4 text-slate-400 group-hover:text-emerald-600"></i></div>
-                                            <span class="text-sm font-medium text-slate-600 select-none">Aplicar Dscto.</span>
-                                            <i data-lucide="check-circle-2" id="check-icon" class="w-5 h-5 text-emerald-500 ml-auto hidden animate-bounce-in"></i>
-                                        </div>
+                                    <label class="label-classic">Modalidad</label>
+                                    <div class="flex bg-slate-100 p-1 rounded-lg">
+                                        <button type="button" onclick="setModality('GRUPAL')" id="btn-mod-grupal" class="flex-1 py-1.5 rounded-md text-xs font-bold transition-all bg-white text-blue-700 shadow-sm border border-slate-200">GRUPAL</button>
+                                        <button type="button" onclick="setModality('INDIVIDUAL')" id="btn-mod-individual" class="flex-1 py-1.5 rounded-md text-xs font-bold transition-all text-slate-500 hover:text-slate-700">INDIVIDUAL</button>
                                     </div>
                                 </div>
                                 <div>
-                                    <label class="label-classic">Seleccionar Salón / Horario</label>
-                                    <div class="relative">
-                                        <select required id="schedule" class="input-classic appearance-none bg-white font-medium text-slate-700 pr-10">
-                                            </select>
-                                        <i data-lucide="chevron-down" class="absolute right-3 top-3.5 text-slate-400 w-4 h-4 pointer-events-none"></i>
+                                    <label class="label-classic">Descuento</label>
+                                    <div onclick="toggleDiscount()" id="discount-container" class="cursor-pointer border border-slate-200 rounded-lg p-2 flex items-center gap-2 bg-white hover:bg-slate-50 transition-colors h-[38px]">
+                                        <i data-lucide="ticket-percent" class="w-4 h-4 text-slate-400"></i>
+                                        <span class="text-sm text-slate-600 select-none">Aplicar Dscto.</span>
+                                        <i data-lucide="check-circle-2" id="check-icon" class="w-4 h-4 text-emerald-500 ml-auto hidden"></i>
                                     </div>
-                                    <p class="text-[10px] text-slate-400 mt-1.5 font-medium">* Se muestran solo horarios con vacantes disponibles.</p>
                                 </div>
                             </div>
+                            <div>
+                                <label class="label-classic">Seleccionar Salón / Horario</label>
+                                <div class="relative">
+                                    <select required id="schedule" class="input-classic appearance-none bg-white font-medium text-slate-700">
+                                        </select>
+                                    <i data-lucide="chevron-down" class="absolute right-3 top-3 text-slate-400 w-4 h-4 pointer-events-none"></i>
+                                </div>
+                                <p class="text-[10px] text-slate-400 mt-1">* Se muestran solo horarios con vacantes disponibles.</p>
+                            </div>
+                            
                         </div>
-
-                        <div class="pt-6">
-                            <button type="submit" id="btn-submit" class="w-full py-4 rounded-xl font-bold text-white shadow-xl shadow-indigo-500/30 transform active:scale-[0.98] transition-all bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 flex items-center justify-center gap-2.5 text-sm uppercase tracking-wide">
-                                <i data-lucide="save" class="w-5 h-5"></i> Registrar Alumno
+                        <div class="pt-4">
+                            <button type="submit" id="btn-submit" class="w-full py-3.5 rounded-xl font-bold text-white shadow-lg shadow-blue-500/30 transform active:scale-[0.98] transition-all bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 flex items-center justify-center gap-2">
+                                <i data-lucide="save" class="w-5 h-5"></i> REGISTRAR ALUMNO
                             </button>
                         </div>
                     </form>
                 </div>
 
-                <div class="lg:col-span-4 space-y-6 flex flex-col h-full">
-                    <div class="bg-white p-6 rounded-3xl shadow-lg shadow-slate-200/50 border border-slate-100 shrink-0 sticky top-4">
-                        <div class="flex items-center justify-between mb-6">
-                            <h3 class="text-sm font-bold text-slate-800 uppercase tracking-wide">Disponibilidad</h3>
-                            <span class="px-2 py-1 bg-green-50 text-green-600 text-[10px] font-bold rounded-md border border-green-100">EN VIVO</span>
-                        </div>
-                        <div id="quota-container" class="space-y-4"></div>
+                <div class="lg:col-span-4 space-y-6 flex flex-col h-full overflow-hidden">
+                    <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 shrink-0">
+                        <h3 class="text-sm font-bold text-slate-800 mb-4 uppercase tracking-wide">Cupos Generales</h3>
+                        <div id="quota-container" class="space-y-3"></div>
                     </div>
                 </div>
             </section>
 
             <!-- TAB SALONES -->
             <section id="tab-salones" class="hidden fade-in h-full flex flex-col gap-6">
-                <div class="flex justify-between items-center mb-2 shrink-0 bg-white p-3 rounded-2xl shadow-sm border border-slate-200/60">
-                    <div class="inline-flex gap-2">
-                        <button onclick="filterClassrooms('GRUPAL')" id="filter-grupal" class="px-5 py-2 rounded-xl text-sm font-bold transition-all bg-indigo-50 text-indigo-700 border border-indigo-100 shadow-sm">Grupales</button>
-                        <button onclick="filterClassrooms('INDIVIDUAL')" id="filter-individual" class="px-5 py-2 rounded-xl text-sm font-bold transition-all text-slate-500 hover:bg-slate-50 border border-transparent">Individuales</button>
+                <div class="flex justify-between items-center mb-2 shrink-0 bg-white p-2 rounded-xl shadow-sm border border-slate-200">
+                    <div class="inline-flex gap-1">
+                        <button onclick="filterClassrooms('GRUPAL')" id="filter-grupal" class="px-4 py-2 rounded-lg text-sm font-bold transition-all bg-blue-50 text-blue-700 border border-blue-100">Grupales</button>
+                        <button onclick="filterClassrooms('INDIVIDUAL')" id="filter-individual" class="px-4 py-2 rounded-lg text-sm font-bold transition-all text-slate-500 hover:bg-slate-50 border border-transparent">Individuales</button>
                     </div>
-                    <button onclick="openClassroomModal()" class="px-5 py-2 rounded-xl text-sm font-bold bg-emerald-600 hover:bg-emerald-700 text-white flex items-center gap-2 transition-all shadow-lg shadow-emerald-500/20 active:scale-95">
+                    <button onclick="openClassroomModal()" class="px-4 py-2 rounded-lg text-sm font-bold bg-emerald-600 hover:bg-emerald-700 text-white flex items-center gap-2 transition-colors shadow-md shadow-emerald-500/20">
                         <i data-lucide="plus-circle" class="w-4 h-4"></i> Nuevo Salón
                     </button>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 flex-1 min-h-0 pb-6">
-                    <!-- Lista de Salones -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 flex-1 min-h-0">
                     <div id="classroom-list" class="md:col-span-1 space-y-3 overflow-y-auto pr-2 custom-scrollbar pb-10"></div>
                     
-                    <!-- Detalle del Salón -->
-                    <div class="md:col-span-2 bg-white rounded-3xl shadow-lg shadow-slate-200/50 border border-slate-100 flex flex-col h-full overflow-hidden relative">
-                        <div id="classroom-detail-empty" class="absolute inset-0 flex flex-col items-center justify-center text-slate-300 z-0 bg-slate-50/50">
-                            <div class="w-24 h-24 bg-white rounded-full flex items-center justify-center mb-4 shadow-sm">
-                                <i data-lucide="calendar-days" class="w-10 h-10 text-slate-300"></i>
-                            </div>
-                            <p class="font-medium text-slate-400">Selecciona un aula para ver el detalle</p>
+                    <div class="md:col-span-2 bg-white rounded-2xl shadow-sm border border-slate-200 flex flex-col h-full overflow-hidden relative">
+                        <div id="classroom-detail-empty" class="absolute inset-0 flex flex-col items-center justify-center text-slate-300 z-0">
+                            <i data-lucide="calendar-days" class="w-20 h-20 mb-4 opacity-50"></i>
+                            <p class="font-medium">Selecciona un aula para ver el detalle</p>
                         </div>
                         <div id="classroom-detail-content" class="hidden flex flex-col h-full z-10 bg-white">
-                            <div class="p-8 border-b border-slate-100 bg-gradient-to-r from-slate-50 to-white shrink-0">
-                                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+                            <div class="p-6 border-b border-slate-100 bg-slate-50/50 rounded-t-2xl shrink-0">
+                                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4">
                                     <div>
-                                        <h2 id="detail-name" class="text-2xl font-black text-slate-800 tracking-tight"></h2>
-                                        <div class="flex items-center gap-2 mt-2">
-                                            <span class="flex h-2 w-2 relative">
-                                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                                                <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                                            </span>
+                                        <h2 id="detail-name" class="text-2xl font-bold text-slate-800"></h2>
+                                        <div class="flex items-center gap-2 mt-1">
+                                            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
                                             <span class="text-xs text-slate-500 font-medium" id="detail-schedule-display">Horario...</span>
                                         </div>
                                     </div>
-                                    <a id="detail-meet-btn" href="#" target="_blank" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2.5 rounded-xl font-bold flex items-center gap-2 shadow-lg shadow-indigo-500/30 text-sm transition-all active:scale-95 hover:-translate-y-0.5">
-                                        <i data-lucide="video" class="w-4 h-4"></i> Sala Virtual
+                                    <a id="detail-meet-btn" href="#" target="_blank" class="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-xl font-bold flex items-center gap-2 shadow-lg shadow-emerald-500/20 text-sm transition-transform active:scale-95">
+                                        <i data-lucide="video" class="w-4 h-4"></i> UNIRSE
                                     </a>
                                 </div>
-                                <div class="flex items-center gap-2 bg-white border border-slate-200 rounded-xl p-2.5 mb-6 shadow-sm focus-within:ring-2 focus-within:ring-indigo-100 transition-all">
-                                    <div class="p-2 bg-indigo-50 rounded-lg text-indigo-600"><i data-lucide="link" class="w-4 h-4"></i></div>
-                                    <input id="detail-link-input" onchange="updateClassroomLink()" placeholder="Pega aquí el enlace de Google Meet" class="flex-1 text-xs text-slate-600 font-mono bg-transparent border-none focus:ring-0 placeholder:text-slate-400" value="">
+                                <div class="flex items-center gap-2 bg-white border border-slate-200 rounded-lg p-2 mb-4 shadow-sm">
+                                    <div class="p-1.5 bg-blue-50 rounded-md text-blue-600"><i data-lucide="link" class="w-4 h-4"></i></div>
+                                    <input id="detail-link-input" onchange="updateClassroomLink()" placeholder="Pega aquí el enlace de Google Meet" class="flex-1 text-xs text-slate-600 font-mono bg-transparent border-none focus:ring-0" value="">
                                 </div>
                                 <div class="flex justify-between items-center">
-                                    <div class="text-sm font-bold text-slate-700 flex items-center gap-2">
-                                        <i data-lucide="users" class="w-4 h-4 text-slate-400"></i> Registro de Asistencia
-                                    </div>
-                                    <div class="flex items-center gap-3 bg-white border border-slate-200 rounded-lg px-3 py-1.5 shadow-sm">
+                                    <div class="text-sm font-bold text-slate-700">Registro de Asistencia</div>
+                                    <div class="flex items-center gap-2">
                                         <label class="text-[10px] font-bold text-slate-400 uppercase">Fecha:</label>
-                                        <input id="attendance-date" type="date" class="text-xs font-semibold bg-transparent outline-none text-slate-700" onchange="renderAttendanceTable()">
+                                        <input id="attendance-date" type="date" class="border border-slate-200 rounded-lg px-2 py-1 text-xs bg-white focus:ring-2 focus:ring-blue-100 outline-none" onchange="renderAttendanceTable()">
                                     </div>
                                 </div>
                             </div>
-                            <div class="flex-1 overflow-auto p-0 bg-white">
+                            <div class="flex-1 overflow-auto p-0">
                                 <table class="w-full text-left border-collapse">
-                                    <thead class="bg-slate-50/80 sticky top-0 z-10 backdrop-blur-sm border-b border-slate-100">
+                                    <thead class="bg-slate-50 sticky top-0 z-10">
                                         <tr>
-                                            <th class="px-8 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Alumno</th>
-                                            <th class="px-8 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-wider text-center">Estado</th>
-                                            <th class="px-8 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-wider text-right">Marcar Asistencia</th>
+                                            <th class="px-6 py-3 border-b border-slate-100 text-[10px] font-bold text-slate-400 uppercase">Alumno</th>
+                                            <th class="px-6 py-3 border-b border-slate-100 text-[10px] font-bold text-slate-400 uppercase text-center">Estado</th>
+                                            <th class="px-6 py-3 border-b border-slate-100 text-[10px] font-bold text-slate-400 uppercase text-right">Asistencia</th>
                                         </tr>
                                     </thead>
                                     <tbody id="attendance-tbody" class="divide-y divide-slate-50"></tbody>
                                 </table>
-                                <div id="no-students-msg" class="flex flex-col items-center justify-center h-48 text-slate-300 hidden">
-                                    <i data-lucide="user-x" class="w-8 h-8 mb-2"></i>
-                                    <span class="text-sm font-medium">Sin alumnos inscritos</span>
-                                </div>
+                                <div id="no-students-msg" class="text-center py-12 text-slate-400 text-sm hidden">Sin alumnos inscritos.</div>
                             </div>
                         </div>
                     </div>
@@ -304,149 +246,137 @@
             </section>
 
             <!-- TAB FINANZAS -->
-            <section id="tab-finanzas" class="hidden fade-in grid grid-cols-1 lg:grid-cols-2 gap-6 h-full overflow-y-auto pb-10">
-                 <div class="bg-white p-8 rounded-3xl shadow-lg shadow-slate-200/50 border border-slate-100 flex flex-col gap-8">
+            <section id="tab-finanzas" class="hidden fade-in grid grid-cols-1 lg:grid-cols-2 gap-6 h-full overflow-y-auto">
+                 <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col gap-6">
                     <!-- Ingresos Totales -->
                     <div>
-                        <div class="flex justify-between items-start mb-8">
-                            <h3 class="text-lg font-bold text-slate-800 flex items-center gap-3">
-                                <div class="p-2 bg-emerald-50 rounded-lg text-emerald-600"><i data-lucide="trending-up" class="w-5 h-5"></i></div>
+                        <div class="flex justify-between items-start mb-6">
+                            <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                                <div class="p-1.5 bg-emerald-50 rounded text-emerald-600"><i data-lucide="trending-up" class="w-5 h-5"></i></div>
                                 Reporte de Ingresos
                             </h3>
-                            <div class="flex gap-2">
-                                <button onclick="analyzeFinances()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold transition-all flex items-center gap-2 shadow-lg shadow-indigo-500/30 active:scale-95">
-                                    <i data-lucide="sparkles" class="w-3 h-3"></i> Insight IA
-                                </button>
-                                <button onclick="openIncomeModal()" class="px-4 py-2 bg-fuchsia-50 text-fuchsia-700 hover:bg-fuchsia-100 rounded-xl text-xs font-bold transition-all flex items-center gap-2 border border-fuchsia-100 active:scale-95">
-                                    <i data-lucide="plus" class="w-3 h-3"></i> Otro Ingreso
-                                </button>
-                            </div>
+                            <button onclick="openIncomeModal()" class="px-3 py-1.5 bg-purple-50 text-purple-700 hover:bg-purple-100 rounded-lg text-xs font-bold transition-colors flex items-center gap-1 border border-purple-100">
+                                <i data-lucide="plus" class="w-3 h-3"></i> Otro Ingreso
+                            </button>
                         </div>
                         
-                        <div class="text-center mb-10">
-                            <span class="text-xs text-slate-400 font-bold uppercase tracking-widest">Total Recaudado (Histórico)</span>
-                            <div class="text-5xl font-black text-slate-800 mt-2 tracking-tight">S/. <span id="total-earnings">0.00</span></div>
+                        <div class="text-center mb-8">
+                            <span class="text-sm text-slate-400 font-medium">Total Recaudado (Histórico)</span>
+                            <div class="text-4xl font-black text-slate-800 mt-1">S/. <span id="total-earnings">0.00</span></div>
                         </div>
 
-                        <!-- BARRAS VERTICALES PERFECTAS CON TOOLTIP -->
-                        <div class="flex justify-around items-end gap-6 px-4 h-64 border-b border-slate-100 pb-2 relative">
-                            <!-- Líneas de guía decorativas -->
-                            <div class="absolute inset-0 flex flex-col justify-between pointer-events-none pb-8 opacity-30">
-                                <div class="w-full h-px border-t border-dashed border-slate-300"></div>
-                                <div class="w-full h-px border-t border-dashed border-slate-300"></div>
-                                <div class="w-full h-px border-t border-dashed border-slate-300"></div>
-                            </div>
-
+                        <!-- BARRAS VERTICALES -->
+                        <div class="flex justify-around items-end gap-2 px-2 pb-0">
                             <!-- Columna Grupal -->
-                            <div class="h-full flex flex-col justify-end items-center gap-2 w-24 group cursor-pointer z-10">
-                                <div class="w-full flex-1 flex items-end justify-center relative pb-1">
-                                    <!-- Tooltip container -->
-                                    <div id="grupal-tooltip-container" class="absolute bottom-0 mb-3 transition-all duration-500 opacity-0 group-hover:opacity-100 group-hover:translate-y-[-100%] pointer-events-none z-20" style="bottom: 0%;">
-                                        <div class="bg-slate-800 text-white text-xs font-bold px-3 py-1.5 rounded-lg shadow-xl whitespace-nowrap relative transform -translate-x-0">
+                            <div class="flex flex-col items-center gap-2 group cursor-pointer w-full">
+                                <div class="h-48 w-full flex items-end justify-center relative">
+                                    <!-- Tooltip encima de la barra -->
+                                    <div class="absolute bottom-0 mb-1 z-20 transition-all duration-300 opacity-0 group-hover:opacity-100 group-hover:translate-y-[-100%] group-hover:mb-2 pointer-events-none" style="bottom: var(--bar-height, 0%);">
+                                        <div class="bg-slate-800 text-white text-xs font-bold px-2 py-1 rounded shadow-lg whitespace-nowrap relative">
                                             <span id="grupal-earnings-text">S/. 0.00</span>
                                             <div class="tooltip-arrow"></div>
                                         </div>
                                     </div>
-                                    <!-- Bar -->
-                                    <div id="grupal-bar" class="w-full bg-gradient-to-t from-blue-600 to-cyan-400 rounded-t-xl shadow-[0_10px_20px_-5px_rgba(37,99,235,0.4)] transition-all duration-1000 ease-out relative group-hover:brightness-110" style="height: 4px;"></div>
+                                    <!-- Barra -->
+                                    <div id="grupal-bar" class="w-full max-w-[50px] bg-gradient-to-t from-blue-600 to-blue-400 rounded-t-lg shadow-lg shadow-blue-200 transition-all duration-1000 ease-out relative" style="height: 4px;"></div>
                                 </div>
-                                <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center group-hover:text-blue-600 transition-colors">Grupal</div>
+                                <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider text-center">Grupal</div>
                             </div>
 
                             <!-- Columna Individual -->
-                            <div class="h-full flex flex-col justify-end items-center gap-2 w-24 group cursor-pointer z-10">
-                                <div class="w-full flex-1 flex items-end justify-center relative pb-1">
-                                    <!-- Tooltip container -->
-                                    <div id="indiv-tooltip-container" class="absolute bottom-0 mb-3 transition-all duration-500 opacity-0 group-hover:opacity-100 group-hover:translate-y-[-100%] pointer-events-none z-20" style="bottom: 0%;">
-                                        <div class="bg-slate-800 text-white text-xs font-bold px-3 py-1.5 rounded-lg shadow-xl whitespace-nowrap relative transform -translate-x-0">
+                            <div class="flex flex-col items-center gap-2 group cursor-pointer w-full">
+                                <div class="h-48 w-full flex items-end justify-center relative">
+                                     <!-- Tooltip -->
+                                    <div class="absolute bottom-0 mb-1 z-20 transition-all duration-300 opacity-0 group-hover:opacity-100 group-hover:translate-y-[-100%] group-hover:mb-2 pointer-events-none" style="bottom: var(--bar-height-ind, 0%);">
+                                        <div class="bg-slate-800 text-white text-xs font-bold px-2 py-1 rounded shadow-lg whitespace-nowrap relative">
                                             <span id="indiv-earnings-text">S/. 0.00</span>
                                             <div class="tooltip-arrow"></div>
                                         </div>
                                     </div>
-                                    <!-- Bar -->
-                                    <div id="indiv-bar" class="w-full bg-gradient-to-t from-indigo-600 to-violet-400 rounded-t-xl shadow-[0_10px_20px_-5px_rgba(79,70,229,0.4)] transition-all duration-1000 ease-out relative group-hover:brightness-110" style="height: 4px;"></div>
+                                    <!-- Barra -->
+                                    <div id="indiv-bar" class="w-full max-w-[50px] bg-gradient-to-t from-indigo-600 to-indigo-400 rounded-t-lg shadow-lg shadow-indigo-200 transition-all duration-1000 ease-out relative" style="height: 4px;"></div>
                                 </div>
-                                <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center group-hover:text-indigo-600 transition-colors">Individual</div>
+                                <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider text-center">Individual</div>
                             </div>
 
                             <!-- Columna Derivados -->
-                            <div class="h-full flex flex-col justify-end items-center gap-2 w-24 group cursor-pointer z-10">
-                                <div class="w-full flex-1 flex items-end justify-center relative pb-1">
-                                    <!-- Tooltip container -->
-                                    <div id="derivados-tooltip-container" class="absolute bottom-0 mb-3 transition-all duration-500 opacity-0 group-hover:opacity-100 group-hover:translate-y-[-100%] pointer-events-none z-20" style="bottom: 0%;">
-                                        <div class="bg-slate-800 text-white text-xs font-bold px-3 py-1.5 rounded-lg shadow-xl whitespace-nowrap relative transform -translate-x-0">
+                            <div class="flex flex-col items-center gap-2 group cursor-pointer w-full">
+                                <div class="h-48 w-full flex items-end justify-center relative">
+                                     <!-- Tooltip -->
+                                    <div class="absolute bottom-0 mb-1 z-20 transition-all duration-300 opacity-0 group-hover:opacity-100 group-hover:translate-y-[-100%] group-hover:mb-2 pointer-events-none" style="bottom: var(--bar-height-der, 0%);">
+                                        <div class="bg-slate-800 text-white text-xs font-bold px-2 py-1 rounded shadow-lg whitespace-nowrap relative">
                                             <span id="derivados-earnings-text">S/. 0.00</span>
                                             <div class="tooltip-arrow"></div>
                                         </div>
                                     </div>
-                                    <!-- Bar -->
-                                    <div id="derivados-bar" class="w-full bg-gradient-to-t from-fuchsia-600 to-pink-400 rounded-t-xl shadow-[0_10px_20px_-5px_rgba(192,38,211,0.4)] transition-all duration-1000 ease-out relative group-hover:brightness-110" style="height: 4px;"></div>
+                                    <!-- Barra -->
+                                    <div id="derivados-bar" class="w-full max-w-[50px] bg-gradient-to-t from-purple-600 to-purple-400 rounded-t-lg shadow-lg shadow-purple-200 transition-all duration-1000 ease-out relative" style="height: 4px;"></div>
                                 </div>
-                                <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center group-hover:text-fuchsia-600 transition-colors">Derivados</div>
+                                <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider text-center">Derivados</div>
                             </div>
                         </div>
 
                     </div>
                 </div>
 
-                <div class="bg-white p-8 rounded-3xl shadow-lg shadow-slate-200/50 border border-slate-100 flex flex-col gap-10">
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col gap-8">
                     <!-- Análisis Demográfico -->
                     <div class="flex flex-col flex-1 min-h-0 max-h-[50%]">
-                        <h3 class="text-lg font-bold text-slate-800 mb-6 flex items-center gap-3">
-                            <div class="p-2 bg-rose-50 rounded-lg text-rose-500"><i data-lucide="map-pin" class="w-5 h-5"></i></div>
+                        <h3 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+                            <div class="p-1.5 bg-red-50 rounded text-red-500"><i data-lucide="map-pin" class="w-5 h-5"></i></div>
                             Análisis Demográfico
                         </h3>
-                        <div id="market-list" class="space-y-5 flex-1 overflow-y-auto pr-2 custom-scrollbar"></div>
+                        <div id="market-list" class="space-y-4 flex-1 overflow-y-auto pr-2 custom-scrollbar"></div>
                     </div>
                     
                     <!-- Cierre Mensual -->
-                    <div class="flex flex-col flex-1 min-h-0 border-t border-slate-100 pt-8">
-                         <h3 class="text-lg font-bold text-slate-800 mb-6 flex items-center gap-3">
-                            <div class="p-2 bg-emerald-50 rounded-lg text-emerald-600"><i data-lucide="calendar-check" class="w-5 h-5"></i></div>
+                    <div class="flex flex-col flex-1 min-h-0 border-t border-slate-100 pt-6">
+                         <h3 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+                            <div class="p-1.5 bg-emerald-50 rounded text-emerald-600"><i data-lucide="calendar-check" class="w-5 h-5"></i></div>
                             Cierre Mensual
                         </h3>
-                        <div id="monthly-list" class="space-y-5 flex-1 overflow-y-auto pr-2 custom-scrollbar"></div>
+                        <div id="monthly-list" class="space-y-4 flex-1 overflow-y-auto pr-2 custom-scrollbar"></div>
                     </div>
                 </div>
             </section>
 
             <!-- TAB BASE DE DATOS (NUEVO) -->
-            <section id="tab-database" class="hidden fade-in h-full flex flex-col pb-10">
-                <div class="bg-white p-8 rounded-3xl shadow-lg shadow-slate-200/50 border border-slate-100 flex flex-col h-full">
-                    <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-6">
-                        <h3 class="text-lg font-bold text-slate-800 flex items-center gap-3">
-                            <div class="p-2 bg-indigo-50 rounded-lg text-indigo-600"><i data-lucide="database" class="w-5 h-5"></i></div>
+            <section id="tab-database" class="hidden fade-in h-full flex flex-col">
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col h-full">
+                    <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+                        <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                            <div class="p-1.5 bg-indigo-50 rounded text-indigo-600"><i data-lucide="database" class="w-5 h-5"></i></div>
                             Base de Datos de Alumnos
                         </h3>
-                        <div class="relative w-full md:w-96 group">
-                            <i data-lucide="search" class="absolute left-3.5 top-3 text-slate-400 w-4 h-4 group-focus-within:text-indigo-500 transition-colors"></i>
-                            <input id="db-search" onkeyup="renderStudentDatabase()" placeholder="Buscar por Nombre, Apellido o Código..." class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-indigo-100 focus:border-indigo-400 outline-none transition-all placeholder:text-slate-400">
+                        <div class="relative w-full md:w-96">
+                            <i data-lucide="search" class="absolute left-3 top-2.5 text-slate-400 w-4 h-4"></i>
+                            <input id="db-search" onkeyup="renderStudentDatabase()" placeholder="Buscar por Nombre, Apellido o Código..." class="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:bg-white focus:ring-2 focus:ring-indigo-100 outline-none">
                         </div>
                     </div>
                     
-                    <div class="flex-1 overflow-auto border border-slate-100 rounded-2xl shadow-inner bg-slate-50/30">
+                    <div class="flex-1 overflow-auto border border-slate-200 rounded-xl">
                         <table class="w-full text-left border-collapse">
-                            <thead class="bg-white sticky top-0 z-10 shadow-sm">
+                            <thead class="bg-slate-50 sticky top-0 z-10">
                                 <tr>
-                                    <th class="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Estado</th>
-                                    <th class="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Alumno / Código</th>
-                                    <th class="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Salón</th>
-                                    <th class="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Vencimiento</th>
-                                    <th class="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-wider text-right">Acciones</th>
+                                    <th class="px-4 py-3 border-b border-slate-200 text-[10px] font-bold text-slate-500 uppercase">Estado</th>
+                                    <th class="px-4 py-3 border-b border-slate-200 text-[10px] font-bold text-slate-500 uppercase">Alumno / Código</th>
+                                    <th class="px-4 py-3 border-b border-slate-200 text-[10px] font-bold text-slate-500 uppercase">Salón</th>
+                                    <th class="px-4 py-3 border-b border-slate-200 text-[10px] font-bold text-slate-500 uppercase">Vencimiento / Pass</th>
+                                    <th class="px-4 py-3 border-b border-slate-200 text-[10px] font-bold text-slate-500 uppercase text-right">Acciones</th>
                                 </tr>
                             </thead>
                             <tbody id="db-tbody" class="divide-y divide-slate-100 bg-white"></tbody>
                         </table>
-                        <div id="db-empty" class="hidden flex flex-col items-center justify-center py-20 text-slate-300">
-                            <i data-lucide="search-x" class="w-12 h-12 mb-3 opacity-50"></i>
-                            <p class="text-sm font-medium">No se encontraron alumnos.</p>
+                        <div id="db-empty" class="hidden flex flex-col items-center justify-center py-12 text-slate-400">
+                            <i data-lucide="search-x" class="w-10 h-10 mb-2 opacity-50"></i>
+                            <p class="text-sm">No se encontraron alumnos.</p>
                         </div>
                     </div>
-                    <div class="mt-6 text-xs text-slate-400 flex justify-between items-center px-2">
-                        <span class="font-medium">Mostrando <span id="db-count" class="font-bold text-slate-700">0</span> resultados</span>
-                        <div class="flex gap-4">
-                             <div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.4)]"></span> Activo</div>
-                             <div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-red-500"></span> Inactivo</div>
+                    <div class="mt-4 text-xs text-slate-400 flex justify-between items-center">
+                        <span>Mostrando <span id="db-count" class="font-bold text-slate-700">0</span> resultados</span>
+                        <div class="flex gap-2">
+                             <div class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-green-500"></span> Activo</div>
+                             <div class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-red-500"></span> Inactivo</div>
                         </div>
                     </div>
                 </div>
@@ -454,106 +384,51 @@
         </div>
     </main>
 
-    <!-- Modal Nuevo Ingreso -->
-    <div id="modal-income" class="hidden fixed inset-0 bg-slate-900/60 flex items-center justify-center z-[70] p-4 backdrop-blur-sm transition-opacity duration-300" onclick="closeIncomeModal()">
-        <div class="bg-white w-full max-w-sm rounded-3xl shadow-2xl overflow-hidden transform transition-all scale-100 border border-white/20" onclick="event.stopPropagation()">
-            <div class="bg-gradient-to-r from-fuchsia-600 to-purple-600 px-8 py-5 flex justify-between items-center">
-                <h3 class="font-bold text-white flex items-center gap-2 text-lg"><i data-lucide="plus-circle" class="w-5 h-5 text-fuchsia-200"></i> Nuevo Ingreso</h3>
-                <button onclick="closeIncomeModal()" class="text-white/70 hover:text-white bg-white/10 hover:bg-white/20 rounded-full p-1 transition-colors"><i data-lucide="x" class="w-5 h-5"></i></button>
+    <!-- Modal Nuevo Ingreso (NUEVO) -->
+    <div id="modal-income" class="hidden fixed inset-0 bg-slate-900/60 flex items-center justify-center z-[70] p-4 backdrop-blur-sm" onclick="closeIncomeModal()">
+        <div class="bg-white w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden animate-bounce-in" onclick="event.stopPropagation()">
+            <div class="bg-purple-600 px-6 py-4 flex justify-between items-center">
+                <h3 class="font-bold text-white flex items-center gap-2"><i data-lucide="plus-circle" class="w-5 h-5"></i> Registrar Ingreso Extra</h3>
+                <button onclick="closeIncomeModal()" class="text-white/80 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
-            <div class="p-8 space-y-5">
+            <div class="p-6 space-y-4">
                 <div>
-                    <label class="label-classic">Concepto</label>
-                    <input id="income-desc" class="input-classic" placeholder="Ej: Venta de Libros, Derivación...">
+                    <label class="label-classic">Concepto / Descripción</label>
+                    <input id="income-desc" class="input-classic" placeholder="Ej: Derivación Alumno X">
                 </div>
                 <div>
                     <label class="label-classic">Monto (S/.)</label>
-                    <input type="number" id="income-amount" class="input-classic font-bold text-fuchsia-600 text-lg" placeholder="0.00">
+                    <input type="number" id="income-amount" class="input-classic font-bold text-purple-600" placeholder="0.00">
                 </div>
                  <div>
                     <label class="label-classic">Fecha</label>
-                    <input type="date" id="income-date" class="input-classic text-slate-600">
+                    <input type="date" id="income-date" class="input-classic">
                 </div>
-                <button onclick="saveIncome()" class="w-full py-3.5 rounded-xl font-bold text-white bg-fuchsia-600 hover:bg-fuchsia-700 transition-all shadow-lg shadow-fuchsia-500/30 active:scale-95 mt-2">Registrar Ingreso</button>
+                <button onclick="saveIncome()" class="w-full py-3 rounded-xl font-bold text-white bg-purple-600 hover:bg-purple-700 transition-colors shadow-lg shadow-purple-500/20">Guardar Ingreso</button>
             </div>
         </div>
     </div>
 
     <!-- Modal de Renovación -->
     <div id="modal-renew" class="hidden fixed inset-0 bg-slate-900/60 flex items-center justify-center z-[70] p-4 backdrop-blur-sm" onclick="closeRenewModal()">
-        <div class="bg-white w-full max-w-sm rounded-3xl shadow-2xl overflow-hidden transform transition-all scale-100" onclick="event.stopPropagation()">
-            <div class="bg-gradient-to-r from-emerald-600 to-teal-600 px-8 py-5 flex justify-between items-center">
-                <h3 class="font-bold text-white flex items-center gap-2 text-lg"><i data-lucide="refresh-ccw" class="w-5 h-5 text-emerald-200"></i> Renovar Pago</h3>
-                <button onclick="closeRenewModal()" class="text-white/70 hover:text-white bg-white/10 hover:bg-white/20 rounded-full p-1 transition-colors"><i data-lucide="x" class="w-5 h-5"></i></button>
+        <div class="bg-white w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden animate-bounce-in" onclick="event.stopPropagation()">
+            <div class="bg-emerald-600 px-6 py-4 flex justify-between items-center">
+                <h3 class="font-bold text-white flex items-center gap-2"><i data-lucide="refresh-ccw" class="w-5 h-5"></i> Renovar Suscripción</h3>
+                <button onclick="closeRenewModal()" class="text-white/80 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
-            <div class="p-8 space-y-5">
+            <div class="p-6 space-y-4">
                 <input type="hidden" id="renew-student-id">
-                <p class="text-sm text-slate-500 font-medium bg-slate-50 p-3 rounded-lg border border-slate-100">Estudiante: <strong id="renew-student-name" class="text-slate-800"></strong></p>
+                <p class="text-sm text-slate-600">Registrar nuevo pago para: <strong id="renew-student-name"></strong></p>
                 <div>
                     <label class="label-classic">Nuevo Monto (S/.)</label>
-                    <input type="number" id="renew-amount" class="input-classic font-bold text-emerald-600 text-lg" placeholder="0.00">
+                    <input type="number" id="renew-amount" class="input-classic font-bold text-emerald-600" placeholder="0.00">
                 </div>
                  <div>
                     <label class="label-classic">Nueva Fecha de Inicio</label>
-                    <input type="date" id="renew-date" class="input-classic text-slate-600">
-                    <p class="text-[10px] text-slate-400 mt-2 font-medium flex items-center gap-1"><i data-lucide="info" class="w-3 h-3"></i> El vencimiento se calculará automáticamente.</p>
+                    <input type="date" id="renew-date" class="input-classic">
+                    <p class="text-[10px] text-slate-400 mt-1">La fecha de vencimiento se calculará automáticamente desde aquí.</p>
                 </div>
-                <button onclick="confirmRenewal()" class="w-full py-3.5 rounded-xl font-bold text-white bg-emerald-600 hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-500/30 active:scale-95 mt-2">Confirmar Renovación</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal Insights IA (NUEVO) -->
-    <div id="modal-ai-analysis" class="hidden fixed inset-0 bg-slate-900/70 flex items-center justify-center z-[80] p-4 backdrop-blur-md" onclick="document.getElementById('modal-ai-analysis').classList.add('hidden')">
-        <div class="bg-white w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden transform transition-all scale-100 border border-indigo-200/50" onclick="event.stopPropagation()">
-            <div class="bg-indigo-600 px-8 py-6 flex justify-between items-center bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]">
-                <h3 class="font-bold text-white flex items-center gap-3 text-xl"><i data-lucide="sparkles" class="w-6 h-6 text-yellow-300"></i> Análisis Financiero IA</h3>
-                <button onclick="document.getElementById('modal-ai-analysis').classList.add('hidden')" class="text-white/70 hover:text-white bg-white/10 hover:bg-white/20 rounded-full p-1.5 transition-colors"><i data-lucide="x" class="w-5 h-5"></i></button>
-            </div>
-            <div class="p-8 max-h-[70vh] overflow-y-auto custom-scrollbar">
-                <div id="ai-loading" class="flex flex-col items-center justify-center py-12">
-                    <div class="w-12 h-12 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin mb-4"></div>
-                    <p class="text-indigo-600 font-bold animate-pulse">Generando reporte inteligente...</p>
-                </div>
-                <div id="ai-content" class="hidden prose prose-sm prose-indigo max-w-none text-slate-600 leading-relaxed"></div>
-            </div>
-            <div class="bg-slate-50 px-8 py-4 text-xs text-center text-slate-400 border-t border-slate-100">
-                Generado por Gemini AI • Nexus Chess
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal Generador de Mensajes IA (NUEVO) -->
-    <div id="modal-ai-message" class="hidden fixed inset-0 bg-slate-900/70 flex items-center justify-center z-[80] p-4 backdrop-blur-md" onclick="document.getElementById('modal-ai-message').classList.add('hidden')">
-        <div class="bg-white w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden transform transition-all scale-100 border border-fuchsia-200/50" onclick="event.stopPropagation()">
-            <div class="bg-gradient-to-r from-violet-600 to-fuchsia-600 px-8 py-5 flex justify-between items-center">
-                <h3 class="font-bold text-white flex items-center gap-2 text-lg"><i data-lucide="message-square-plus" class="w-6 h-6 text-fuchsia-200"></i> Magic Message</h3>
-                <button onclick="document.getElementById('modal-ai-message').classList.add('hidden')" class="text-white/70 hover:text-white bg-white/10 hover:bg-white/20 rounded-full p-1 transition-colors"><i data-lucide="x" class="w-5 h-5"></i></button>
-            </div>
-            <div class="p-8 space-y-6">
-                <input type="hidden" id="msg-student-id">
-                <p class="text-sm text-slate-600">Genera un mensaje personalizado para: <strong id="msg-student-name"></strong></p>
-                
-                <div>
-                    <label class="label-classic">Tipo de Mensaje</label>
-                    <div class="grid grid-cols-2 gap-2 mt-2">
-                        <button onclick="selectMsgType('welcome')" class="msg-type-btn p-2 rounded-xl border border-slate-200 text-xs font-bold text-slate-600 hover:bg-violet-50 hover:text-violet-600 hover:border-violet-200 transition-all">👋 Bienvenida</button>
-                        <button onclick="selectMsgType('payment')" class="msg-type-btn p-2 rounded-xl border border-slate-200 text-xs font-bold text-slate-600 hover:bg-emerald-50 hover:text-emerald-600 hover:border-emerald-200 transition-all">💰 Recordatorio Pago</button>
-                        <button onclick="selectMsgType('absent')" class="msg-type-btn p-2 rounded-xl border border-slate-200 text-xs font-bold text-slate-600 hover:bg-amber-50 hover:text-amber-600 hover:border-amber-200 transition-all">⚠️ Inasistencia</button>
-                        <button onclick="selectMsgType('congrats')" class="msg-type-btn p-2 rounded-xl border border-slate-200 text-xs font-bold text-slate-600 hover:bg-pink-50 hover:text-pink-600 hover:border-pink-200 transition-all">🏆 Felicitación</button>
-                    </div>
-                </div>
-
-                <div class="relative">
-                    <textarea id="ai-generated-msg" rows="6" class="w-full p-4 rounded-xl bg-slate-50 border border-slate-200 text-sm text-slate-700 focus:ring-2 focus:ring-fuchsia-200 outline-none resize-none" placeholder="El mensaje generado aparecerá aquí..."></textarea>
-                    <div id="msg-loading" class="absolute inset-0 bg-white/80 backdrop-blur-sm flex items-center justify-center rounded-xl hidden">
-                        <div class="w-8 h-8 border-3 border-fuchsia-200 border-t-fuchsia-600 rounded-full animate-spin"></div>
-                    </div>
-                </div>
-
-                <button onclick="copyMessage()" class="w-full py-3.5 rounded-xl font-bold text-white bg-slate-800 hover:bg-slate-900 transition-all shadow-lg active:scale-95 flex items-center justify-center gap-2">
-                    <i data-lucide="copy" class="w-4 h-4"></i> Copiar al Portapapeles
-                </button>
+                <button onclick="confirmRenewal()" class="w-full py-3 rounded-xl font-bold text-white bg-emerald-600 hover:bg-emerald-700 transition-colors shadow-lg shadow-emerald-500/20">Confirmar Pago</button>
             </div>
         </div>
     </div>
@@ -561,40 +436,75 @@
     <!-- Modal Carnet (Mantenido igual) -->
     <div id="card-modal" class="hidden fixed inset-0 bg-slate-900/80 flex items-center justify-center z-[60] p-4 backdrop-blur-sm transition-opacity" onclick="closeModal()">
         <div class="relative transform transition-all scale-100" onclick="event.stopPropagation()">
-            <button onclick="closeModal()" class="absolute -top-12 right-0 text-white/80 hover:text-white transition-colors bg-white/10 rounded-full p-2 hover:bg-white/20"><i data-lucide="x" class="w-6 h-6"></i></button>
+            <button onclick="closeModal()" class="absolute -top-10 right-0 text-white hover:text-slate-200 transition-colors"><i data-lucide="x" class="w-8 h-8"></i></button>
             <div class="pro-card flex flex-col p-6 text-white" id="capture-area">
                 <div class="card-header-glow"></div>
                 <div class="hologram-strip"></div>
                 <div class="flex justify-between items-start mb-6 z-10 relative">
                     <div>
                         <div class="text-[10px] text-blue-300 font-bold tracking-[0.2em] uppercase mb-1">Credencial Oficial</div>
-                        <div class="font-[Oswald] font-bold text-2xl tracking-wide leading-none">ACADEMIA<br><span class="text-blue-400">VIRTUAL</span></div>
+                        <div class="font-[Oswald] font-bold text-2xl tracking-wide">ACADEMIA<br><span class="text-blue-400">VIRTUAL</span></div>
                     </div>
-                    <div class="card-chip flex items-center justify-center"><div class="w-full h-full rounded-md border border-yellow-500/30 bg-gradient-to-br from-yellow-500/20 to-transparent"></div></div>
+                    <div class="card-chip flex items-center justify-center"><div class="w-6 h-6 rounded-full border border-yellow-600/50"></div></div>
                 </div>
                 <div class="flex-1 z-10 flex flex-col items-center justify-center relative">
-                    <div class="relative mb-6 group">
-                        <div class="w-32 h-32 rounded-full p-1 bg-gradient-to-b from-blue-400 to-indigo-600 shadow-[0_0_40px_-10px_rgba(59,130,246,0.6)]">
-                            <div class="w-full h-full rounded-full bg-slate-800 flex items-center justify-center overflow-hidden border-4 border-slate-900 relative">
+                    <div class="relative mb-4">
+                        <div class="w-32 h-32 rounded-full p-1 bg-gradient-to-b from-blue-400 to-indigo-600 shadow-lg shadow-blue-500/30">
+                            <div class="w-full h-full rounded-full bg-slate-800 flex items-center justify-center overflow-hidden border-4 border-slate-900">
                                 <i data-lucide="user" class="w-16 h-16 text-slate-500"></i>
                             </div>
                         </div>
-                        <div class="absolute bottom-1 right-1 bg-emerald-500 border-4 border-slate-900 w-8 h-8 rounded-full flex items-center justify-center shadow-lg"><i data-lucide="check" class="w-4 h-4 text-white stroke-[3]"></i></div>
+                        <div class="absolute bottom-1 right-1 bg-emerald-500 border-4 border-slate-900 w-7 h-7 rounded-full flex items-center justify-center shadow-lg"><i data-lucide="check" class="w-3 h-3 text-white stroke-[3]"></i></div>
                     </div>
-                    <h2 id="card-name" class="text-2xl font-bold text-center leading-tight mb-1 font-[Oswald] tracking-wide">Nombre</h2>
-                    <p id="card-lastname" class="text-sm text-blue-200 text-center font-medium uppercase tracking-widest mb-6">Apellido</p>
-                    <div class="bg-white/5 backdrop-blur-md rounded-xl p-4 w-full border border-white/10 space-y-3 shadow-lg">
-                         <div class="flex justify-between items-center"><span class="text-[9px] text-slate-400 uppercase font-bold tracking-wider">Código</span><span id="card-code" class="font-mono text-sm text-yellow-400 font-bold text-shadow">---</span></div>
-                         <div class="w-full h-px bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
-                         <div class="flex justify-between items-center"><span class="text-[9px] text-slate-400 uppercase font-bold tracking-wider">Vencimiento</span><span id="card-renewal" class="font-mono text-sm text-white font-bold">---</span></div>
+                    <h2 id="card-name" class="text-xl font-bold text-center leading-tight mb-1 font-[Oswald]">Nombre</h2>
+                    <p id="card-lastname" class="text-sm text-blue-200 text-center font-medium uppercase tracking-wider mb-4">Apellido</p>
+                    <div class="bg-white/5 backdrop-blur-md rounded-xl p-3 w-full border border-white/10 space-y-2">
+                         <div class="flex justify-between items-center"><span class="text-[9px] text-slate-400 uppercase font-bold tracking-wider">Código</span><span id="card-code" class="font-mono text-xs text-yellow-400 font-bold shadow-black drop-shadow-sm">---</span></div>
+                         <div class="w-full h-px bg-white/10"></div>
+                         <div class="flex justify-between items-center"><span class="text-[9px] text-slate-400 uppercase font-bold tracking-wider">Vencimiento</span><span id="card-renewal" class="font-mono text-xs text-white font-bold">---</span></div>
                     </div>
                 </div>
-                <div class="mt-auto pt-6 z-10 relative flex justify-between items-end">
-                    <div><div class="text-[9px] text-slate-500 uppercase font-bold mb-1">Modalidad</div><div id="card-modality" class="text-[10px] font-bold px-2.5 py-1 bg-blue-500/20 border border-blue-500/30 rounded text-blue-200 inline-block shadow-[0_0_15px_-5px_rgba(59,130,246,0.5)]">GRUPAL</div></div>
-                    <div class="qr-placeholder flex items-center justify-center shadow-lg"><i data-lucide="qr-code" class="w-10 h-10 text-slate-800 opacity-80"></i></div>
+                <div class="mt-auto pt-4 z-10 relative flex justify-between items-end">
+                    <div><div class="text-[9px] text-slate-500 uppercase font-bold mb-1">Modalidad</div><div id="card-modality" class="text-xs font-bold px-2 py-0.5 bg-blue-600/30 border border-blue-500/50 rounded text-blue-200 inline-block">GRUPAL</div></div>
+                    <div class="qr-placeholder flex items-center justify-center"><i data-lucide="qr-code" class="w-10 h-10 text-slate-800"></i></div>
                 </div>
             </div>
-            <button class="mt-6 w-full bg-white hover:bg-slate-50 text-slate-900 py-3.5 rounded-xl font-bold flex items-center justify-center gap-2 transition-all shadow-xl active:scale-95"><i data-lucide="download" class="w-4 h-4"></i> Descargar Credencial</button>
+            <button class="mt-6 w-full bg-slate-100 hover:bg-white text-slate-900 py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-colors shadow-xl"><i data-lucide="download" class="w-4 h-4"></i> Descargar Imagen</button>
+        </div>
+    </div>
+
+    <!-- Modal Salón -->
+    <div id="modal-classroom" class="hidden fixed inset-0 bg-slate-900/60 flex items-center justify-center z-[70] p-4 backdrop-blur-sm" onclick="closeClassroomModal()">
+        <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden animate-bounce-in" onclick="event.stopPropagation()">
+            <div class="px-6 py-4 bg-slate-50 border-b border-slate-100 flex justify-between items-center">
+                <h3 class="font-bold text-slate-800 flex items-center gap-2"><i data-lucide="plus-circle" class="w-5 h-5 text-emerald-600"></i> Nuevo Salón/Horario</h3>
+                <button onclick="closeClassroomModal()" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <form id="classroomForm" class="p-6 space-y-4">
+                <div>
+                    <label class="label-classic">Nombre del Salón</label>
+                    <input required id="cls-name" placeholder="Ej: Básico 1 - G2" class="input-classic">
+                </div>
+                <div>
+                    <label class="label-classic">Modalidad</label>
+                    <select id="cls-type" class="input-classic bg-slate-50">
+                        <option value="GRUPAL">GRUPAL</option>
+                        <option value="INDIVIDUAL">INDIVIDUAL</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="label-classic">Horario (Texto)</label>
+                    <input required id="cls-schedule" placeholder="Ej: Mar y Jue (18:00 - 19:30)" class="input-classic">
+                    <p class="text-[10px] text-slate-400 mt-1">Este texto aparecerá en las opciones de registro.</p>
+                </div>
+                <div>
+                    <label class="label-classic">Link de Meet (Opcional)</label>
+                    <input id="cls-link" placeholder="https://meet.google.com/..." class="input-classic">
+                </div>
+                <div class="pt-2">
+                    <button type="submit" class="w-full py-3 rounded-xl font-bold text-white bg-emerald-600 hover:bg-emerald-700 transition-colors shadow-lg shadow-emerald-500/20">Crear Salón</button>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -616,43 +526,6 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
-
-        // GEMINI API CONFIGURATION
-        const apiKey = ""; // API Key provided by environment
-
-        async function generateContent(prompt) {
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
-            const payload = {
-                contents: [{ parts: [{ text: prompt }] }]
-            };
-
-            try {
-                const response = await fetch(url, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-                
-                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                const result = await response.json();
-                return result.candidates?.[0]?.content?.parts?.[0]?.text || "No se pudo generar respuesta.";
-            } catch (error) {
-                console.error("Gemini Error:", error);
-                // Simple retry logic
-                await new Promise(r => setTimeout(r, 1000));
-                try {
-                    const response = await fetch(url, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
-                    });
-                    const result = await response.json();
-                    return result.candidates?.[0]?.content?.parts?.[0]?.text || "Error en el servicio de IA.";
-                } catch(e) {
-                    return "El servicio de IA no está disponible en este momento.";
-                }
-            }
-        }
 
         // VARIABLES
         window.students = [];
@@ -677,7 +550,7 @@
         
         onValue(dbRef, (snapshot) => {
             const data = snapshot.val();
-            document.getElementById('loader').classList.add('opacity-0', 'pointer-events-none'); // Smooth fade out
+            document.getElementById('loader').classList.add('hidden');
 
             if (data) {
                 // Migración de datos antiguos para soportar historial de pagos
@@ -762,20 +635,20 @@
         window.switchTab = function(tabId) {
             ['registro', 'salones', 'finanzas', 'database'].forEach(t => {
                 document.getElementById('tab-' + t).classList.add('hidden');
-                document.getElementById('btn-' + t).classList.remove('bg-white', 'text-indigo-700', 'shadow-sm', 'ring-1', 'ring-black/5');
-                document.getElementById('btn-' + t).classList.add('text-slate-500', 'hover:text-slate-900', 'hover:bg-white/60');
+                document.getElementById('btn-' + t).classList.remove('bg-white', 'text-blue-700', 'shadow-sm', 'border', 'border-slate-200');
+                document.getElementById('btn-' + t).classList.add('text-slate-500', 'hover:text-slate-700');
             });
             document.getElementById('tab-' + tabId).classList.remove('hidden');
-            document.getElementById('btn-' + tabId).classList.add('bg-white', 'text-indigo-700', 'shadow-sm', 'ring-1', 'ring-black/5');
-            document.getElementById('btn-' + tabId).classList.remove('text-slate-500', 'hover:text-slate-900', 'hover:bg-white/60');
+            document.getElementById('btn-' + tabId).classList.add('bg-white', 'text-blue-700', 'shadow-sm');
+            document.getElementById('btn-' + tabId).classList.remove('text-slate-500', 'hover:text-slate-700');
             if(tabId === 'finanzas') renderAnalytics();
             if(tabId === 'database') renderStudentDatabase();
         }
 
         window.setModality = function(mod) {
             window.currentModality = mod;
-            document.getElementById('btn-mod-grupal').className = `flex-1 py-2 rounded-lg text-xs font-bold transition-all ${mod === 'GRUPAL' ? 'bg-white text-indigo-700 shadow-sm ring-1 ring-black/5' : 'text-slate-500 hover:text-slate-700 hover:bg-slate-200/50'}`;
-            document.getElementById('btn-mod-individual').className = `flex-1 py-2 rounded-lg text-xs font-bold transition-all ${mod === 'INDIVIDUAL' ? 'bg-white text-indigo-700 shadow-sm ring-1 ring-black/5' : 'text-slate-500 hover:text-slate-700 hover:bg-slate-200/50'}`;
+            document.getElementById('btn-mod-grupal').className = `flex-1 py-1.5 rounded-md text-xs font-bold transition-all ${mod === 'GRUPAL' ? 'bg-white text-blue-700 shadow-sm border border-slate-200' : 'text-slate-500 hover:text-slate-700'}`;
+            document.getElementById('btn-mod-individual').className = `flex-1 py-1.5 rounded-md text-xs font-bold transition-all ${mod === 'INDIVIDUAL' ? 'bg-white text-blue-700 shadow-sm border border-slate-200' : 'text-slate-500 hover:text-slate-700'}`;
             updateScheduleOptions();
         }
 
@@ -783,19 +656,13 @@
             window.hasDiscount = !window.hasDiscount;
             const container = document.getElementById('discount-container');
             const icon = document.getElementById('check-icon');
-            const ticketIcon = container.querySelector('i[data-lucide="ticket-percent"]');
-            
             if(window.hasDiscount) {
-                container.classList.add('border-emerald-300', 'bg-emerald-50/50');
+                container.classList.add('border-emerald-500', 'bg-emerald-50');
                 container.classList.remove('border-slate-200', 'bg-white');
-                ticketIcon.classList.add('text-emerald-600');
-                ticketIcon.classList.remove('text-slate-400');
                 icon.classList.remove('hidden');
             } else {
-                container.classList.remove('border-emerald-300', 'bg-emerald-50/50');
+                container.classList.remove('border-emerald-500', 'bg-emerald-50');
                 container.classList.add('border-slate-200', 'bg-white');
-                ticketIcon.classList.remove('text-emerald-600');
-                ticketIcon.classList.add('text-slate-400');
                 icon.classList.add('hidden');
             }
         }
@@ -836,9 +703,9 @@
             const preview = document.getElementById('duration-preview');
             if(val === 180 || val === 360) {
                 if(!window.hasDiscount) toggleDiscount();
-                preview.innerHTML = '<i data-lucide="clock" class="w-3.5 h-3.5"></i> Duración: 2 Ciclos (8 Semanas)';
+                preview.innerHTML = '<i data-lucide="clock" class="w-3 h-3"></i> Duración: 2 Ciclos (8 Semanas)';
             } else if (val === 100 || val === 200) {
-                preview.innerHTML = '<i data-lucide="clock" class="w-3.5 h-3.5"></i> Duración: 1 Ciclo (4 Semanas)';
+                preview.innerHTML = '<i data-lucide="clock" class="w-3 h-3"></i> Duración: 1 Ciclo (4 Semanas)';
             } else {
                 preview.innerHTML = '';
             }
@@ -855,107 +722,6 @@
             if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) age--;
             document.getElementById('age').value = age;
         }
-
-        // --- AI FEATURES LOGIC ---
-
-        // 1. ANÁLISIS FINANCIERO CON IA
-        window.analyzeFinances = async function() {
-            document.getElementById('modal-ai-analysis').classList.remove('hidden');
-            document.getElementById('ai-loading').classList.remove('hidden');
-            document.getElementById('ai-content').classList.add('hidden');
-
-            // Gather Data for Prompt
-            let total = 0, grupal = 0, indiv = 0, derivados = 0;
-            const departments = {};
-            students.forEach(s => {
-                if(s.active) departments[s.department] = (departments[s.department] || 0) + 1;
-                if(s.payments && s.payments.length > 0) {
-                    s.payments.forEach(p => {
-                        total += p.amount;
-                        if(s.modality === 'GRUPAL') grupal += p.amount; else indiv += p.amount;
-                    });
-                }
-            });
-            window.otherIncomes.forEach(inc => { total += inc.amount; derivados += inc.amount; });
-            
-            // Construct Prompt
-            const prompt = `Actúa como un experto consultor financiero para "Nexus Chess", una academia de ajedrez online. 
-            Analiza los siguientes datos actuales:
-            - Ingreso Total Histórico: S/. ${total.toFixed(2)}
-            - Ingresos por Clases Grupales: S/. ${grupal.toFixed(2)}
-            - Ingresos por Clases Individuales: S/. ${indiv.toFixed(2)}
-            - Ingresos Derivados/Otros: S/. ${derivados.toFixed(2)}
-            - Distribución Geográfica (Top 3): ${Object.entries(departments).sort(([,a],[,b])=>b-a).slice(0,3).map(k=>k[0]).join(', ')}
-            
-            Por favor, provee un resumen ejecutivo breve (máximo 3 párrafos cortos) con:
-            1. Un diagnóstico de la salud financiera actual.
-            2. Una observación interesante sobre los datos.
-            3. Una recomendación estratégica rápida para crecer.
-            
-            Usa formato Markdown (negritas, listas) para que se vea profesional. Tono: Profesional, motivador y analítico.`;
-
-            // Call API
-            const result = await generateContent(prompt);
-            
-            // Display Result
-            document.getElementById('ai-loading').classList.add('hidden');
-            const contentDiv = document.getElementById('ai-content');
-            contentDiv.classList.remove('hidden');
-            contentDiv.innerHTML = marked.parse(result);
-        }
-
-        // 2. GENERADOR DE MENSAJES (MAGIC MESSAGE)
-        window.openMessageGenerator = function(studentId) {
-            const s = students.find(st => st.id === studentId);
-            if(!s) return;
-            
-            document.getElementById('msg-student-id').value = s.id;
-            document.getElementById('msg-student-name').innerText = `${s.studentName} ${s.studentLastName}`;
-            document.getElementById('ai-generated-msg').value = '';
-            document.getElementById('modal-ai-message').classList.remove('hidden');
-        }
-
-        window.selectMsgType = async function(type) {
-            const studentId = parseInt(document.getElementById('msg-student-id').value);
-            const s = students.find(st => st.id === studentId);
-            if(!s) return;
-
-            document.getElementById('msg-loading').classList.remove('hidden');
-            
-            let promptContext = "";
-            switch(type) {
-                case 'welcome': 
-                    promptContext = `Redacta un mensaje cálido de bienvenida para el apoderado ${s.guardianName} confirmando el registro de ${s.studentName} en el curso de Ajedrez ${s.modality}. Menciona que estamos emocionados de tenerlo/a.`;
-                    break;
-                case 'payment':
-                    promptContext = `Redacta un mensaje amable y profesional para el apoderado ${s.guardianName} recordándole que la fecha de renovación de la mensualidad de ${s.studentName} es el ${s.renewalDate || 'próxima fecha'}. Incluye un tono cordial.`;
-                    break;
-                case 'absent':
-                    promptContext = `Redacta un mensaje preocupado pero amable para el apoderado ${s.guardianName} informando que ${s.studentName} faltó a la clase de hoy. Pregunta si todo está bien y recuérdales la importancia de la asistencia.`;
-                    break;
-                case 'congrats':
-                    promptContext = `Redacta un mensaje corto de felicitación para ${s.studentName} (dirigido al apoderado ${s.guardianName}) por su excelente desempeño y avance en las clases de ajedrez reciente.`;
-                    break;
-            }
-
-            const prompt = `${promptContext} 
-            El mensaje debe ser para WhatsApp o Correo. 
-            No uses "Asunto:". Empieza directamente con el saludo.
-            Usa emojis apropiados para una academia de ajedrez (♟️, 🏆, ✨).
-            Firma como "Equipo Nexus Chess".`;
-
-            const result = await generateContent(prompt);
-            document.getElementById('ai-generated-msg').value = result.replace(/`/g, ''); // Clean potential markdown code blocks
-            document.getElementById('msg-loading').classList.add('hidden');
-        }
-
-        window.copyMessage = function() {
-            const copyText = document.getElementById("ai-generated-msg");
-            copyText.select();
-            document.execCommand("copy"); // Fallback for iframe safety
-            alert("¡Mensaje copiado al portapapeles!");
-        }
-
 
         // --- MANEJO DE REGISTRO ---
         document.getElementById('registrationForm').onsubmit = function(e) {
@@ -1040,9 +806,9 @@
         window.resetForm = function() {
             document.getElementById('registrationForm').reset();
             document.getElementById('edit-id').value = '';
-            document.getElementById('form-title').innerHTML = '<div class="p-2 bg-indigo-50 rounded-lg text-indigo-600"><i data-lucide="user-plus" class="w-5 h-5"></i></div> Nuevo Registro';
+            document.getElementById('form-title').innerHTML = '<div class="p-1.5 bg-blue-50 rounded text-blue-600"><i data-lucide="user-plus" class="w-5 h-5"></i></div> Nuevo Registro';
             document.getElementById('btn-submit').innerHTML = '<i data-lucide="save" class="w-5 h-5"></i> REGISTRAR ALUMNO';
-            document.getElementById('btn-submit').className = "w-full py-4 rounded-xl font-bold text-white shadow-xl shadow-indigo-500/30 transform active:scale-[0.98] transition-all bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 flex items-center justify-center gap-2.5 text-sm uppercase tracking-wide";
+            document.getElementById('btn-submit').className = "w-full py-3.5 rounded-xl font-bold text-white shadow-lg shadow-blue-500/30 transform active:scale-[0.98] transition-all bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 flex items-center justify-center gap-2";
             document.getElementById('btn-cancel-edit').classList.add('hidden');
             document.getElementById('startDate').value = new Date().toISOString().split('T')[0];
             document.getElementById('duration-preview').innerHTML = "";
@@ -1073,9 +839,9 @@
             setModality(s.modality);
             if(s.hasDiscount !== window.hasDiscount) toggleDiscount();
             setTimeout(() => { document.getElementById('schedule').value = s.schedule; }, 100);
-            document.getElementById('form-title').innerHTML = '<div class="p-2 bg-orange-50 rounded-lg text-orange-500"><i data-lucide="edit-3" class="w-5 h-5"></i></div> Editar Alumno';
+            document.getElementById('form-title').innerHTML = '<div class="p-1.5 bg-orange-50 rounded text-orange-500"><i data-lucide="edit-3" class="w-5 h-5"></i></div> Editar Alumno';
             document.getElementById('btn-submit').innerHTML = '<i data-lucide="refresh-cw" class="w-5 h-5"></i> GUARDAR CAMBIOS';
-            document.getElementById('btn-submit').className = "w-full py-4 rounded-xl font-bold text-white shadow-xl shadow-orange-500/30 transform active:scale-[0.98] transition-all bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 flex items-center justify-center gap-2.5 text-sm uppercase tracking-wide";
+            document.getElementById('btn-submit').className = "w-full py-3.5 rounded-xl font-bold text-white shadow-lg shadow-orange-500/30 transform active:scale-[0.98] transition-all bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 flex items-center justify-center gap-2";
             document.getElementById('btn-cancel-edit').classList.remove('hidden');
             switchTab('registro');
         }
@@ -1103,34 +869,33 @@
 
             filtered.forEach(s => {
                 const tr = document.createElement('tr');
-                tr.className = `border-b border-slate-50 hover:bg-slate-50 transition-colors group ${!s.active ? 'opacity-60 bg-slate-50' : ''}`;
+                tr.className = `border-b border-slate-50 hover:bg-slate-50/50 transition-colors ${!s.active ? 'opacity-60 bg-slate-50' : ''}`;
                 
                 // Encontrar nombre del salón
                 const cls = classrooms.find(c => c.id === s.assignedClassId);
-                const clsName = cls ? cls.name : '<span class="text-slate-400 italic font-normal">Sin salón</span>';
+                const clsName = cls ? cls.name : '<span class="text-slate-400 italic">Sin salón</span>';
                 const statusBadge = s.active 
-                    ? '<span class="status-badge status-active"><span class="w-1.5 h-1.5 bg-current rounded-full"></span> Activo</span>' 
-                    : '<span class="status-badge status-inactive"><span class="w-1.5 h-1.5 bg-current rounded-full"></span> Inactivo</span>';
+                    ? '<span class="status-badge status-active">Activo</span>' 
+                    : '<span class="status-badge status-inactive">Inactivo</span>';
 
                 tr.innerHTML = `
-                    <td class="px-6 py-4 align-middle">${statusBadge}</td>
-                    <td class="px-6 py-4 align-middle">
-                        <div class="font-bold text-sm text-slate-800">${s.studentLastName}, ${s.studentName}</div>
-                        <div class="text-[10px] font-mono text-slate-400 uppercase tracking-wider">${s.discountCode || 'STU-' + s.id}</div>
+                    <td class="px-4 py-3 align-middle">${statusBadge}</td>
+                    <td class="px-4 py-3 align-middle">
+                        <div class="font-bold text-sm text-slate-700">${s.studentLastName}, ${s.studentName}</div>
+                        <div class="text-[10px] font-mono text-slate-400">${s.discountCode || 'STU-' + s.id}</div>
                     </td>
-                    <td class="px-6 py-4 align-middle"><div class="text-xs font-semibold text-slate-600 bg-slate-100/80 px-2.5 py-1 rounded-md inline-block border border-slate-200">${clsName}</div></td>
-                    <td class="px-6 py-4 align-middle font-mono text-xs font-bold ${s.active ? 'text-indigo-600' : 'text-slate-400'}">
+                    <td class="px-4 py-3 align-middle"><div class="text-xs text-slate-600 bg-slate-100 px-2 py-1 rounded inline-block">${clsName}</div></td>
+                    <td class="px-4 py-3 align-middle font-mono text-xs font-bold ${s.active ? 'text-blue-600' : 'text-slate-400'}">
                         ${s.renewalDate || '---'}
                     </td>
-                    <td class="px-6 py-4 align-middle text-right">
-                        <div class="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <button onclick="openMessageGenerator(${s.id})" class="p-2 text-fuchsia-500 hover:text-white hover:bg-gradient-to-r hover:from-violet-500 hover:to-fuchsia-500 rounded-lg transition-all border border-transparent hover:border-fuchsia-200 shadow-sm" title="Magic Message IA"><i data-lucide="sparkles" class="w-4 h-4"></i></button>
-                            <button onclick="editStudent(${s.id})" class="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors border border-transparent hover:border-indigo-100" title="Editar"><i data-lucide="edit-2" class="w-4 h-4"></i></button>
-                            <button onclick="openRenewModal(${s.id})" class="p-2 text-emerald-500 hover:bg-emerald-50 rounded-lg transition-colors border border-transparent hover:border-emerald-100" title="Renovar / Pagar"><i data-lucide="credit-card" class="w-4 h-4"></i></button>
-                            <button onclick="toggleStudentStatus(${s.id})" class="p-2 ${s.active ? 'text-red-400 hover:text-red-600 hover:bg-red-50' : 'text-green-400 hover:text-green-600 hover:bg-green-50'} rounded-lg transition-colors border border-transparent" title="${s.active ? 'Inhabilitar' : 'Habilitar'}">
+                    <td class="px-4 py-3 align-middle text-right">
+                        <div class="flex justify-end gap-1">
+                            <button onclick="editStudent(${s.id})" class="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors" title="Editar"><i data-lucide="edit-2" class="w-4 h-4"></i></button>
+                            <button onclick="openRenewModal(${s.id})" class="p-1.5 text-emerald-500 hover:bg-emerald-50 rounded transition-colors" title="Renovar / Pagar"><i data-lucide="credit-card" class="w-4 h-4"></i></button>
+                            <button onclick="toggleStudentStatus(${s.id})" class="p-1.5 ${s.active ? 'text-red-400 hover:text-red-600 hover:bg-red-50' : 'text-green-400 hover:text-green-600 hover:bg-green-50'} rounded transition-colors" title="${s.active ? 'Inhabilitar' : 'Habilitar'}">
                                 <i data-lucide="${s.active ? 'user-x' : 'user-check'}" class="w-4 h-4"></i>
                             </button>
-                            <button onclick="showCard(${s.id})" class="p-2 text-blue-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors border border-transparent hover:border-blue-100" title="Ver Carnet"><i data-lucide="id-card" class="w-4 h-4"></i></button>
+                            <button onclick="showCard(${s.id})" class="p-1.5 text-indigo-400 hover:text-indigo-600 hover:bg-indigo-50 rounded transition-colors" title="Ver Carnet"><i data-lucide="id-card" class="w-4 h-4"></i></button>
                         </div>
                     </td>
                 `;
@@ -1143,9 +908,10 @@
             const s = students.find(st => st.id === id);
             if(s) {
                 s.active = !s.active;
+                // Si se inhabilita, opcionalmente liberamos cupo del salón? Por ahora solo visual.
                 saveToFirebase();
                 renderStudentDatabase();
-                renderAnalytics(); 
+                renderAnalytics(); // Actualizar gráficos
             }
         }
 
@@ -1218,7 +984,7 @@
                 saveToFirebase();
                 closeRenewModal();
                 renderStudentDatabase();
-                renderAnalytics(); 
+                renderAnalytics(); // Refrescar gráfico mensual
                 alert(`Pago registrado. Nueva fecha de vencimiento: ${s.renewalDate}`);
             }
         }
@@ -1229,25 +995,31 @@
             let total = 0;
             let grupal = 0;
             let indiv = 0;
-            let derivados = 0;
+            let derivados = 0; // NUEVO CONTADOR
 
+            // Monthly breakdown map
             const months = {};
 
             // 1. Procesar pagos de Alumnos
             students.forEach(s => {
+                // Sumar historial de pagos
                 if(s.payments && s.payments.length > 0) {
                     s.payments.forEach(p => {
                         total += p.amount;
+                        // Para desglose por tipo, usamos la modalidad actual del alumno (aproximación)
                         if(s.modality === 'GRUPAL') grupal += p.amount; else indiv += p.amount;
 
+                        // Agrupar por mes (YYYY-MM) para ordenamiento
                         const d = new Date(p.date);
+                        // Truco para corregir zona horaria en visualización simple
                         const monthName = d.toLocaleDateString('es-PE', { month: 'long', timeZone: 'UTC' });
-                        const key = `${d.getFullYear()}-${(d.getMonth()+1).toString().padStart(2, '0')}`;
+                        const key = `${d.getFullYear()}-${(d.getMonth()+1).toString().padStart(2, '0')}`; // Clave ordenable
                         
                         if(!months[key]) months[key] = { name: monthName, amount: 0, year: d.getFullYear() };
                         months[key].amount += p.amount;
                     });
                 } else {
+                    // Fallback para datos antiguos sin array de pagos
                     total += s.paymentAmount;
                     if(s.modality === 'GRUPAL') grupal += s.paymentAmount; else indiv += s.paymentAmount;
                 }
@@ -1263,18 +1035,18 @@
                 const key = `${d.getFullYear()}-${(d.getMonth()+1).toString().padStart(2, '0')}`;
                 
                 if(!months[key]) months[key] = { name: monthName, amount: 0, year: d.getFullYear() };
-                months[key].amount += inc.amount;
+                months[key].amount += inc.amount; // SUMAR AL CIERRE MENSUAL
             });
 
             // Renderizar Barras de Ingresos Totales
-            const max = Math.max(grupal, indiv, derivados, 1);
+            const max = Math.max(grupal, indiv, derivados, 1); // Incluir derivados en el cálculo de escala
             document.getElementById('total-earnings').innerText = total.toFixed(2);
             
             document.getElementById('grupal-earnings-text').innerText = 'S/. ' + grupal.toFixed(2);
             document.getElementById('indiv-earnings-text').innerText = 'S/. ' + indiv.toFixed(2);
             document.getElementById('derivados-earnings-text').innerText = 'S/. ' + derivados.toFixed(2);
 
-            // AHORA ANIMAMOS EL HEIGHT
+            // AHORA ANIMAMOS EL HEIGHT (ALTO)
             const grupalPct = Math.max(4, (grupal/max)*100);
             const indivPct = Math.max(4, (indiv/max)*100);
             const derivPct = Math.max(4, (derivados/max)*100);
@@ -1283,11 +1055,10 @@
             document.getElementById('indiv-bar').style.height = indivPct + '%';
             document.getElementById('derivados-bar').style.height = derivPct + '%';
 
-            // Actualizar variables CSS para tooltip
-            // Usamos IDs directos para mayor robustez
-            document.getElementById('grupal-tooltip-container').style.bottom = grupalPct + '%';
-            document.getElementById('indiv-tooltip-container').style.bottom = indivPct + '%';
-            document.getElementById('derivados-tooltip-container').style.bottom = derivPct + '%';
+            // Actualizar variables CSS para la posición del tooltip
+            document.querySelector('.group #grupal-bar').parentElement.querySelector('.absolute').style.setProperty('--bar-height', grupalPct + '%');
+            document.querySelector('.group #indiv-bar').parentElement.querySelector('.absolute').style.setProperty('--bar-height-ind', indivPct + '%');
+            document.querySelector('.group #derivados-bar').parentElement.querySelector('.absolute').style.setProperty('--bar-height-der', derivPct + '%');
 
             // Renderizar Análisis Demográfico
             const counts = {};
@@ -1295,46 +1066,45 @@
             const sortedMarket = Object.entries(counts).sort(([,a], [,b]) => b - a);
             const marketList = document.getElementById('market-list');
             marketList.innerHTML = '';
-            if(sortedMarket.length === 0) marketList.innerHTML = '<div class="flex flex-col items-center py-8 text-slate-300"><i data-lucide="map" class="w-8 h-8 mb-2"></i><p class="text-xs">Sin datos</p></div>';
+            if(sortedMarket.length === 0) marketList.innerHTML = '<p class="text-center text-slate-300 text-xs mt-4">No hay datos activos.</p>';
             sortedMarket.forEach(([name, count], i) => {
                 const pct = (count / students.filter(s=>s.active).length) * 100;
                 marketList.innerHTML += `
-                    <div class="group">
-                        <div class="flex justify-between text-xs mb-2 font-medium">
-                            <span class="text-slate-600 flex items-center gap-2">
-                                <span class="w-5 h-5 rounded-full bg-slate-100 flex items-center justify-center text-[9px] font-bold text-slate-500 group-hover:bg-rose-100 group-hover:text-rose-600 transition-colors">${i+1}</span>
-                                ${name}
-                            </span>
-                            <span class="text-slate-800 font-bold bg-slate-50 px-2 py-0.5 rounded border border-slate-100">${count}</span>
+                    <div class="mb-3">
+                        <div class="flex justify-between text-xs mb-1.5 font-medium">
+                            <span class="text-slate-600 flex items-center gap-2"><span class="w-4 h-4 rounded-full bg-slate-100 flex items-center justify-center text-[9px] font-bold text-slate-500">${i+1}</span>${name}</span>
+                            <span class="text-slate-800 font-bold">${count}</span>
                         </div>
-                        <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden"><div class="bg-rose-500 h-2 rounded-full transition-all duration-1000 ease-out relative overflow-hidden" style="width: ${pct}%"><div class="absolute inset-0 bg-white/20 skew-x-12 -translate-x-full animate-[shimmer_2s_infinite]"></div></div></div>
+                        <div class="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden"><div class="bg-red-500 h-1.5 rounded-full" style="width: ${pct}%"></div></div>
                     </div>`;
             });
 
-            // Renderizar Cierre Mensual
-            const sortedMonths = Object.keys(months).sort().reverse();
+            // Renderizar Cierre Mensual (Nuevo)
+            const sortedMonths = Object.keys(months).sort().reverse(); // Mes más reciente primero
             const monthlyList = document.getElementById('monthly-list');
             monthlyList.innerHTML = '';
             
+            // Encontrar el monto máximo mensual para la escala
             const maxMonthly = Math.max(...Object.values(months).map(m => m.amount), 1);
 
-            if(sortedMonths.length === 0) monthlyList.innerHTML = '<div class="flex flex-col items-center py-8 text-slate-300"><i data-lucide="calendar-off" class="w-8 h-8 mb-2"></i><p class="text-xs">Sin pagos</p></div>';
+            if(sortedMonths.length === 0) monthlyList.innerHTML = '<p class="text-center text-slate-300 text-xs mt-4">Sin registro de pagos.</p>';
             
             sortedMonths.forEach(key => {
                 const m = months[key];
                 const pct = (m.amount / maxMonthly) * 100;
+                // Capitalizar mes
                 const monthDisplay = m.name.charAt(0).toUpperCase() + m.name.slice(1);
                 
                 monthlyList.innerHTML += `
-                    <div class="group">
-                        <div class="flex justify-between text-xs mb-2 font-medium">
-                            <span class="text-emerald-700 flex items-center gap-2 font-bold uppercase tracking-wide group-hover:text-emerald-500 transition-colors">
-                                <i data-lucide="calendar" class="w-3.5 h-3.5"></i> ${monthDisplay} ${m.year}
+                    <div class="mb-3">
+                        <div class="flex justify-between text-xs mb-1.5 font-medium">
+                            <span class="text-emerald-700 flex items-center gap-2 font-bold uppercase tracking-wide">
+                                <i data-lucide="calendar" class="w-3 h-3 text-emerald-500"></i> ${monthDisplay} ${m.year}
                             </span>
-                            <span class="text-slate-800 font-bold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-100 text-emerald-800">S/. ${m.amount.toFixed(2)}</span>
+                            <span class="text-slate-800 font-bold">S/. ${m.amount.toFixed(2)}</span>
                         </div>
-                        <div class="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden border border-slate-100">
-                            <div class="bg-emerald-500 h-2.5 rounded-full shadow-[0_2px_10px_rgba(16,185,129,0.3)] transition-all duration-1000 ease-out" style="width: ${pct}%"></div>
+                        <div class="w-full bg-emerald-50 rounded-full h-2 overflow-hidden border border-emerald-100">
+                            <div class="bg-emerald-500 h-2 rounded-full shadow-sm shadow-emerald-200" style="width: ${pct}%"></div>
                         </div>
                     </div>`;
             });
@@ -1345,21 +1115,20 @@
             calculateCounts();
             const container = document.getElementById('quota-container');
             const makeCard = (title, reg, maxR, disc, maxD, color) => `
-                <div class="p-4 rounded-2xl border border-slate-100 bg-slate-50/50 hover:bg-white hover:border-${color}-200 hover:shadow-md transition-all duration-300 group">
-                    <div class="flex justify-between items-center mb-3">
-                        <span class="font-bold text-slate-700 text-xs uppercase flex items-center gap-2 tracking-wide group-hover:text-${color}-600">
-                            <span class="w-2.5 h-2.5 rounded-full ${color === 'blue' ? 'bg-blue-500' : 'bg-indigo-500'} ring-2 ring-white shadow-sm"></span> ${title}
+                <div class="p-3 rounded-xl border border-slate-100 bg-slate-50/50 hover:bg-white transition-colors">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="font-bold text-slate-700 text-xs uppercase flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full ${color === 'blue' ? 'bg-blue-500' : 'bg-indigo-500'}"></span> ${title}
                         </span>
-                        <div class="h-px flex-1 bg-slate-200 mx-3 group-hover:bg-${color}-100"></div>
                     </div>
-                    <div class="flex gap-3 text-xs">
-                        <div class="flex-1 bg-white p-2.5 rounded-xl border border-slate-200 text-center shadow-sm">
-                            <span class="block text-slate-400 text-[9px] uppercase tracking-wider mb-1 font-bold">Regular</span>
-                            <span class="font-black text-slate-800 text-lg leading-none">${reg}<span class="text-slate-300 text-sm font-medium">/${maxR}</span></span>
+                    <div class="flex gap-2 text-xs">
+                        <div class="flex-1 bg-white p-2 rounded-lg border border-slate-200 text-center">
+                            <span class="block text-slate-400 text-[9px] uppercase tracking-wider mb-0.5">Regular</span>
+                            <span class="font-black text-slate-700 text-sm">${reg}/${maxR}</span>
                         </div>
-                        <div class="flex-1 bg-white p-2.5 rounded-xl border border-slate-200 text-center shadow-sm">
-                            <span class="block text-slate-400 text-[9px] uppercase tracking-wider mb-1 font-bold">Dscto</span>
-                            <span class="font-black text-lg leading-none ${disc===0?'text-red-500':'text-emerald-500'}">${disc}<span class="text-slate-300 text-sm font-medium">/${maxD}</span></span>
+                        <div class="flex-1 bg-white p-2 rounded-lg border border-slate-200 text-center">
+                            <span class="block text-slate-400 text-[9px] uppercase tracking-wider mb-0.5">Dscto</span>
+                            <span class="font-black text-sm ${disc===0?'text-red-500':'text-emerald-500'}">${disc}/${maxD}</span>
                         </div>
                     </div>
                 </div>`;
@@ -1371,8 +1140,8 @@
         // --- FUNCIONES PARA GESTIÓN DE AULAS ---
         window.filterClassrooms = function(type) {
             window.classroomViewFilter = type;
-            document.getElementById('filter-grupal').className = `px-5 py-2 rounded-xl text-sm font-bold transition-all ${type === 'GRUPAL' ? 'bg-indigo-50 text-indigo-700 border border-indigo-100 shadow-sm' : 'text-slate-500 hover:bg-slate-50 border border-transparent'}`;
-            document.getElementById('filter-individual').className = `px-5 py-2 rounded-xl text-sm font-bold transition-all ${type === 'INDIVIDUAL' ? 'bg-indigo-50 text-indigo-700 border border-indigo-100 shadow-sm' : 'text-slate-500 hover:bg-slate-50 border border-transparent'}`;
+            document.getElementById('filter-grupal').className = `px-6 py-2 rounded-lg text-sm font-bold transition-all ${type === 'GRUPAL' ? 'bg-blue-50 text-blue-700 border border-blue-100' : 'text-slate-500 hover:bg-slate-50 border border-transparent'}`;
+            document.getElementById('filter-individual').className = `px-6 py-2 rounded-lg text-sm font-bold transition-all ${type === 'INDIVIDUAL' ? 'bg-blue-50 text-blue-700 border border-blue-100' : 'text-slate-500 hover:bg-slate-50 border border-transparent'}`;
             selectedClassroomId = null;
             document.getElementById('classroom-detail-empty').classList.remove('hidden');
             document.getElementById('classroom-detail-content').classList.add('hidden');
@@ -1387,15 +1156,15 @@
                 const isFull = enrolledCount >= QUOTAS[c.type].classCapacity;
                 const isSelected = selectedClassroomId === c.id;
                 const div = document.createElement('div');
-                div.className = `p-5 rounded-2xl border cursor-pointer transition-all duration-300 group relative ${isSelected ? 'border-indigo-500 bg-indigo-50/40 shadow-md ring-1 ring-indigo-500' : 'border-slate-200 bg-white hover:border-indigo-300 hover:shadow-md'}`;
+                div.className = `p-4 rounded-xl border cursor-pointer transition-all group relative ${isSelected ? 'border-blue-500 bg-blue-50/50 shadow-md ring-1 ring-blue-500' : 'border-slate-200 bg-white hover:border-blue-300 hover:shadow-sm'}`;
                 
-                const deleteBtn = `<button onclick="deleteClassroom('${c.id}', event)" class="absolute top-3 right-3 p-1.5 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all opacity-0 group-hover:opacity-100" title="Eliminar Salón"><i data-lucide="trash-2" class="w-4 h-4"></i></button>`;
+                const deleteBtn = `<button onclick="deleteClassroom('${c.id}', event)" class="absolute top-2 right-2 p-1.5 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all opacity-0 group-hover:opacity-100" title="Eliminar Salón"><i data-lucide="trash-2" class="w-4 h-4"></i></button>`;
 
                 div.innerHTML = `
                     <div onclick="selectClassroom('${c.id}')">
-                        <div class="flex justify-between items-start mb-2 pr-8"><h3 class="font-bold text-slate-800 text-sm leading-snug">${c.name}</h3></div>
-                        <div class="flex items-center gap-2 text-xs text-slate-500 mb-4 font-medium"><div class="p-1 bg-slate-100 rounded text-slate-400"><i data-lucide="clock" class="w-3 h-3"></i></div><span>${c.schedule}</span></div>
-                        <div class="flex justify-between items-center text-[10px] font-bold"><span class="bg-indigo-100 text-indigo-700 px-2.5 py-1 rounded-md border border-indigo-200">${enrolledCount} Inscritos</span>${isFull ? '<span class="text-red-600 bg-red-50 px-2 py-0.5 rounded border border-red-100">LLENO</span>' : ''}</div>
+                        <div class="flex justify-between items-start mb-2 pr-6"><h3 class="font-bold text-slate-700 text-sm leading-tight">${c.name}</h3></div>
+                        <div class="flex items-center gap-1.5 text-xs text-slate-500 mb-3"><i data-lucide="clock" class="w-3 h-3"></i><span>${c.schedule}</span></div>
+                        <div class="flex justify-between items-center text-[10px] font-bold"><span class="bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">${enrolledCount} Inscritos</span>${isFull ? '<span class="text-red-500">LLENO</span>' : ''}</div>
                     </div>
                     ${deleteBtn}
                 `;
@@ -1497,13 +1266,13 @@
                     const tr = document.createElement('tr');
                     tr.className = 'hover:bg-slate-50 transition-colors group';
                     tr.innerHTML = `
-                        <td class="px-8 py-4 border-b border-slate-50"><div class="font-bold text-sm text-slate-700 group-hover:text-indigo-700 transition-colors">${s.studentLastName}, ${s.studentName}</div></td>
-                        <td class="px-8 py-4 border-b border-slate-50 text-center">${status ? `<span class="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide border ${status==='A'?'bg-emerald-100 text-emerald-700 border-emerald-200':status==='F'?'bg-red-100 text-red-700 border-red-200':'bg-amber-100 text-amber-700 border-amber-200'}">${status === 'A' ? 'Presente' : status === 'F' ? 'Falta' : 'Tardanza'}</span>` : '<span class="text-slate-300 text-xs">-</span>'}</td>
-                        <td class="px-8 py-4 border-b border-slate-50 text-right">
-                            <div class="flex justify-end gap-1.5 opacity-100 lg:opacity-0 group-hover:opacity-100 transition-all transform translate-x-4 group-hover:translate-x-0">
-                                <button onclick="markAttendance(${s.id}, 'A')" class="w-8 h-8 rounded-lg border text-xs font-bold transition-all ${status==='A'?'bg-emerald-500 text-white border-emerald-500 shadow-md shadow-emerald-200 scale-110':'text-emerald-600 border-emerald-100 hover:bg-emerald-50 hover:border-emerald-200'}">A</button>
-                                <button onclick="markAttendance(${s.id}, 'T')" class="w-8 h-8 rounded-lg border text-xs font-bold transition-all ${status==='T'?'bg-amber-400 text-white border-amber-400 shadow-md shadow-amber-200 scale-110':'text-amber-500 border-amber-100 hover:bg-amber-50 hover:border-amber-200'}">T</button>
-                                <button onclick="markAttendance(${s.id}, 'F')" class="w-8 h-8 rounded-lg border text-xs font-bold transition-all ${status==='F'?'bg-red-500 text-white border-red-500 shadow-md shadow-red-200 scale-110':'text-red-500 border-red-100 hover:bg-red-50 hover:border-red-200'}">F</button>
+                        <td class="px-6 py-4 border-b border-slate-50"><div class="font-bold text-sm text-slate-700">${s.studentLastName}, ${s.studentName}</div></td>
+                        <td class="px-6 py-4 border-b border-slate-50 text-center">${status ? `<span class="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide ${status==='A'?'bg-emerald-100 text-emerald-700':status==='F'?'bg-red-100 text-red-700':'bg-amber-100 text-amber-700'}">${status === 'A' ? 'Presente' : status === 'F' ? 'Falta' : 'Tardanza'}</span>` : '<span class="text-slate-300 text-xs">-</span>'}</td>
+                        <td class="px-6 py-4 border-b border-slate-50 text-right">
+                            <div class="flex justify-end gap-1 opacity-100 lg:opacity-0 group-hover:opacity-100 transition-opacity">
+                                <button onclick="markAttendance(${s.id}, 'A')" class="w-8 h-8 rounded-lg border text-xs font-bold transition-all ${status==='A'?'bg-emerald-500 text-white border-emerald-500 shadow-md shadow-emerald-200':'text-emerald-600 border-emerald-100 hover:bg-emerald-50'}">A</button>
+                                <button onclick="markAttendance(${s.id}, 'T')" class="w-8 h-8 rounded-lg border text-xs font-bold transition-all ${status==='T'?'bg-amber-400 text-white border-amber-400 shadow-md shadow-amber-200':'text-amber-500 border-amber-100 hover:bg-amber-50'}">T</button>
+                                <button onclick="markAttendance(${s.id}, 'F')" class="w-8 h-8 rounded-lg border text-xs font-bold transition-all ${status==='F'?'bg-red-500 text-white border-red-500 shadow-md shadow-red-200':'text-red-500 border-red-100 hover:bg-red-50'}">F</button>
                             </div>
                         </td>
                     `;
