@@ -38,6 +38,10 @@
 
         /* Tooltip Arrow */
         .tooltip-arrow { position: absolute; bottom: -4px; left: 50%; transform: translateX(-50%) rotate(45deg); width: 8px; height: 8px; background-color: #1e293b; }
+
+        /* Action Menu Dropdown */
+        .action-menu { display: none; position: absolute; right: 0; top: 100%; width: 200px; background: white; border: 1px solid #e2e8f0; border-radius: 0.75rem; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); z-index: 50; overflow: hidden; margin-top: 4px; }
+        .action-menu.active { display: block; animation: fadeIn 0.2s ease-out; }
     </style>
 </head>
 <body class="text-slate-800 h-screen flex flex-col overflow-hidden relative">
@@ -58,7 +62,7 @@
                     <span class="text-xs text-slate-500 font-medium">Panel de Administración</span>
                 </div>
             </div>
-            <nav class="flex p-1 bg-gray-100 rounded-xl overflow-x-auto max-w-full">
+            <nav class="flex p-1 bg-gray-100 rounded-xl overflow-x-auto max-w-full gap-1">
                 <button onclick="switchTab('registro')" id="btn-registro" class="whitespace-nowrap px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 transition-all bg-white text-blue-700 shadow-sm">
                     <i data-lucide="user-plus" class="w-4 h-4"></i> Registro
                 </button>
@@ -71,11 +75,14 @@
                 <button onclick="switchTab('database')" id="btn-database" class="whitespace-nowrap px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 transition-all text-slate-500 hover:text-slate-700">
                     <i data-lucide="database" class="w-4 h-4"></i> Base de Datos
                 </button>
+                <button onclick="switchTab('general')" id="btn-general" class="whitespace-nowrap px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 transition-all text-slate-500 hover:text-slate-700">
+                    <i data-lucide="pie-chart" class="w-4 h-4"></i> Análisis Gral.
+                </button>
             </nav>
         </div>
     </header>
 
-    <main class="flex-1 overflow-auto bg-slate-50/50 p-4 md:p-6 w-full">
+    <main class="flex-1 overflow-auto bg-slate-50/50 p-4 md:p-6 w-full" onclick="closeAllActionMenus()">
         <div class="max-w-7xl mx-auto h-full">
             
             <!-- TAB REGISTRO -->
@@ -215,16 +222,9 @@
                                         <i data-lucide="video" class="w-4 h-4"></i> UNIRSE
                                     </a>
                                 </div>
-                                <div class="grid grid-cols-1 gap-3 mb-4">
-                                    <div class="flex items-center gap-2 bg-white border border-slate-200 rounded-lg p-2 shadow-sm">
-                                        <div class="p-1.5 bg-blue-50 rounded-md text-blue-600"><i data-lucide="link" class="w-4 h-4"></i></div>
-                                        <input id="detail-link-input" onchange="updateClassroomLink()" placeholder="Pega aquí el enlace de Google Meet" class="flex-1 text-xs text-slate-600 font-mono bg-transparent border-none focus:ring-0" value="">
-                                    </div>
-                                    <!-- NUEVO CAMPO DRIVE EN DETALLE -->
-                                    <div class="flex items-center gap-2 bg-white border border-slate-200 rounded-lg p-2 shadow-sm">
-                                        <div class="p-1.5 bg-red-50 rounded-md text-red-600"><i data-lucide="hard-drive" class="w-4 h-4"></i></div>
-                                        <input id="detail-drive-input" onchange="updateClassroomDriveLink()" placeholder="Pega aquí el enlace de Google Drive (Grabaciones)" class="flex-1 text-xs text-slate-600 font-mono bg-transparent border-none focus:ring-0" value="">
-                                    </div>
+                                <div class="flex items-center gap-2 bg-white border border-slate-200 rounded-lg p-2 mb-4 shadow-sm">
+                                    <div class="p-1.5 bg-blue-50 rounded-md text-blue-600"><i data-lucide="link" class="w-4 h-4"></i></div>
+                                    <input id="detail-link-input" onchange="updateClassroomLink()" placeholder="Pega aquí el enlace de Google Meet" class="flex-1 text-xs text-slate-600 font-mono bg-transparent border-none focus:ring-0" value="">
                                 </div>
                                 <div class="flex justify-between items-center">
                                     <div class="text-sm font-bold text-slate-700">Registro de Asistencia</div>
@@ -257,66 +257,68 @@
                  <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col gap-6">
                     <!-- Ingresos Totales -->
                     <div>
-                        <div class="flex justify-between items-start mb-6">
-                            <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
-                                <div class="p-1.5 bg-emerald-50 rounded text-emerald-600"><i data-lucide="trending-up" class="w-5 h-5"></i></div>
-                                Reporte de Ingresos
-                            </h3>
-                            <button onclick="openIncomeModal()" class="px-3 py-1.5 bg-purple-50 text-purple-700 hover:bg-purple-100 rounded-lg text-xs font-bold transition-colors flex items-center gap-1 border border-purple-100">
-                                <i data-lucide="plus" class="w-3 h-3"></i> Otro Ingreso
-                            </button>
+                        <div class="flex flex-col gap-4 mb-6">
+                            <div class="flex justify-between items-start">
+                                <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                                    <div class="p-1.5 bg-emerald-50 rounded text-emerald-600"><i data-lucide="trending-up" class="w-5 h-5"></i></div>
+                                    Finanzas Mensuales
+                                </h3>
+                                <button onclick="openIncomeModal()" class="px-3 py-1.5 bg-purple-50 text-purple-700 hover:bg-purple-100 rounded-lg text-xs font-bold transition-colors flex items-center gap-1 border border-purple-100">
+                                    <i data-lucide="plus" class="w-3 h-3"></i> Otro Ingreso
+                                </button>
+                            </div>
+                            
+                            <!-- Selector de Mes -->
+                            <div class="relative w-full max-w-[200px]">
+                                <select id="finance-month-select" onchange="renderMonthlyFinance()" class="w-full appearance-none bg-slate-100 border border-slate-200 text-slate-700 py-2 px-3 pr-8 rounded-lg font-bold text-sm focus:outline-none focus:ring-2 focus:ring-blue-100">
+                                </select>
+                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-500">
+                                    <i data-lucide="calendar" class="w-4 h-4"></i>
+                                </div>
+                            </div>
                         </div>
                         
                         <div class="text-center mb-8">
-                            <span class="text-sm text-slate-400 font-medium">Total Recaudado (Histórico)</span>
-                            <div class="text-4xl font-black text-slate-800 mt-1">S/. <span id="total-earnings">0.00</span></div>
+                            <span class="text-sm text-slate-400 font-medium">Recaudado en <span id="display-month-name">---</span></span>
+                            <div class="text-4xl font-black text-slate-800 mt-1">S/. <span id="monthly-total">0.00</span></div>
                         </div>
 
-                        <!-- BARRAS VERTICALES -->
+                        <!-- BARRAS VERTICALES (Mensual) -->
                         <div class="flex justify-around items-end gap-2 px-2 pb-0">
-                            <!-- Columna Grupal -->
                             <div class="flex flex-col items-center gap-2 group cursor-pointer w-full">
                                 <div class="h-48 w-full flex items-end justify-center relative">
-                                    <!-- Tooltip encima de la barra -->
                                     <div class="absolute bottom-0 mb-1 z-20 transition-all duration-300 opacity-0 group-hover:opacity-100 group-hover:translate-y-[-100%] group-hover:mb-2 pointer-events-none" style="bottom: var(--bar-height, 0%);">
                                         <div class="bg-slate-800 text-white text-xs font-bold px-2 py-1 rounded shadow-lg whitespace-nowrap relative">
                                             <span id="grupal-earnings-text">S/. 0.00</span>
                                             <div class="tooltip-arrow"></div>
                                         </div>
                                     </div>
-                                    <!-- Barra -->
                                     <div id="grupal-bar" class="w-full max-w-[50px] bg-gradient-to-t from-blue-600 to-blue-400 rounded-t-lg shadow-lg shadow-blue-200 transition-all duration-1000 ease-out relative" style="height: 4px;"></div>
                                 </div>
                                 <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider text-center">Grupal</div>
                             </div>
 
-                            <!-- Columna Individual -->
                             <div class="flex flex-col items-center gap-2 group cursor-pointer w-full">
                                 <div class="h-48 w-full flex items-end justify-center relative">
-                                     <!-- Tooltip -->
                                     <div class="absolute bottom-0 mb-1 z-20 transition-all duration-300 opacity-0 group-hover:opacity-100 group-hover:translate-y-[-100%] group-hover:mb-2 pointer-events-none" style="bottom: var(--bar-height-ind, 0%);">
                                         <div class="bg-slate-800 text-white text-xs font-bold px-2 py-1 rounded shadow-lg whitespace-nowrap relative">
                                             <span id="indiv-earnings-text">S/. 0.00</span>
                                             <div class="tooltip-arrow"></div>
                                         </div>
                                     </div>
-                                    <!-- Barra -->
                                     <div id="indiv-bar" class="w-full max-w-[50px] bg-gradient-to-t from-indigo-600 to-indigo-400 rounded-t-lg shadow-lg shadow-indigo-200 transition-all duration-1000 ease-out relative" style="height: 4px;"></div>
                                 </div>
                                 <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider text-center">Individual</div>
                             </div>
 
-                            <!-- Columna Derivados -->
                             <div class="flex flex-col items-center gap-2 group cursor-pointer w-full">
                                 <div class="h-48 w-full flex items-end justify-center relative">
-                                     <!-- Tooltip -->
                                     <div class="absolute bottom-0 mb-1 z-20 transition-all duration-300 opacity-0 group-hover:opacity-100 group-hover:translate-y-[-100%] group-hover:mb-2 pointer-events-none" style="bottom: var(--bar-height-der, 0%);">
                                         <div class="bg-slate-800 text-white text-xs font-bold px-2 py-1 rounded shadow-lg whitespace-nowrap relative">
                                             <span id="derivados-earnings-text">S/. 0.00</span>
                                             <div class="tooltip-arrow"></div>
                                         </div>
                                     </div>
-                                    <!-- Barra -->
                                     <div id="derivados-bar" class="w-full max-w-[50px] bg-gradient-to-t from-purple-600 to-purple-400 rounded-t-lg shadow-lg shadow-purple-200 transition-all duration-1000 ease-out relative" style="height: 4px;"></div>
                                 </div>
                                 <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider text-center">Derivados</div>
@@ -327,15 +329,15 @@
                 </div>
 
                 <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col gap-8">
-                    <!-- Análisis Demográfico -->
+                    <!-- Análisis Demográfico Mensual -->
                     <div class="flex flex-col flex-1 min-h-0 max-h-[50%]">
                         <h3 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
                             <div class="p-1.5 bg-red-50 rounded text-red-500"><i data-lucide="map-pin" class="w-5 h-5"></i></div>
-                            Análisis Demográfico
+                            Demografía del Mes
                         </h3>
                         <div id="market-list" class="space-y-4 flex-1 overflow-y-auto pr-2 custom-scrollbar"></div>
                     </div>
-                    
+
                     <!-- Cierre Mensual -->
                     <div class="flex flex-col flex-1 min-h-0 border-t border-slate-100 pt-6">
                          <h3 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
@@ -347,7 +349,67 @@
                 </div>
             </section>
 
-            <!-- TAB BASE DE DATOS (NUEVO) -->
+            <!-- TAB ANÁLISIS GENERAL -->
+            <section id="tab-general" class="hidden fade-in space-y-6 h-full overflow-y-auto custom-scrollbar">
+                <!-- KPI Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-6 text-white shadow-lg relative overflow-hidden">
+                        <div class="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full blur-3xl -mr-10 -mt-10"></div>
+                        <div class="relative z-10">
+                            <div class="text-slate-400 text-xs font-bold uppercase tracking-wider mb-2 flex items-center gap-2"><i data-lucide="coins" class="w-4 h-4"></i> Ingreso Histórico Total</div>
+                            <div class="text-4xl font-[Oswald] font-bold">S/. <span id="gen-total-income">0.00</span></div>
+                            <div class="mt-2 text-xs text-slate-400">Suma total de todos los meses</div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 flex items-center justify-between">
+                        <div>
+                            <div class="text-slate-500 text-xs font-bold uppercase tracking-wider mb-1">Total Alumnos Histórico</div>
+                            <div class="text-3xl font-black text-slate-800" id="gen-total-students">0</div>
+                        </div>
+                        <div class="h-12 w-12 bg-blue-50 rounded-full flex items-center justify-center text-blue-600">
+                            <i data-lucide="users" class="w-6 h-6"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Gráficos -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Evolución de Inscripciones -->
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                        <h3 class="text-sm font-bold text-slate-800 mb-6 flex items-center gap-2 uppercase tracking-wide">
+                            <i data-lucide="trending-up" class="w-4 h-4 text-emerald-500"></i> Evolución de Inscripciones
+                        </h3>
+                        <div id="gen-enrollment-chart" class="h-64 flex items-end justify-between gap-2"></div>
+                    </div>
+
+                    <!-- Ranking de Horarios -->
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col">
+                        <h3 class="text-sm font-bold text-slate-800 mb-4 flex items-center gap-2 uppercase tracking-wide">
+                            <i data-lucide="clock" class="w-4 h-4 text-orange-500"></i> Horarios Más Solicitados
+                        </h3>
+                        <div class="flex flex-col gap-6 flex-1 overflow-y-auto custom-scrollbar">
+                            <div>
+                                <div class="text-[10px] font-bold text-blue-600 uppercase tracking-wider mb-2 border-b border-blue-100 pb-1">Grupal</div>
+                                <div id="gen-schedule-list-grupal" class="space-y-2"></div>
+                            </div>
+                            <div>
+                                <div class="text-[10px] font-bold text-indigo-600 uppercase tracking-wider mb-2 border-b border-indigo-100 pb-1">Individual</div>
+                                <div id="gen-schedule-list-individual" class="space-y-2"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Demografía Global -->
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                    <h3 class="text-sm font-bold text-slate-800 mb-6 flex items-center gap-2 uppercase tracking-wide">
+                        <i data-lucide="globe" class="w-4 h-4 text-indigo-500"></i> Análisis Demográfico (Todos los tiempos)
+                    </h3>
+                    <div id="gen-demographics-list" class="space-y-3"></div>
+                </div>
+            </section>
+
+            <!-- TAB BASE DE DATOS -->
             <section id="tab-database" class="hidden fade-in h-full flex flex-col">
                 <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col h-full">
                     <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
@@ -391,7 +453,7 @@
         </div>
     </main>
 
-    <!-- Modal Nuevo Ingreso (NUEVO) -->
+    <!-- Modales -->
     <div id="modal-income" class="hidden fixed inset-0 bg-slate-900/60 flex items-center justify-center z-[70] p-4 backdrop-blur-sm" onclick="closeIncomeModal()">
         <div class="bg-white w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden animate-bounce-in" onclick="event.stopPropagation()">
             <div class="bg-purple-600 px-6 py-4 flex justify-between items-center">
@@ -399,24 +461,14 @@
                 <button onclick="closeIncomeModal()" class="text-white/80 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
             <div class="p-6 space-y-4">
-                <div>
-                    <label class="label-classic">Concepto / Descripción</label>
-                    <input id="income-desc" class="input-classic" placeholder="Ej: Derivación Alumno X">
-                </div>
-                <div>
-                    <label class="label-classic">Monto (S/.)</label>
-                    <input type="number" id="income-amount" class="input-classic font-bold text-purple-600" placeholder="0.00">
-                </div>
-                 <div>
-                    <label class="label-classic">Fecha</label>
-                    <input type="date" id="income-date" class="input-classic">
-                </div>
+                <div><label class="label-classic">Concepto</label><input id="income-desc" class="input-classic" placeholder="Ej: Derivación Alumno X"></div>
+                <div><label class="label-classic">Monto (S/.)</label><input type="number" id="income-amount" class="input-classic font-bold text-purple-600" placeholder="0.00"></div>
+                 <div><label class="label-classic">Fecha</label><input type="date" id="income-date" class="input-classic"></div>
                 <button onclick="saveIncome()" class="w-full py-3 rounded-xl font-bold text-white bg-purple-600 hover:bg-purple-700 transition-colors shadow-lg shadow-purple-500/20">Guardar Ingreso</button>
             </div>
         </div>
     </div>
 
-    <!-- Modal de Renovación -->
     <div id="modal-renew" class="hidden fixed inset-0 bg-slate-900/60 flex items-center justify-center z-[70] p-4 backdrop-blur-sm" onclick="closeRenewModal()">
         <div class="bg-white w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden animate-bounce-in" onclick="event.stopPropagation()">
             <div class="bg-emerald-600 px-6 py-4 flex justify-between items-center">
@@ -426,21 +478,13 @@
             <div class="p-6 space-y-4">
                 <input type="hidden" id="renew-student-id">
                 <p class="text-sm text-slate-600">Registrar nuevo pago para: <strong id="renew-student-name"></strong></p>
-                <div>
-                    <label class="label-classic">Nuevo Monto (S/.)</label>
-                    <input type="number" id="renew-amount" class="input-classic font-bold text-emerald-600" placeholder="0.00">
-                </div>
-                 <div>
-                    <label class="label-classic">Nueva Fecha de Inicio</label>
-                    <input type="date" id="renew-date" class="input-classic">
-                    <p class="text-[10px] text-slate-400 mt-1">La fecha de vencimiento se calculará automáticamente desde aquí.</p>
-                </div>
+                <div><label class="label-classic">Nuevo Monto (S/.)</label><input type="number" id="renew-amount" class="input-classic font-bold text-emerald-600" placeholder="0.00"></div>
+                 <div><label class="label-classic">Nueva Fecha de Inicio</label><input type="date" id="renew-date" class="input-classic"><p class="text-[10px] text-slate-400 mt-1">La fecha de vencimiento se calculará automáticamente desde aquí.</p></div>
                 <button onclick="confirmRenewal()" class="w-full py-3 rounded-xl font-bold text-white bg-emerald-600 hover:bg-emerald-700 transition-colors shadow-lg shadow-emerald-500/20">Confirmar Pago</button>
             </div>
         </div>
     </div>
 
-    <!-- Modal Carnet (Mantenido igual) -->
     <div id="card-modal" class="hidden fixed inset-0 bg-slate-900/80 flex items-center justify-center z-[60] p-4 backdrop-blur-sm transition-opacity" onclick="closeModal()">
         <div class="relative transform transition-all scale-100" onclick="event.stopPropagation()">
             <button onclick="closeModal()" class="absolute -top-10 right-0 text-white hover:text-slate-200 transition-colors"><i data-lucide="x" class="w-8 h-8"></i></button>
@@ -448,18 +492,13 @@
                 <div class="card-header-glow"></div>
                 <div class="hologram-strip"></div>
                 <div class="flex justify-between items-start mb-6 z-10 relative">
-                    <div>
-                        <div class="text-[10px] text-blue-300 font-bold tracking-[0.2em] uppercase mb-1">Credencial Oficial</div>
-                        <div class="font-[Oswald] font-bold text-2xl tracking-wide">ACADEMIA<br><span class="text-blue-400">VIRTUAL</span></div>
-                    </div>
+                    <div><div class="text-[10px] text-blue-300 font-bold tracking-[0.2em] uppercase mb-1">Credencial Oficial</div><div class="font-[Oswald] font-bold text-2xl tracking-wide">ACADEMIA<br><span class="text-blue-400">VIRTUAL</span></div></div>
                     <div class="card-chip flex items-center justify-center"><div class="w-6 h-6 rounded-full border border-yellow-600/50"></div></div>
                 </div>
                 <div class="flex-1 z-10 flex flex-col items-center justify-center relative">
                     <div class="relative mb-4">
                         <div class="w-32 h-32 rounded-full p-1 bg-gradient-to-b from-blue-400 to-indigo-600 shadow-lg shadow-blue-500/30">
-                            <div class="w-full h-full rounded-full bg-slate-800 flex items-center justify-center overflow-hidden border-4 border-slate-900">
-                                <i data-lucide="user" class="w-16 h-16 text-slate-500"></i>
-                            </div>
+                            <div class="w-full h-full rounded-full bg-slate-800 flex items-center justify-center overflow-hidden border-4 border-slate-900"><i data-lucide="user" class="w-16 h-16 text-slate-500"></i></div>
                         </div>
                         <div class="absolute bottom-1 right-1 bg-emerald-500 border-4 border-slate-900 w-7 h-7 rounded-full flex items-center justify-center shadow-lg"><i data-lucide="check" class="w-3 h-3 text-white stroke-[3]"></i></div>
                     </div>
@@ -480,7 +519,6 @@
         </div>
     </div>
 
-    <!-- Modal Salón -->
     <div id="modal-classroom" class="hidden fixed inset-0 bg-slate-900/60 flex items-center justify-center z-[70] p-4 backdrop-blur-sm" onclick="closeClassroomModal()">
         <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden animate-bounce-in" onclick="event.stopPropagation()">
             <div class="px-6 py-4 bg-slate-50 border-b border-slate-100 flex justify-between items-center">
@@ -488,35 +526,11 @@
                 <button onclick="closeClassroomModal()" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
             <form id="classroomForm" class="p-6 space-y-4">
-                <div>
-                    <label class="label-classic">Nombre del Salón</label>
-                    <input required id="cls-name" placeholder="Ej: Básico 1 - G2" class="input-classic">
-                </div>
-                <div>
-                    <label class="label-classic">Modalidad</label>
-                    <select id="cls-type" class="input-classic bg-slate-50">
-                        <option value="GRUPAL">GRUPAL</option>
-                        <option value="INDIVIDUAL">INDIVIDUAL</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="label-classic">Horario (Texto)</label>
-                    <input required id="cls-schedule" placeholder="Ej: Mar y Jue (18:00 - 19:30)" class="input-classic">
-                    <p class="text-[10px] text-slate-400 mt-1">Este texto aparecerá en las opciones de registro.</p>
-                </div>
-                <div>
-                    <label class="label-classic">Link de Meet (Opcional)</label>
-                    <input id="cls-link" placeholder="https://meet.google.com/..." class="input-classic">
-                </div>
-                <!-- NUEVO CAMPO DRIVE -->
-                <div>
-                    <label class="label-classic">Link de Drive (Grabaciones)</label>
-                    <input id="cls-drive" placeholder="https://drive.google.com/..." class="input-classic">
-                    <p class="text-[10px] text-slate-400 mt-1">Carpeta de grabaciones para el portal estudiantil.</p>
-                </div>
-                <div class="pt-2">
-                    <button type="submit" class="w-full py-3 rounded-xl font-bold text-white bg-emerald-600 hover:bg-emerald-700 transition-colors shadow-lg shadow-emerald-500/20">Crear Salón</button>
-                </div>
+                <div><label class="label-classic">Nombre del Salón</label><input required id="cls-name" placeholder="Ej: Básico 1 - G2" class="input-classic"></div>
+                <div><label class="label-classic">Modalidad</label><select id="cls-type" class="input-classic bg-slate-50"><option value="GRUPAL">GRUPAL</option><option value="INDIVIDUAL">INDIVIDUAL</option></select></div>
+                <div><label class="label-classic">Horario (Texto)</label><input required id="cls-schedule" placeholder="Ej: Mar y Jue (18:00 - 19:30)" class="input-classic"><p class="text-[10px] text-slate-400 mt-1">Este texto aparecerá en las opciones de registro.</p></div>
+                <div><label class="label-classic">Link de Meet (Opcional)</label><input id="cls-link" placeholder="https://meet.google.com/..." class="input-classic"></div>
+                <div class="pt-2"><button type="submit" class="w-full py-3 rounded-xl font-bold text-white bg-emerald-600 hover:bg-emerald-700 transition-colors shadow-lg shadow-emerald-500/20">Crear Salón</button></div>
             </form>
         </div>
     </div>
@@ -544,18 +558,18 @@
         window.students = [];
         window.classrooms = [];
         window.attendanceData = {};
-        window.otherIncomes = []; // NUEVO: Array para ingresos extra
+        window.otherIncomes = []; 
         window.currentModality = 'GRUPAL';
         window.hasDiscount = false;
         window.selectedClassroomId = null;
         window.classroomViewFilter = 'GRUPAL';
+        window.currentFinanceMonth = new Date().toISOString().slice(0, 7); 
 
         const DEPARTAMENTOS = ["Amazonas", "Áncash", "Apurímac", "Arequipa", "Ayacucho", "Cajamarca", "Callao", "Cusco", "Huancavelica", "Huánuco", "Ica", "Junín", "La Libertad", "Lambayeque", "Lima", "Loreto", "Madre de Dios", "Moquegua", "Pasco", "Piura", "Puno", "San Martín", "Tacna", "Tumbes", "Ucayali"];
-        
         const INITIAL_CLASSROOMS = [
-            { id: 'G-BAS1', name: 'Básico 1 Grupal', type: 'GRUPAL', schedule: 'Lun y Mié (09:00 - 10:00)', enrolled: [], meetLink: 'https://meet.google.com/new', driveLink: '' },
-            { id: 'G-BAS2', name: 'Básico 2 Grupal', type: 'GRUPAL', schedule: 'Lun y Mié (10:30 - 11:30)', enrolled: [], meetLink: '', driveLink: '' },
-            { id: 'I-CL1', name: 'Clase Individual 1', type: 'INDIVIDUAL', schedule: 'Mar y Jue (09:00 - 10:00)', enrolled: [], meetLink: '', driveLink: '' },
+            { id: 'G-BAS1', name: 'Básico 1 Grupal', type: 'GRUPAL', schedule: 'Lun y Mié (09:00 - 10:00)', enrolled: [], meetLink: 'https://meet.google.com/new' },
+            { id: 'G-BAS2', name: 'Básico 2 Grupal', type: 'GRUPAL', schedule: 'Lun y Mié (10:30 - 11:30)', enrolled: [], meetLink: '' },
+            { id: 'I-CL1', name: 'Clase Individual 1', type: 'INDIVIDUAL', schedule: 'Mar y Jue (09:00 - 10:00)', enrolled: [], meetLink: '' },
         ];
 
         // --- CONEXIÓN FIREBASE ---
@@ -566,17 +580,14 @@
             document.getElementById('loader').classList.add('hidden');
 
             if (data) {
-                // Migración de datos antiguos para soportar historial de pagos
                 window.students = (data.students || []).map(s => {
-                    if (!s.payments) {
-                        s.payments = [{ date: s.startDate || s.registrationDate, amount: s.paymentAmount }];
-                    }
-                    if (s.active === undefined) s.active = true; // Por defecto activo
+                    if (!s.payments) s.payments = [{ date: s.startDate || s.registrationDate, amount: s.paymentAmount }];
+                    if (s.active === undefined) s.active = true; 
                     return s;
                 });
                 window.attendanceData = data.attendanceData || {};
                 window.classrooms = data.classrooms || JSON.parse(JSON.stringify(INITIAL_CLASSROOMS));
-                window.otherIncomes = data.otherIncomes || []; // CARGAR INGRESOS EXTRA
+                window.otherIncomes = data.otherIncomes || []; 
             } else {
                 window.classrooms = JSON.parse(JSON.stringify(INITIAL_CLASSROOMS));
                 saveToFirebase();
@@ -589,15 +600,17 @@
                 students: window.students,
                 classrooms: window.classrooms,
                 attendanceData: window.attendanceData,
-                otherIncomes: window.otherIncomes // GUARDAR INGRESOS EXTRA
+                otherIncomes: window.otherIncomes 
             });
         }
 
         function refreshAllUI() {
             renderQuotas();
             renderClassrooms();
-            renderAnalytics();
-            renderStudentDatabase(); // Nueva función de tabla
+            updateFinanceMonthOptions();
+            renderMonthlyFinance();
+            renderGeneralAnalytics();
+            renderStudentDatabase(); 
             if(selectedClassroomId) renderAttendanceTable();
             updateScheduleOptions();
         }
@@ -608,7 +621,7 @@
             document.getElementById('attendance-date').valueAsDate = new Date();
             document.getElementById('startDate').value = new Date().toISOString().split('T')[0];
             document.getElementById('renew-date').value = new Date().toISOString().split('T')[0];
-            document.getElementById('income-date').value = new Date().toISOString().split('T')[0]; // Fecha default para ingresos
+            document.getElementById('income-date').value = new Date().toISOString().split('T')[0]; 
             lucide.createIcons();
         };
 
@@ -623,13 +636,12 @@
             sel.value = 'Lima';
         }
 
-        window.QUOTAS = { GRUPAL: { total: 40, regular: 25, discount: 15, classCapacity: 8 }, INDIVIDUAL: { total: 9, regular: 5, discount: 4, classCapacity: 1 } };
+        window.QUOTAS = { GRUPAL: { total: 48, regular: 33, discount: 15, classCapacity: 8 }, INDIVIDUAL: { total: 9, regular: 5, discount: 4, classCapacity: 1 } };
         window.counts = { grupalRegular: 0, grupalDiscount: 0, individualRegular: 0, individualDiscount: 0 };
 
         window.calculateCounts = function() {
             window.counts = { grupalRegular: 0, grupalDiscount: 0, individualRegular: 0, individualDiscount: 0 };
             window.students.forEach(s => {
-                // Solo contar alumnos activos
                 if (!s.active) return;
                 const key = s.modality === 'GRUPAL' ? (s.hasDiscount ? 'grupalDiscount' : 'grupalRegular') : (s.hasDiscount ? 'individualDiscount' : 'individualRegular');
                 window.counts[key]++;
@@ -646,7 +658,7 @@
         }
 
         window.switchTab = function(tabId) {
-            ['registro', 'salones', 'finanzas', 'database'].forEach(t => {
+            ['registro', 'salones', 'finanzas', 'database', 'general'].forEach(t => {
                 document.getElementById('tab-' + t).classList.add('hidden');
                 document.getElementById('btn-' + t).classList.remove('bg-white', 'text-blue-700', 'shadow-sm', 'border', 'border-slate-200');
                 document.getElementById('btn-' + t).classList.add('text-slate-500', 'hover:text-slate-700');
@@ -654,7 +666,9 @@
             document.getElementById('tab-' + tabId).classList.remove('hidden');
             document.getElementById('btn-' + tabId).classList.add('bg-white', 'text-blue-700', 'shadow-sm');
             document.getElementById('btn-' + tabId).classList.remove('text-slate-500', 'hover:text-slate-700');
-            if(tabId === 'finanzas') renderAnalytics();
+            
+            if(tabId === 'finanzas') renderMonthlyFinance();
+            if(tabId === 'general') renderGeneralAnalytics();
             if(tabId === 'database') renderStudentDatabase();
         }
 
@@ -680,15 +694,10 @@
             }
         }
 
-        // --- GESTIÓN DE HORARIOS EN REGISTRO ---
         window.updateScheduleOptions = function() {
             const select = document.getElementById('schedule');
             select.innerHTML = '';
-            
-            // Filtramos salones por modalidad
             const filtered = window.classrooms.filter(c => c.type === window.currentModality);
-            
-            // Obtenemos horarios únicos
             const uniqueSchedules = [...new Set(filtered.map(c => c.schedule))];
             
             if(uniqueSchedules.length === 0) {
@@ -699,13 +708,10 @@
             }
 
             uniqueSchedules.forEach(sch => {
-                // Verificar si hay al menos un salón con este horario que tenga cupo
                 const hasSpace = filtered.some(c => c.schedule === sch && (c.enrolled || []).length < QUOTAS[c.type].classCapacity);
-                
                 if (hasSpace) {
                     const opt = document.createElement('option');
-                    opt.value = sch; 
-                    opt.innerText = sch;
+                    opt.value = sch; opt.innerText = sch;
                     select.appendChild(opt);
                 }
             });
@@ -736,7 +742,6 @@
             document.getElementById('age').value = age;
         }
 
-        // --- MANEJO DE REGISTRO ---
         document.getElementById('registrationForm').onsubmit = function(e) {
             e.preventDefault();
             const formData = {
@@ -767,26 +772,13 @@
             calculateCounts();
             const max = QUOTAS[data.modality][data.hasDiscount ? 'discount' : 'regular'];
             const key = data.modality === 'GRUPAL' ? (data.hasDiscount ? 'grupalDiscount' : 'grupalRegular') : (data.hasDiscount ? 'individualDiscount' : 'individualRegular');
-            
             if(counts[key] >= max) { alert("¡Alerta de Cupos! Se ha alcanzado el límite para esta categoría."); return; }
-            
             const clsIndex = classrooms.findIndex(c => c.type === data.modality && c.schedule === data.schedule && (c.enrolled || []).length < QUOTAS[data.modality].classCapacity);
-            
             if (clsIndex === -1) { alert("Lo sentimos, no hay salones disponibles en este horario específico."); return; }
-
             const discountCode = data.hasDiscount ? `NX-${Math.random().toString(36).substr(2,4).toUpperCase()}` : null;
             const renewalDate = calculateRenewalDate(data.startDate, data.paymentAmount);
-            
-            // Estructura de Pagos: Inicializamos el array de pagos
             const payments = [{ date: data.startDate, amount: data.paymentAmount }];
-
-            const newStudent = { 
-                ...data, id: Date.now(), assignedClassId: classrooms[clsIndex].id, 
-                discountCode, registrationDate: new Date().toLocaleDateString(), renewalDate,
-                active: true, // Nuevo campo de estado
-                payments: payments // Nuevo campo de historial
-            };
-
+            const newStudent = { ...data, id: Date.now(), assignedClassId: classrooms[clsIndex].id, discountCode, registrationDate: new Date().toLocaleDateString(), renewalDate, active: true, payments: payments };
             window.students.push(newStudent);
             if(!window.classrooms[clsIndex].enrolled) window.classrooms[clsIndex].enrolled = [];
             window.classrooms[clsIndex].enrolled.push(newStudent.id);
@@ -797,19 +789,13 @@
 
         function handleUpdate(updatedData) {
             const oldStudent = window.students.find(s => s.id === updatedData.id);
-            // Mantener datos que no están en el formulario
             updatedData.assignedClassId = oldStudent.assignedClassId;
             updatedData.discountCode = oldStudent.discountCode;
             updatedData.registrationDate = oldStudent.registrationDate;
             updatedData.active = oldStudent.active;
             updatedData.payments = oldStudent.payments;
             updatedData.renewalDate = calculateRenewalDate(updatedData.startDate, updatedData.paymentAmount);
-            
-            // Actualizar el primer pago si se cambia en edición (opcional, o solo actualizar datos)
-            if(updatedData.payments && updatedData.payments.length > 0) {
-                 updatedData.payments[0].amount = updatedData.paymentAmount; // Actualiza solo el monto referencial del registro
-            }
-
+            if(updatedData.payments && updatedData.payments.length > 0) { updatedData.payments[0].amount = updatedData.paymentAmount; }
             window.students = window.students.map(s => s.id === updatedData.id ? updatedData : s);
             saveToFirebase();
             alert("Datos actualizados.");
@@ -859,110 +845,27 @@
             switchTab('registro');
         }
 
-        // --- FUNCIONES DE BASE DE DATOS (NUEVAS) ---
-        window.renderStudentDatabase = function() {
-            const term = document.getElementById('db-search').value.toLowerCase();
-            const tbody = document.getElementById('db-tbody');
-            tbody.innerHTML = '';
-            
-            let filtered = window.students.filter(s => 
-                s.studentName.toLowerCase().includes(term) || 
-                s.studentLastName.toLowerCase().includes(term) ||
-                (s.discountCode && s.discountCode.toLowerCase().includes(term)) ||
-                (!s.discountCode && `stu-${s.id}`.includes(term)) // Búsqueda fallback por ID
-            );
-
-            document.getElementById('db-count').innerText = filtered.length;
-            
-            if(filtered.length === 0) {
-                document.getElementById('db-empty').classList.remove('hidden');
-                return;
-            }
-            document.getElementById('db-empty').classList.add('hidden');
-
-            filtered.forEach(s => {
-                const tr = document.createElement('tr');
-                tr.className = `border-b border-slate-50 hover:bg-slate-50/50 transition-colors ${!s.active ? 'opacity-60 bg-slate-50' : ''}`;
-                
-                // Encontrar nombre del salón
-                const cls = classrooms.find(c => c.id === s.assignedClassId);
-                const clsName = cls ? cls.name : '<span class="text-slate-400 italic">Sin salón</span>';
-                const statusBadge = s.active 
-                    ? '<span class="status-badge status-active">Activo</span>' 
-                    : '<span class="status-badge status-inactive">Inactivo</span>';
-
-                tr.innerHTML = `
-                    <td class="px-4 py-3 align-middle">${statusBadge}</td>
-                    <td class="px-4 py-3 align-middle">
-                        <div class="font-bold text-sm text-slate-700">${s.studentLastName}, ${s.studentName}</div>
-                        <div class="text-[10px] font-mono text-slate-400">${s.discountCode || 'STU-' + s.id}</div>
-                    </td>
-                    <td class="px-4 py-3 align-middle"><div class="text-xs text-slate-600 bg-slate-100 px-2 py-1 rounded inline-block">${clsName}</div></td>
-                    <td class="px-4 py-3 align-middle font-mono text-xs font-bold ${s.active ? 'text-blue-600' : 'text-slate-400'}">
-                        ${s.renewalDate || '---'}
-                    </td>
-                    <td class="px-4 py-3 align-middle text-right">
-                        <div class="flex justify-end gap-1">
-                            <button onclick="editStudent(${s.id})" class="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors" title="Editar"><i data-lucide="edit-2" class="w-4 h-4"></i></button>
-                            <button onclick="openRenewModal(${s.id})" class="p-1.5 text-emerald-500 hover:bg-emerald-50 rounded transition-colors" title="Renovar / Pagar"><i data-lucide="credit-card" class="w-4 h-4"></i></button>
-                            <button onclick="toggleStudentStatus(${s.id})" class="p-1.5 ${s.active ? 'text-red-400 hover:text-red-600 hover:bg-red-50' : 'text-green-400 hover:text-green-600 hover:bg-green-50'} rounded transition-colors" title="${s.active ? 'Inhabilitar' : 'Habilitar'}">
-                                <i data-lucide="${s.active ? 'user-x' : 'user-check'}" class="w-4 h-4"></i>
-                            </button>
-                            <button onclick="showCard(${s.id})" class="p-1.5 text-indigo-400 hover:text-indigo-600 hover:bg-indigo-50 rounded transition-colors" title="Ver Carnet"><i data-lucide="id-card" class="w-4 h-4"></i></button>
-                        </div>
-                    </td>
-                `;
-                tbody.appendChild(tr);
-            });
-            lucide.createIcons();
-        }
-
-        window.toggleStudentStatus = function(id) {
-            const s = students.find(st => st.id === id);
-            if(s) {
-                s.active = !s.active;
-                // Si se inhabilita, opcionalmente liberamos cupo del salón? Por ahora solo visual.
-                saveToFirebase();
-                renderStudentDatabase();
-                renderAnalytics(); // Actualizar gráficos
-            }
-        }
-
-        // --- NUEVAS FUNCIONES DE INGRESOS EXTRA ---
         window.openIncomeModal = function() {
             document.getElementById('modal-income').classList.remove('hidden');
             document.getElementById('income-desc').value = '';
             document.getElementById('income-amount').value = '';
             document.getElementById('income-date').value = new Date().toISOString().split('T')[0];
         }
-
-        window.closeIncomeModal = function() {
-            document.getElementById('modal-income').classList.add('hidden');
-        }
+        window.closeIncomeModal = function() { document.getElementById('modal-income').classList.add('hidden'); }
 
         window.saveIncome = function() {
             const desc = document.getElementById('income-desc').value;
             const amount = parseFloat(document.getElementById('income-amount').value);
             const date = document.getElementById('income-date').value;
-
             if(!desc || !amount || !date) { alert("Complete todos los campos."); return; }
-
-            const newIncome = {
-                id: Date.now(),
-                description: desc,
-                amount: amount,
-                date: date,
-                type: 'DERIVADOS'
-            };
-
+            const newIncome = { id: Date.now(), description: desc, amount: amount, date: date, type: 'DERIVADOS' };
             window.otherIncomes.push(newIncome);
             saveToFirebase();
             closeIncomeModal();
-            renderAnalytics();
+            refreshAllUI();
             alert("Ingreso registrado correctamente.");
         }
 
-        // --- RENOVACIONES ---
         window.openRenewModal = function(id) {
             const s = students.find(st => st.id === id);
             if(!s) return;
@@ -972,158 +875,302 @@
             document.getElementById('renew-date').value = new Date().toISOString().split('T')[0];
             document.getElementById('modal-renew').classList.remove('hidden');
         }
-
-        window.closeRenewModal = function() {
-            document.getElementById('modal-renew').classList.add('hidden');
-        }
+        window.closeRenewModal = function() { document.getElementById('modal-renew').classList.add('hidden'); }
 
         window.confirmRenewal = function() {
             const id = parseInt(document.getElementById('renew-student-id').value);
             const amount = parseFloat(document.getElementById('renew-amount').value);
             const newDate = document.getElementById('renew-date').value;
-            
             if(!amount || !newDate) { alert("Por favor ingresa monto y fecha."); return; }
-
             const s = students.find(st => st.id === id);
             if(s) {
-                // Registrar pago
                 if(!s.payments) s.payments = [];
                 s.payments.push({ date: newDate, amount: amount });
-                
-                // Actualizar vencimiento y estado
                 s.renewalDate = calculateRenewalDate(newDate, amount);
-                s.active = true; // Reactivar si estaba inactivo
-
+                s.active = true; 
                 saveToFirebase();
                 closeRenewModal();
-                renderStudentDatabase();
-                renderAnalytics(); // Refrescar gráfico mensual
+                refreshAllUI();
                 alert(`Pago registrado. Nueva fecha de vencimiento: ${s.renewalDate}`);
             }
         }
 
-        // --- DASHBOARD ANALYTICS ACTUALIZADO ---
-        window.renderAnalytics = function() {
-            // Totales acumulados (históricos)
-            let total = 0;
-            let grupal = 0;
-            let indiv = 0;
-            let derivados = 0; // NUEVO CONTADOR
-
-            // Monthly breakdown map
-            const months = {};
-
-            // 1. Procesar pagos de Alumnos
+        window.updateFinanceMonthOptions = function() {
+            const monthSet = new Set();
+            monthSet.add(new Date().toISOString().slice(0, 7));
             students.forEach(s => {
-                // Sumar historial de pagos
-                if(s.payments && s.payments.length > 0) {
-                    s.payments.forEach(p => {
-                        total += p.amount;
-                        // Para desglose por tipo, usamos la modalidad actual del alumno (aproximación)
-                        if(s.modality === 'GRUPAL') grupal += p.amount; else indiv += p.amount;
+                if(s.payments) s.payments.forEach(p => monthSet.add(p.date.slice(0, 7)));
+                else if(s.startDate) monthSet.add(s.startDate.slice(0, 7));
+            });
+            otherIncomes.forEach(inc => monthSet.add(inc.date.slice(0, 7)));
+            const sortedMonths = Array.from(monthSet).sort().reverse();
+            const select = document.getElementById('finance-month-select');
+            const currentVal = select.value || window.currentFinanceMonth;
+            select.innerHTML = '';
+            sortedMonths.forEach(m => {
+                const dateObj = new Date(m + '-02');
+                const label = dateObj.toLocaleDateString('es-PE', { month: 'long', year: 'numeric', timeZone: 'UTC' });
+                const opt = document.createElement('option');
+                opt.value = m; opt.innerText = label.charAt(0).toUpperCase() + label.slice(1);
+                select.appendChild(opt);
+            });
+            if(sortedMonths.includes(currentVal)) select.value = currentVal;
+            else select.value = sortedMonths[0]; 
+            window.currentFinanceMonth = select.value;
+        }
 
-                        // Agrupar por mes (YYYY-MM) para ordenamiento
-                        const d = new Date(p.date);
-                        // Truco para corregir zona horaria en visualización simple
-                        const monthName = d.toLocaleDateString('es-PE', { month: 'long', timeZone: 'UTC' });
-                        const key = `${d.getFullYear()}-${(d.getMonth()+1).toString().padStart(2, '0')}`; // Clave ordenable
-                        
-                        if(!months[key]) months[key] = { name: monthName, amount: 0, year: d.getFullYear() };
-                        months[key].amount += p.amount;
+        window.renderMonthlyFinance = function() {
+            const selectedMonth = document.getElementById('finance-month-select').value;
+            window.currentFinanceMonth = selectedMonth;
+            const dateObj = new Date(selectedMonth + '-02');
+            const monthName = dateObj.toLocaleDateString('es-PE', { month: 'long', year: 'numeric', timeZone: 'UTC' });
+            document.getElementById('display-month-name').innerText = monthName.charAt(0).toUpperCase() + monthName.slice(1);
+            let total = 0, grupal = 0, indiv = 0, derivados = 0;
+            students.forEach(s => {
+                if(s.payments) {
+                    s.payments.forEach(p => {
+                        if(p.date.startsWith(selectedMonth)) {
+                            total += p.amount;
+                            if(s.modality === 'GRUPAL') grupal += p.amount; else indiv += p.amount;
+                        }
                     });
-                } else {
-                    // Fallback para datos antiguos sin array de pagos
-                    total += s.paymentAmount;
-                    if(s.modality === 'GRUPAL') grupal += s.paymentAmount; else indiv += s.paymentAmount;
                 }
             });
-
-            // 2. Procesar Otros Ingresos (DERIVADOS)
-            window.otherIncomes.forEach(inc => {
-                total += inc.amount;
-                derivados += inc.amount;
-
-                const d = new Date(inc.date);
-                const monthName = d.toLocaleDateString('es-PE', { month: 'long', timeZone: 'UTC' });
-                const key = `${d.getFullYear()}-${(d.getMonth()+1).toString().padStart(2, '0')}`;
-                
-                if(!months[key]) months[key] = { name: monthName, amount: 0, year: d.getFullYear() };
-                months[key].amount += inc.amount; // SUMAR AL CIERRE MENSUAL
+            otherIncomes.forEach(inc => {
+                if(inc.date.startsWith(selectedMonth)) {
+                    total += inc.amount;
+                    derivados += inc.amount;
+                }
             });
-
-            // Renderizar Barras de Ingresos Totales
-            const max = Math.max(grupal, indiv, derivados, 1); // Incluir derivados en el cálculo de escala
-            document.getElementById('total-earnings').innerText = total.toFixed(2);
-            
+            document.getElementById('monthly-total').innerText = total.toFixed(2);
             document.getElementById('grupal-earnings-text').innerText = 'S/. ' + grupal.toFixed(2);
             document.getElementById('indiv-earnings-text').innerText = 'S/. ' + indiv.toFixed(2);
             document.getElementById('derivados-earnings-text').innerText = 'S/. ' + derivados.toFixed(2);
-
-            // AHORA ANIMAMOS EL HEIGHT (ALTO)
-            const grupalPct = Math.max(4, (grupal/max)*100);
-            const indivPct = Math.max(4, (indiv/max)*100);
-            const derivPct = Math.max(4, (derivados/max)*100);
-
-            document.getElementById('grupal-bar').style.height = grupalPct + '%';
-            document.getElementById('indiv-bar').style.height = indivPct + '%';
-            document.getElementById('derivados-bar').style.height = derivPct + '%';
-
-            // Actualizar variables CSS para la posición del tooltip
-            document.querySelector('.group #grupal-bar').parentElement.querySelector('.absolute').style.setProperty('--bar-height', grupalPct + '%');
-            document.querySelector('.group #indiv-bar').parentElement.querySelector('.absolute').style.setProperty('--bar-height-ind', indivPct + '%');
-            document.querySelector('.group #derivados-bar').parentElement.querySelector('.absolute').style.setProperty('--bar-height-der', derivPct + '%');
-
-            // Renderizar Análisis Demográfico
-            const counts = {};
-            students.forEach(s => { if(s.active) counts[s.department] = (counts[s.department] || 0) + 1 });
-            const sortedMarket = Object.entries(counts).sort(([,a], [,b]) => b - a);
+            const max = Math.max(grupal, indiv, derivados, 1);
+            document.getElementById('grupal-bar').style.height = Math.max(4, (grupal/max)*100) + '%';
+            document.getElementById('indiv-bar').style.height = Math.max(4, (indiv/max)*100) + '%';
+            document.getElementById('derivados-bar').style.height = Math.max(4, (derivados/max)*100) + '%';
+            const demogs = {};
+            students.forEach(s => {
+                const paidThisMonth = s.payments && s.payments.some(p => p.date.startsWith(selectedMonth));
+                if(paidThisMonth) demogs[s.department] = (demogs[s.department] || 0) + 1;
+            });
+            const sortedDemog = Object.entries(demogs).sort(([,a], [,b]) => b - a);
             const marketList = document.getElementById('market-list');
             marketList.innerHTML = '';
-            if(sortedMarket.length === 0) marketList.innerHTML = '<p class="text-center text-slate-300 text-xs mt-4">No hay datos activos.</p>';
-            sortedMarket.forEach(([name, count], i) => {
-                const pct = (count / students.filter(s=>s.active).length) * 100;
-                marketList.innerHTML += `
-                    <div class="mb-3">
-                        <div class="flex justify-between text-xs mb-1.5 font-medium">
-                            <span class="text-slate-600 flex items-center gap-2"><span class="w-4 h-4 rounded-full bg-slate-100 flex items-center justify-center text-[9px] font-bold text-slate-500">${i+1}</span>${name}</span>
-                            <span class="text-slate-800 font-bold">${count}</span>
-                        </div>
-                        <div class="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden"><div class="bg-red-500 h-1.5 rounded-full" style="width: ${pct}%"></div></div>
-                    </div>`;
+            if(sortedDemog.length === 0) marketList.innerHTML = '<p class="text-center text-slate-300 text-xs">Sin movimientos este mes.</p>';
+            sortedDemog.forEach(([name, count], i) => {
+                const pct = (count / Object.values(demogs).reduce((a,b)=>a+b,0)) * 100;
+                marketList.innerHTML += `<div class="mb-3"><div class="flex justify-between text-xs mb-1.5 font-medium"><span class="text-slate-600 flex items-center gap-2"><span class="w-4 h-4 rounded-full bg-slate-100 flex items-center justify-center text-[9px] font-bold text-slate-500">${i+1}</span>${name}</span><span class="text-slate-800 font-bold">${count}</span></div><div class="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden"><div class="bg-red-500 h-1.5 rounded-full" style="width: ${pct}%"></div></div></div>`;
             });
+        }
 
-            // Renderizar Cierre Mensual (Nuevo)
-            const sortedMonths = Object.keys(months).sort().reverse(); // Mes más reciente primero
+        window.renderGeneralAnalytics = function() {
+            let totalIncome = 0;
+            const monthsMap = {};
+            const scheduleMapGrupal = {};
+            const scheduleMapIndividual = {};
+            const demogMap = {};
+            students.forEach(s => {
+                if(s.active) {
+                    demogMap[s.department] = (demogMap[s.department] || 0) + 1;
+                    if (s.modality === 'GRUPAL') scheduleMapGrupal[s.schedule] = (scheduleMapGrupal[s.schedule] || 0) + 1;
+                    else scheduleMapIndividual[s.schedule] = (scheduleMapIndividual[s.schedule] || 0) + 1;
+                }
+                if(s.payments) {
+                    s.payments.forEach(p => {
+                        totalIncome += p.amount;
+                        const mKey = p.date.slice(0, 7);
+                        if(!monthsMap[mKey]) monthsMap[mKey] = { income: 0, enrolled: 0 };
+                        monthsMap[mKey].income += p.amount;
+                        if(p.date === s.startDate) monthsMap[mKey].enrolled += 1; 
+                    });
+                }
+            });
+            otherIncomes.forEach(inc => {
+                totalIncome += inc.amount;
+                const mKey = inc.date.slice(0, 7);
+                if(!monthsMap[mKey]) monthsMap[mKey] = { income: 0, enrolled: 0 };
+                monthsMap[mKey].income += inc.amount;
+            });
+            document.getElementById('gen-total-income').innerText = totalIncome.toFixed(2);
+            document.getElementById('gen-total-students').innerText = students.length; 
+            const sortedKeys = Object.keys(monthsMap).sort();
+            const containerChart = document.getElementById('gen-enrollment-chart');
+            containerChart.innerHTML = '';
+            const maxEnrolled = Math.max(...Object.values(monthsMap).map(m => m.enrolled), 1);
+            sortedKeys.forEach(key => {
+                const m = monthsMap[key];
+                const pct = (m.enrolled / maxEnrolled) * 100;
+                const dateObj = new Date(key + '-02');
+                const label = dateObj.toLocaleDateString('es-PE', { month: 'short', timeZone: 'UTC' });
+                containerChart.innerHTML += `<div class="flex flex-col items-center gap-1 flex-1 group relative h-full justify-end"><div class="w-full bg-emerald-100 rounded-t-lg relative hover:bg-emerald-200 transition-colors" style="height: ${Math.max(pct, 5)}%"><div class="absolute -top-8 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">${m.enrolled} Inscritos<br>S/. ${m.income.toFixed(0)}</div></div><div class="text-[9px] text-slate-400 font-bold uppercase">${label}</div></div>`;
+            });
+            const renderSchedList = (map, containerId, colorBase) => {
+                const sorted = Object.entries(map).sort(([,a], [,b]) => b - a).slice(0, 5);
+                const container = document.getElementById(containerId);
+                container.innerHTML = '';
+                if(sorted.length === 0) { container.innerHTML = '<p class="text-xs text-slate-400 italic">Sin datos</p>'; return; }
+                const max = sorted[0][1];
+                sorted.forEach(([sch, count]) => {
+                    const pct = (count / max) * 100;
+                    container.innerHTML += `<div class="relative"><div class="flex justify-between text-[10px] mb-1 z-10 relative"><span class="font-medium text-slate-700 truncate pr-2">${sch}</span><span class="font-bold text-slate-900">${count}</span></div><div class="h-4 w-full bg-${colorBase}-50 rounded-lg overflow-hidden relative"><div class="h-full bg-${colorBase}-200 rounded-lg" style="width: ${pct}%"></div></div></div>`;
+                });
+            };
+            renderSchedList(scheduleMapGrupal, 'gen-schedule-list-grupal', 'blue');
+            renderSchedList(scheduleMapIndividual, 'gen-schedule-list-individual', 'indigo');
+            const demogContainer = document.getElementById('gen-demographics-list');
+            demogContainer.innerHTML = '';
+            const sortedDemogGlobal = Object.entries(demogMap).sort(([,a], [,b]) => b - a);
+            const totalDemog = sortedDemogGlobal.reduce((a, [,b]) => a + b, 0);
+            if(sortedDemogGlobal.length === 0) demogContainer.innerHTML = '<p class="text-center text-slate-300 text-xs">Sin datos.</p>';
+            sortedDemogGlobal.forEach(([dept, count], i) => {
+                const pct = totalDemog > 0 ? (count / totalDemog) * 100 : 0;
+                demogContainer.innerHTML += `<div class="mb-3"><div class="flex justify-between text-xs mb-1.5 font-medium"><span class="text-slate-600 flex items-center gap-2"><span class="w-4 h-4 rounded-full bg-slate-100 flex items-center justify-center text-[9px] font-bold text-slate-500">${i+1}</span>${dept}</span><span class="text-slate-800 font-bold">${count}</span></div><div class="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden"><div class="bg-indigo-500 h-1.5 rounded-full" style="width: ${pct}%"></div></div></div>`;
+            });
             const monthlyList = document.getElementById('monthly-list');
             monthlyList.innerHTML = '';
-            
-            // Encontrar el monto máximo mensual para la escala
-            const maxMonthly = Math.max(...Object.values(months).map(m => m.amount), 1);
+            const sortedMonthKeys = Object.keys(monthsMap).sort().reverse();
+            const maxMonthlyIncome = Math.max(...Object.values(monthsMap).map(m => m.income), 1);
+            if(sortedMonthKeys.length === 0) monthlyList.innerHTML = '<p class="text-center text-slate-300 text-xs mt-4">Sin registro de pagos.</p>';
+            sortedMonthKeys.forEach(key => {
+                const m = monthsMap[key];
+                const pct = (m.income / maxMonthlyIncome) * 100;
+                const dateObj = new Date(key + '-02');
+                const monthDisplay = dateObj.toLocaleDateString('es-PE', { month: 'long', year: 'numeric', timeZone: 'UTC' });
+                monthlyList.innerHTML += `<div class="mb-3"><div class="flex justify-between text-xs mb-1.5 font-medium"><span class="text-emerald-700 flex items-center gap-2 font-bold uppercase tracking-wide"><i data-lucide="calendar" class="w-3 h-3 text-emerald-500"></i> ${monthDisplay.charAt(0).toUpperCase() + monthDisplay.slice(1)}</span><span class="text-slate-800 font-bold">S/. ${m.income.toFixed(2)}</span></div><div class="w-full bg-emerald-50 rounded-full h-2 overflow-hidden border border-emerald-100"><div class="bg-emerald-500 h-2 rounded-full shadow-sm shadow-emerald-200" style="width: ${pct}%"></div></div></div>`;
+            });
+        }
 
-            if(sortedMonths.length === 0) monthlyList.innerHTML = '<p class="text-center text-slate-300 text-xs mt-4">Sin registro de pagos.</p>';
-            
-            sortedMonths.forEach(key => {
-                const m = months[key];
-                const pct = (m.amount / maxMonthly) * 100;
-                // Capitalizar mes
-                const monthDisplay = m.name.charAt(0).toUpperCase() + m.name.slice(1);
-                
-                monthlyList.innerHTML += `
-                    <div class="mb-3">
-                        <div class="flex justify-between text-xs mb-1.5 font-medium">
-                            <span class="text-emerald-700 flex items-center gap-2 font-bold uppercase tracking-wide">
-                                <i data-lucide="calendar" class="w-3 h-3 text-emerald-500"></i> ${monthDisplay} ${m.year}
-                            </span>
-                            <span class="text-slate-800 font-bold">S/. ${m.amount.toFixed(2)}</span>
-                        </div>
-                        <div class="w-full bg-emerald-50 rounded-full h-2 overflow-hidden border border-emerald-100">
-                            <div class="bg-emerald-500 h-2 rounded-full shadow-sm shadow-emerald-200" style="width: ${pct}%"></div>
-                        </div>
-                    </div>`;
+        window.filterClassrooms = function(type) {
+            window.classroomViewFilter = type;
+            document.getElementById('filter-grupal').className = `px-6 py-2 rounded-lg text-sm font-bold transition-all ${type === 'GRUPAL' ? 'bg-blue-50 text-blue-700 border border-blue-100' : 'text-slate-500 hover:bg-slate-50 border border-transparent'}`;
+            document.getElementById('filter-individual').className = `px-6 py-2 rounded-lg text-sm font-bold transition-all ${type === 'INDIVIDUAL' ? 'bg-blue-50 text-blue-700 border border-blue-100' : 'text-slate-500 hover:bg-slate-50 border border-transparent'}`;
+            selectedClassroomId = null;
+            document.getElementById('classroom-detail-empty').classList.remove('hidden');
+            document.getElementById('classroom-detail-content').classList.add('hidden');
+            renderClassrooms();
+        }
+
+        window.renderClassrooms = function() {
+            const list = document.getElementById('classroom-list');
+            list.innerHTML = '';
+            window.classrooms.filter(c => c.type === classroomViewFilter).forEach(c => {
+                const enrolledCount = (c.enrolled || []).length;
+                const capacity = QUOTAS[c.type] ? QUOTAS[c.type].classCapacity : 10;
+                const isFull = enrolledCount >= capacity;
+                const isSelected = selectedClassroomId === c.id;
+                const div = document.createElement('div');
+                let cardClass = '';
+                if (isSelected) { cardClass = 'border-blue-500 bg-blue-50/50 shadow-md ring-1 ring-blue-500'; } 
+                else {
+                    if (isFull) cardClass = 'border-red-200 bg-red-50 hover:border-red-300 hover:shadow-sm';
+                    else if (enrolledCount > 0) cardClass = 'border-emerald-200 bg-emerald-50 hover:border-emerald-300 hover:shadow-sm';
+                    else cardClass = 'border-slate-200 bg-white hover:border-blue-300 hover:shadow-sm';
+                }
+                div.className = `p-4 rounded-xl border cursor-pointer transition-all group relative ${cardClass}`;
+                const deleteBtn = `<button onclick="deleteClassroom('${c.id}', event)" class="absolute top-2 right-2 p-1.5 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all opacity-0 group-hover:opacity-100" title="Eliminar Salón"><i data-lucide="trash-2" class="w-4 h-4"></i></button>`;
+                div.innerHTML = `<div onclick="selectClassroom('${c.id}')"><div class="flex justify-between items-start mb-2 pr-6"><h3 class="font-bold text-slate-700 text-sm leading-tight">${c.name}</h3></div><div class="flex items-center gap-1.5 text-xs text-slate-500 mb-3"><i data-lucide="clock" class="w-3 h-3"></i><span>${c.schedule}</span></div><div class="flex justify-between items-center text-[10px] font-bold"><span class="bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">${enrolledCount} Inscritos</span>${isFull ? '<span class="text-red-500 font-extrabold uppercase bg-red-100 px-2 py-0.5 rounded">¡LLENO!</span>' : ''}</div></div>${deleteBtn}`;
+                list.appendChild(div);
             });
             lucide.createIcons();
         }
 
+        window.openClassroomModal = function() {
+            document.getElementById('modal-classroom').classList.remove('hidden');
+            document.getElementById('modal-classroom').classList.add('flex');
+            document.getElementById('classroomForm').reset();
+            document.getElementById('cls-type').value = window.classroomViewFilter;
+        }
+        window.closeClassroomModal = function() { document.getElementById('modal-classroom').classList.add('hidden'); document.getElementById('modal-classroom').classList.remove('flex'); }
+
+        document.getElementById('classroomForm').onsubmit = function(e) {
+            e.preventDefault();
+            const name = document.getElementById('cls-name').value;
+            const type = document.getElementById('cls-type').value;
+            const schedule = document.getElementById('cls-schedule').value;
+            const link = document.getElementById('cls-link').value;
+            const newClassroom = { id: type.charAt(0) + '-' + Date.now().toString().slice(-6), name: name, type: type, schedule: schedule, enrolled: [], meetLink: link };
+            window.classrooms.push(newClassroom);
+            saveToFirebase();
+            closeClassroomModal();
+            refreshAllUI();
+            alert("Nuevo salón creado correctamente.");
+        }
+
+        window.deleteClassroom = function(id, event) {
+            event.stopPropagation();
+            const cls = window.classrooms.find(c => c.id === id);
+            if((cls.enrolled || []).length > 0) { alert("No puedes eliminar un salón que tiene alumnos inscritos."); return; }
+            if(confirm(`¿Estás seguro de eliminar el salón "${cls.name}"?`)) {
+                window.classrooms = window.classrooms.filter(c => c.id !== id);
+                if(selectedClassroomId === id) { selectedClassroomId = null; document.getElementById('classroom-detail-empty').classList.remove('hidden'); document.getElementById('classroom-detail-content').classList.add('hidden'); }
+                saveToFirebase();
+                refreshAllUI();
+            }
+        }
+
+        window.selectClassroom = function(id) {
+            window.selectedClassroomId = id;
+            renderClassrooms();
+            const cls = window.classrooms.find(c => c.id === id);
+            document.getElementById('classroom-detail-empty').classList.add('hidden');
+            document.getElementById('classroom-detail-content').classList.remove('hidden');
+            document.getElementById('detail-name').innerText = cls.name;
+            document.getElementById('detail-schedule-display').innerText = cls.schedule;
+            document.getElementById('detail-meet-btn').href = cls.meetLink || '#';
+            document.getElementById('detail-link-input').value = cls.meetLink || '';
+            renderAttendanceTable();
+        }
+
+        window.updateClassroomLink = function() {
+            if(!selectedClassroomId) return;
+            const newLink = document.getElementById('detail-link-input').value;
+            const cls = classrooms.find(c => c.id === selectedClassroomId);
+            if(cls) { cls.meetLink = newLink; document.getElementById('detail-meet-btn').href = newLink; saveToFirebase(); }
+        }
+
+        window.renderAttendanceTable = function() {
+            if(!selectedClassroomId) return;
+            const cls = classrooms.find(c => c.id === selectedClassroomId);
+            const classStudents = students.filter(s => (cls.enrolled || []).includes(s.id) && s.active); 
+            const tbody = document.getElementById('attendance-tbody');
+            tbody.innerHTML = '';
+            const date = document.getElementById('attendance-date').value;
+            if(classStudents.length === 0) { document.getElementById('no-students-msg').classList.remove('hidden'); } 
+            else {
+                document.getElementById('no-students-msg').classList.add('hidden');
+                classStudents.forEach(s => {
+                    const status = attendanceData[date] && attendanceData[date][s.id];
+                    const tr = document.createElement('tr');
+                    tr.className = 'hover:bg-slate-50 transition-colors group';
+                    tr.innerHTML = `<td class="px-6 py-4 border-b border-slate-50"><div class="font-bold text-sm text-slate-700">${s.studentLastName}, ${s.studentName}</div></td><td class="px-6 py-4 border-b border-slate-50 text-center">${status ? `<span class="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide ${status==='A'?'bg-emerald-100 text-emerald-700':status==='F'?'bg-red-100 text-red-700':'bg-amber-100 text-amber-700'}">${status === 'A' ? 'Presente' : status === 'F' ? 'Falta' : 'Tardanza'}</span>` : '<span class="text-slate-300 text-xs">-</span>'}</td><td class="px-6 py-4 border-b border-slate-50 text-right"><div class="flex justify-end gap-1 opacity-100 lg:opacity-0 group-hover:opacity-100 transition-opacity"><button onclick="markAttendance(${s.id}, 'A')" class="w-8 h-8 rounded-lg border text-xs font-bold transition-all ${status==='A'?'bg-emerald-500 text-white border-emerald-500 shadow-md shadow-emerald-200':'text-emerald-600 border-emerald-100 hover:bg-emerald-50'}">A</button><button onclick="markAttendance(${s.id}, 'T')" class="w-8 h-8 rounded-lg border text-xs font-bold transition-all ${status==='T'?'bg-amber-400 text-white border-amber-400 shadow-md shadow-amber-200':'text-amber-500 border-amber-100 hover:bg-amber-50'}">T</button><button onclick="markAttendance(${s.id}, 'F')" class="w-8 h-8 rounded-lg border text-xs font-bold transition-all ${status==='F'?'bg-red-500 text-white border-red-500 shadow-md shadow-red-200':'text-red-500 border-red-100 hover:bg-red-50'}">F</button></div></td>`;
+                    tbody.appendChild(tr);
+                });
+            }
+            lucide.createIcons();
+        }
+
+        window.markAttendance = function(studentId, status) {
+            const date = document.getElementById('attendance-date').value;
+            if(!window.attendanceData[date]) window.attendanceData[date] = {};
+            window.attendanceData[date][studentId] = status;
+            saveToFirebase(); 
+            renderAttendanceTable();
+        }
+
+        window.showCard = function(id) {
+            const s = window.students.find(st => st.id == id);
+            if (!s) return;
+            document.getElementById('card-name').innerText = s.studentName;
+            document.getElementById('card-lastname').innerText = s.studentLastName;
+            document.getElementById('card-code').innerText = s.discountCode || `STU-${s.id}`;
+            document.getElementById('card-modality').innerText = s.modality;
+            document.getElementById('card-renewal').innerText = s.renewalDate || '---';
+            document.getElementById('card-modal').classList.remove('hidden');
+            lucide.createIcons();
+        }
+        
         window.renderQuotas = function() {
             calculateCounts();
             const container = document.getElementById('quota-container');
@@ -1150,184 +1197,77 @@
                 makeCard("Individual", QUOTAS.INDIVIDUAL.regular - counts.individualRegular, QUOTAS.INDIVIDUAL.regular, QUOTAS.INDIVIDUAL.discount - counts.individualDiscount, QUOTAS.INDIVIDUAL.discount, 'indigo');
         }
 
-        // --- FUNCIONES PARA GESTIÓN DE AULAS ---
-        window.filterClassrooms = function(type) {
-            window.classroomViewFilter = type;
-            document.getElementById('filter-grupal').className = `px-6 py-2 rounded-lg text-sm font-bold transition-all ${type === 'GRUPAL' ? 'bg-blue-50 text-blue-700 border border-blue-100' : 'text-slate-500 hover:bg-slate-50 border border-transparent'}`;
-            document.getElementById('filter-individual').className = `px-6 py-2 rounded-lg text-sm font-bold transition-all ${type === 'INDIVIDUAL' ? 'bg-blue-50 text-blue-700 border border-blue-100' : 'text-slate-500 hover:bg-slate-50 border border-transparent'}`;
-            selectedClassroomId = null;
-            document.getElementById('classroom-detail-empty').classList.remove('hidden');
-            document.getElementById('classroom-detail-content').classList.add('hidden');
-            renderClassrooms();
-        }
-
-        window.renderClassrooms = function() {
-            const list = document.getElementById('classroom-list');
-            list.innerHTML = '';
-            window.classrooms.filter(c => c.type === classroomViewFilter).forEach(c => {
-                const enrolledCount = (c.enrolled || []).length;
-                const isFull = enrolledCount >= QUOTAS[c.type].classCapacity;
-                const isSelected = selectedClassroomId === c.id;
-                const div = document.createElement('div');
-                div.className = `p-4 rounded-xl border cursor-pointer transition-all group relative ${isSelected ? 'border-blue-500 bg-blue-50/50 shadow-md ring-1 ring-blue-500' : 'border-slate-200 bg-white hover:border-blue-300 hover:shadow-sm'}`;
-                
-                const deleteBtn = `<button onclick="deleteClassroom('${c.id}', event)" class="absolute top-2 right-2 p-1.5 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all opacity-0 group-hover:opacity-100" title="Eliminar Salón"><i data-lucide="trash-2" class="w-4 h-4"></i></button>`;
-
-                div.innerHTML = `
-                    <div onclick="selectClassroom('${c.id}')">
-                        <div class="flex justify-between items-start mb-2 pr-6"><h3 class="font-bold text-slate-700 text-sm leading-tight">${c.name}</h3></div>
-                        <div class="flex items-center gap-1.5 text-xs text-slate-500 mb-3"><i data-lucide="clock" class="w-3 h-3"></i><span>${c.schedule}</span></div>
-                        <div class="flex justify-between items-center text-[10px] font-bold"><span class="bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">${enrolledCount} Inscritos</span>${isFull ? '<span class="text-red-500">LLENO</span>' : ''}</div>
-                    </div>
-                    ${deleteBtn}
-                `;
-                list.appendChild(div);
+        window.renderStudentDatabase = function() {
+            const term = document.getElementById('db-search').value.toLowerCase();
+            const tbody = document.getElementById('db-tbody');
+            tbody.innerHTML = '';
+            let filtered = window.students.filter(s => s.studentName.toLowerCase().includes(term) || s.studentLastName.toLowerCase().includes(term) || (s.discountCode && s.discountCode.toLowerCase().includes(term)) || (!s.discountCode && `stu-${s.id}`.includes(term)));
+            document.getElementById('db-count').innerText = filtered.length;
+            if(filtered.length === 0) { document.getElementById('db-empty').classList.remove('hidden'); return; }
+            document.getElementById('db-empty').classList.add('hidden');
+            filtered.forEach(s => {
+                const tr = document.createElement('tr');
+                tr.className = `border-b border-slate-50 hover:bg-slate-50/50 transition-colors ${!s.active ? 'opacity-60 bg-slate-50' : ''}`;
+                const cls = classrooms.find(c => c.id === s.assignedClassId);
+                const clsName = cls ? cls.name : '<span class="text-slate-400 italic">Sin salón</span>';
+                const statusBadge = s.active ? '<span class="status-badge status-active">Activo</span>' : '<span class="status-badge status-inactive">Inactivo</span>';
+                tr.innerHTML = `<td class="px-4 py-3 align-middle">${statusBadge}</td><td class="px-4 py-3 align-middle"><div class="font-bold text-sm text-slate-700">${s.studentLastName}, ${s.studentName}</div><div class="text-[10px] font-mono text-slate-400">${s.discountCode || 'STU-' + s.id}</div></td><td class="px-4 py-3 align-middle"><div class="text-xs text-slate-600 bg-slate-100 px-2 py-1 rounded inline-block">${clsName}</div></td><td class="px-4 py-3 align-middle font-mono text-xs font-bold ${s.active ? 'text-blue-600' : 'text-slate-400'}">${s.renewalDate || '---'}</td><td class="px-4 py-3 align-middle text-right"><div class="flex justify-end gap-1 relative"><button onclick="editStudent(${s.id})" class="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors" title="Editar"><i data-lucide="edit-2" class="w-4 h-4"></i></button><button onclick="openRenewModal(${s.id})" class="p-1.5 text-emerald-500 hover:bg-emerald-50 rounded transition-colors" title="Renovar / Pagar"><i data-lucide="credit-card" class="w-4 h-4"></i></button><button onclick="toggleStudentStatus(${s.id})" class="p-1.5 ${s.active ? 'text-red-400 hover:text-red-600 hover:bg-red-50' : 'text-green-400 hover:text-green-600 hover:bg-green-50'} rounded transition-colors" title="${s.active ? 'Inhabilitar' : 'Habilitar'}"><i data-lucide="${s.active ? 'user-x' : 'user-check'}" class="w-4 h-4"></i></button><div class="relative"><button onclick="toggleActionMenu(${s.id}, event)" class="p-1.5 text-cyan-500 hover:text-cyan-600 hover:bg-cyan-50 rounded transition-colors" title="Enviar Mensaje / Acciones"><i data-lucide="message-circle" class="w-4 h-4"></i></button><div id="action-menu-${s.id}" class="action-menu text-left" onclick="event.stopPropagation()"><button onclick="sendContinuityMessage(${s.id})" class="w-full px-4 py-3 text-xs font-bold text-slate-600 hover:bg-slate-50 hover:text-blue-600 transition-colors flex items-center gap-2 border-b border-slate-100"><i data-lucide="refresh-cw" class="w-3 h-3"></i> Continuidad del Curso</button></div></div><button onclick="showCard(${s.id})" class="p-1.5 text-indigo-400 hover:text-indigo-600 hover:bg-indigo-50 rounded transition-colors" title="Ver Carnet"><i data-lucide="id-card" class="w-4 h-4"></i></button><button onclick="copyCredentials(${s.id})" class="p-1.5 text-orange-400 hover:text-orange-600 hover:bg-orange-50 rounded transition-colors" title="Copiar Credenciales"><i data-lucide="clipboard-copy" class="w-4 h-4"></i></button></div></td>`;
+                tbody.appendChild(tr);
             });
             lucide.createIcons();
         }
 
-        window.openClassroomModal = function() {
-            document.getElementById('modal-classroom').classList.remove('hidden');
-            document.getElementById('modal-classroom').classList.add('flex');
-            document.getElementById('classroomForm').reset();
-            document.getElementById('cls-type').value = window.classroomViewFilter;
-        }
-
-        window.closeClassroomModal = function() {
-            document.getElementById('modal-classroom').classList.add('hidden');
-            document.getElementById('modal-classroom').classList.remove('flex');
-        }
-
-        document.getElementById('classroomForm').onsubmit = function(e) {
-            e.preventDefault();
-            const name = document.getElementById('cls-name').value;
-            const type = document.getElementById('cls-type').value;
-            const schedule = document.getElementById('cls-schedule').value;
-            const link = document.getElementById('cls-link').value;
-            const driveLink = document.getElementById('cls-drive').value; // NUEVO
-
-            const newClassroom = {
-                id: type.charAt(0) + '-' + Date.now().toString().slice(-6),
-                name: name,
-                type: type,
-                schedule: schedule,
-                enrolled: [],
-                meetLink: link,
-                driveLink: driveLink // NUEVO
-            };
-
-            window.classrooms.push(newClassroom);
-            saveToFirebase();
-            closeClassroomModal();
-            refreshAllUI();
-            alert("Nuevo salón creado correctamente.");
-        }
-
-        window.deleteClassroom = function(id, event) {
+        window.toggleActionMenu = function(id, event) {
             event.stopPropagation();
-            const cls = window.classrooms.find(c => c.id === id);
-            if((cls.enrolled || []).length > 0) {
-                alert("No puedes eliminar un salón que tiene alumnos inscritos.");
-                return;
-            }
-            if(confirm(`¿Estás seguro de eliminar el salón "${cls.name}"?`)) {
-                window.classrooms = window.classrooms.filter(c => c.id !== id);
-                if(selectedClassroomId === id) {
-                    selectedClassroomId = null;
-                    document.getElementById('classroom-detail-empty').classList.remove('hidden');
-                    document.getElementById('classroom-detail-content').classList.add('hidden');
-                }
+            document.querySelectorAll('.action-menu').forEach(el => { if(el.id !== `action-menu-${id}`) el.classList.remove('active'); });
+            const menu = document.getElementById(`action-menu-${id}`);
+            menu.classList.toggle('active');
+        }
+
+        window.closeAllActionMenus = function() {
+            document.querySelectorAll('.action-menu').forEach(el => el.classList.remove('active'));
+        }
+
+        window.sendContinuityMessage = function(id) {
+            const s = window.students.find(st => st.id === id);
+            if(!s) return;
+            const guardianName = s.guardianName || 'Apoderado';
+            const phone = s.guardianPhone ? s.guardianPhone.replace(/\s+/g, '') : '';
+            if(!phone) { alert("No hay número de teléfono registrado."); return; }
+            const message = `Hola Sr./Sra. ${guardianName}, le saludamos de Nexus Chess ♟️. Esperamos que se encuentre bien. Le escribimos para consultarle si desea continuar con el siguiente ciclo académico para ${s.studentName}. Quedamos atentos para ayudarle con la renovación. ¡Muchas gracias! ✨`;
+            const url = `https://wa.me/51${phone}?text=${encodeURIComponent(message)}`;
+            window.open(url, '_blank');
+            closeAllActionMenus();
+        }
+
+        window.copyCredentials = function(id) {
+            const s = window.students.find(st => st.id === id);
+            if (!s) return;
+            const code = s.discountCode || 'STU-' + s.id;
+            const pass = s.guardianDni || 'Generada al ingreso';
+            const text = `Le saludamos de Nexus Chess ♟️.\n\nLe hago entrega de las credenciales oficiales para que puedan acceder a nuestra Plataforma Estudiantil. Aquí le dejo el enlace directo y sus datos de acceso:\n\n🌐 Link de la plataforma: https://nexuschess.github.io/portalestudiantes/\n\n🆔 Código de estudiante: ${code}\n\n🔒 Contraseña: ${pass}\n\nCualquier duda al momento de ingresar, quedo atento para ayudarle. ¡Muchas gracias! ✨`;
+            const el = document.createElement('textarea');
+            el.value = text;
+            document.body.appendChild(el);
+            el.select();
+            document.execCommand('copy');
+            document.body.removeChild(el);
+            const originalTitle = document.title;
+            document.title = "Copiado!";
+            setTimeout(() => document.title = originalTitle, 2000);
+            alert("¡Credenciales copiadas al portapapeles con éxito!");
+        }
+
+        window.toggleStudentStatus = function(id) {
+            const s = students.find(st => st.id === id);
+            if(s) {
+                s.active = !s.active;
                 saveToFirebase();
+                renderStudentDatabase();
                 refreshAllUI();
             }
         }
 
-        window.selectClassroom = function(id) {
-            window.selectedClassroomId = id;
-            renderClassrooms();
-            const cls = window.classrooms.find(c => c.id === id);
-            document.getElementById('classroom-detail-empty').classList.add('hidden');
-            document.getElementById('classroom-detail-content').classList.remove('hidden');
-            document.getElementById('detail-name').innerText = cls.name;
-            document.getElementById('detail-schedule-display').innerText = cls.schedule;
-            document.getElementById('detail-meet-btn').href = cls.meetLink || '#';
-            document.getElementById('detail-link-input').value = cls.meetLink || '';
-            document.getElementById('detail-drive-input').value = cls.driveLink || ''; // NUEVO
-            renderAttendanceTable();
-        }
-
-        window.updateClassroomLink = function() {
-            if(!selectedClassroomId) return;
-            const newLink = document.getElementById('detail-link-input').value;
-            const cls = classrooms.find(c => c.id === selectedClassroomId);
-            if(cls) {
-                cls.meetLink = newLink;
-                document.getElementById('detail-meet-btn').href = newLink;
-                saveToFirebase();
-            }
-        }
-
-        // NUEVA FUNCIÓN PARA DRIVE
-        window.updateClassroomDriveLink = function() {
-            if(!selectedClassroomId) return;
-            const newLink = document.getElementById('detail-drive-input').value;
-            const cls = classrooms.find(c => c.id === selectedClassroomId);
-            if(cls) {
-                cls.driveLink = newLink;
-                saveToFirebase();
-            }
-        }
-
-        window.renderAttendanceTable = function() {
-            if(!selectedClassroomId) return;
-            const cls = classrooms.find(c => c.id === selectedClassroomId);
-            const classStudents = students.filter(s => (cls.enrolled || []).includes(s.id) && s.active); // Solo mostrar activos
-            const tbody = document.getElementById('attendance-tbody');
-            tbody.innerHTML = '';
-            const date = document.getElementById('attendance-date').value;
-            if(classStudents.length === 0) { document.getElementById('no-students-msg').classList.remove('hidden'); } 
-            else {
-                document.getElementById('no-students-msg').classList.add('hidden');
-                classStudents.forEach(s => {
-                    const status = attendanceData[date] && attendanceData[date][s.id];
-                    const tr = document.createElement('tr');
-                    tr.className = 'hover:bg-slate-50 transition-colors group';
-                    tr.innerHTML = `
-                        <td class="px-6 py-4 border-b border-slate-50"><div class="font-bold text-sm text-slate-700">${s.studentLastName}, ${s.studentName}</div></td>
-                        <td class="px-6 py-4 border-b border-slate-50 text-center">${status ? `<span class="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide ${status==='A'?'bg-emerald-100 text-emerald-700':status==='F'?'bg-red-100 text-red-700':'bg-amber-100 text-amber-700'}">${status === 'A' ? 'Presente' : status === 'F' ? 'Falta' : 'Tardanza'}</span>` : '<span class="text-slate-300 text-xs">-</span>'}</td>
-                        <td class="px-6 py-4 border-b border-slate-50 text-right">
-                            <div class="flex justify-end gap-1 opacity-100 lg:opacity-0 group-hover:opacity-100 transition-opacity">
-                                <button onclick="markAttendance(${s.id}, 'A')" class="w-8 h-8 rounded-lg border text-xs font-bold transition-all ${status==='A'?'bg-emerald-500 text-white border-emerald-500 shadow-md shadow-emerald-200':'text-emerald-600 border-emerald-100 hover:bg-emerald-50'}">A</button>
-                                <button onclick="markAttendance(${s.id}, 'T')" class="w-8 h-8 rounded-lg border text-xs font-bold transition-all ${status==='T'?'bg-amber-400 text-white border-amber-400 shadow-md shadow-amber-200':'text-amber-500 border-amber-100 hover:bg-amber-50'}">T</button>
-                                <button onclick="markAttendance(${s.id}, 'F')" class="w-8 h-8 rounded-lg border text-xs font-bold transition-all ${status==='F'?'bg-red-500 text-white border-red-500 shadow-md shadow-red-200':'text-red-500 border-red-100 hover:bg-red-50'}">F</button>
-                            </div>
-                        </td>
-                    `;
-                    tbody.appendChild(tr);
-                });
-            }
-            lucide.createIcons();
-        }
-
-        window.markAttendance = function(studentId, status) {
-            const date = document.getElementById('attendance-date').value;
-            if(!window.attendanceData[date]) window.attendanceData[date] = {};
-            window.attendanceData[date][studentId] = status;
-            saveToFirebase(); 
-            renderAttendanceTable();
-        }
-
-        window.showCard = function(id) {
-            const s = window.students.find(st => st.id == id);
-            if (!s) return;
-            document.getElementById('card-name').innerText = s.studentName;
-            document.getElementById('card-lastname').innerText = s.studentLastName;
-            document.getElementById('card-code').innerText = s.discountCode || `STU-${s.id}`;
-            document.getElementById('card-modality').innerText = s.modality;
-            document.getElementById('card-renewal').innerText = s.renewalDate || '---';
-            document.getElementById('card-modal').classList.remove('hidden');
-            lucide.createIcons();
-        }
         window.closeModal = function() { document.getElementById('card-modal').classList.add('hidden'); }
     </script>
 </body>
