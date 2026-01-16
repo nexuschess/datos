@@ -222,10 +222,17 @@
                                         <i data-lucide="video" class="w-4 h-4"></i> UNIRSE
                                     </a>
                                 </div>
-                                <div class="flex items-center gap-2 bg-white border border-slate-200 rounded-lg p-2 mb-4 shadow-sm">
+                                <div class="flex items-center gap-2 bg-white border border-slate-200 rounded-lg p-2 mb-2 shadow-sm">
                                     <div class="p-1.5 bg-blue-50 rounded-md text-blue-600"><i data-lucide="link" class="w-4 h-4"></i></div>
                                     <input id="detail-link-input" onchange="updateClassroomLink()" placeholder="Pega aquí el enlace de Google Meet" class="flex-1 text-xs text-slate-600 font-mono bg-transparent border-none focus:ring-0" value="">
                                 </div>
+                                
+                                <!-- Nuevo Apartado: Link Drive (RESTORED) -->
+                                <div class="flex items-center gap-2 bg-white border border-slate-200 rounded-lg p-2 mb-4 shadow-sm">
+                                    <div class="p-1.5 bg-orange-50 rounded-md text-orange-600"><i data-lucide="hard-drive" class="w-4 h-4"></i></div>
+                                    <input id="detail-drive-input" onchange="updateClassroomDriveLink()" placeholder="Pega aquí el enlace de Drive (Clases Grabadas)" class="flex-1 text-xs text-slate-600 font-mono bg-transparent border-none focus:ring-0" value="">
+                                </div>
+
                                 <div class="flex justify-between items-center">
                                     <div class="text-sm font-bold text-slate-700">Registro de Asistencia</div>
                                     <div class="flex items-center gap-2">
@@ -1120,6 +1127,9 @@
             document.getElementById('detail-schedule-display').innerText = cls.schedule;
             document.getElementById('detail-meet-btn').href = cls.meetLink || '#';
             document.getElementById('detail-link-input').value = cls.meetLink || '';
+            // --- NUEVO: Cargar Link Drive ---
+            document.getElementById('detail-drive-input').value = cls.driveLink || '';
+            
             renderAttendanceTable();
         }
 
@@ -1128,6 +1138,17 @@
             const newLink = document.getElementById('detail-link-input').value;
             const cls = classrooms.find(c => c.id === selectedClassroomId);
             if(cls) { cls.meetLink = newLink; document.getElementById('detail-meet-btn').href = newLink; saveToFirebase(); }
+        }
+
+        // --- NUEVA FUNCIÓN: Actualizar Link Drive ---
+        window.updateClassroomDriveLink = function() {
+            if(!selectedClassroomId) return;
+            const newLink = document.getElementById('detail-drive-input').value;
+            const cls = classrooms.find(c => c.id === selectedClassroomId);
+            if(cls) { 
+                cls.driveLink = newLink; 
+                saveToFirebase(); 
+            }
         }
 
         window.renderAttendanceTable = function() {
