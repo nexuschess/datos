@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Intranet Académica - Nexus Chess (ADMIN)</title>
+    <title>Base de Datos | Nexus Chess</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -226,34 +226,65 @@
                                     <div class="p-1.5 bg-blue-50 rounded-md text-blue-600"><i data-lucide="link" class="w-4 h-4"></i></div>
                                     <input id="detail-link-input" onchange="updateClassroomLink()" placeholder="Pega aquí el enlace de Google Meet" class="flex-1 text-xs text-slate-600 font-mono bg-transparent border-none focus:ring-0" value="">
                                 </div>
-                                
-                                <!-- Nuevo Apartado: Link Drive (RESTORED) -->
                                 <div class="flex items-center gap-2 bg-white border border-slate-200 rounded-lg p-2 mb-4 shadow-sm">
                                     <div class="p-1.5 bg-orange-50 rounded-md text-orange-600"><i data-lucide="hard-drive" class="w-4 h-4"></i></div>
                                     <input id="detail-drive-input" onchange="updateClassroomDriveLink()" placeholder="Pega aquí el enlace de Drive (Clases Grabadas)" class="flex-1 text-xs text-slate-600 font-mono bg-transparent border-none focus:ring-0" value="">
                                 </div>
 
-                                <div class="flex justify-between items-center">
+                                <!-- Tabs Navigation -->
+                                <div class="flex border-b border-slate-200">
+                                    <button onclick="switchClassroomTab('attendance')" id="tab-btn-attendance" class="px-4 py-2 text-sm font-bold text-blue-600 border-b-2 border-blue-600 transition-colors">
+                                        Asistencia
+                                    </button>
+                                    <button onclick="switchClassroomTab('tasks')" id="tab-btn-tasks" class="px-4 py-2 text-sm font-bold text-slate-500 border-b-2 border-transparent hover:text-slate-700 transition-colors">
+                                        Tareas <span id="tasks-badge" class="ml-1 bg-slate-200 text-slate-600 text-[9px] px-1.5 py-0.5 rounded-full hidden">0</span>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- VISTA ASISTENCIA -->
+                            <div id="view-attendance" class="flex-1 flex flex-col min-h-0">
+                                <div class="p-4 flex justify-between items-center bg-white">
                                     <div class="text-sm font-bold text-slate-700">Registro de Asistencia</div>
                                     <div class="flex items-center gap-2">
                                         <label class="text-[10px] font-bold text-slate-400 uppercase">Fecha:</label>
                                         <input id="attendance-date" type="date" class="border border-slate-200 rounded-lg px-2 py-1 text-xs bg-white focus:ring-2 focus:ring-blue-100 outline-none" onchange="renderAttendanceTable()">
                                     </div>
                                 </div>
+                                <div class="flex-1 overflow-auto p-0">
+                                    <table class="w-full text-left border-collapse">
+                                        <thead class="bg-slate-50 sticky top-0 z-10">
+                                            <tr>
+                                                <th class="px-6 py-3 border-b border-slate-100 text-[10px] font-bold text-slate-400 uppercase">Alumno</th>
+                                                <th class="px-6 py-3 border-b border-slate-100 text-[10px] font-bold text-slate-400 uppercase text-center">Estado</th>
+                                                <th class="px-6 py-3 border-b border-slate-100 text-[10px] font-bold text-slate-400 uppercase text-right">Asistencia</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="attendance-tbody" class="divide-y divide-slate-50"></tbody>
+                                    </table>
+                                    <div id="no-students-msg" class="text-center py-12 text-slate-400 text-sm hidden">Sin alumnos inscritos.</div>
+                                </div>
                             </div>
-                            <div class="flex-1 overflow-auto p-0">
-                                <table class="w-full text-left border-collapse">
-                                    <thead class="bg-slate-50 sticky top-0 z-10">
-                                        <tr>
-                                            <th class="px-6 py-3 border-b border-slate-100 text-[10px] font-bold text-slate-400 uppercase">Alumno</th>
-                                            <th class="px-6 py-3 border-b border-slate-100 text-[10px] font-bold text-slate-400 uppercase text-center">Estado</th>
-                                            <th class="px-6 py-3 border-b border-slate-100 text-[10px] font-bold text-slate-400 uppercase text-right">Asistencia</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="attendance-tbody" class="divide-y divide-slate-50"></tbody>
-                                </table>
-                                <div id="no-students-msg" class="text-center py-12 text-slate-400 text-sm hidden">Sin alumnos inscritos.</div>
+
+                            <!-- VISTA TAREAS (NUEVO) -->
+                            <div id="view-tasks" class="hidden flex-1 flex flex-col min-h-0 bg-slate-50/30">
+                                <div class="p-4 flex justify-between items-center border-b border-slate-100 bg-white">
+                                    <h3 class="text-sm font-bold text-slate-700 flex items-center gap-2">
+                                        <i data-lucide="folder-open" class="w-4 h-4 text-orange-500"></i> Gestor de Tareas
+                                    </h3>
+                                    <button onclick="openTaskModal()" class="px-3 py-1.5 bg-orange-50 text-orange-600 hover:bg-orange-100 rounded-lg text-xs font-bold transition-colors flex items-center gap-1 border border-orange-100">
+                                        <i data-lucide="plus" class="w-3 h-3"></i> Nueva Tarea
+                                    </button>
+                                </div>
+                                <div class="flex-1 overflow-auto p-4 custom-scrollbar">
+                                    <div id="tasks-list" class="space-y-4"></div>
+                                    <div id="no-tasks-msg" class="text-center py-12 text-slate-400 text-sm hidden flex flex-col items-center">
+                                        <i data-lucide="clipboard-list" class="w-12 h-12 mb-3 opacity-20"></i>
+                                        <p>No hay tareas asignadas a este salón.</p>
+                                    </div>
+                                </div>
                             </div>
+
                         </div>
                     </div>
                 </div>
@@ -492,6 +523,32 @@
         </div>
     </div>
 
+    <!-- MODAL NUEVA/EDITAR TAREA -->
+    <div id="modal-task" class="hidden fixed inset-0 bg-slate-900/60 flex items-center justify-center z-[70] p-4 backdrop-blur-sm" onclick="closeTaskModal()">
+        <div class="bg-white w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden animate-bounce-in" onclick="event.stopPropagation()">
+            <div class="bg-orange-500 px-6 py-4 flex justify-between items-center">
+                <h3 id="modal-task-title" class="font-bold text-white flex items-center gap-2"><i data-lucide="file-plus" class="w-5 h-5"></i> Crear Nueva Tarea</h3>
+                <button onclick="closeTaskModal()" class="text-white/80 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <div class="p-6 space-y-4">
+                <input type="hidden" id="task-edit-id"> <!-- ID para edición -->
+                <div>
+                    <label class="label-classic">Título de la Tarea</label>
+                    <input id="task-title" class="input-classic" placeholder="Ej: Ejercicios de Mate 1">
+                </div>
+                <div>
+                    <label class="label-classic">Fecha Límite</label>
+                    <input type="date" id="task-date" class="input-classic">
+                </div>
+                <div>
+                    <label class="label-classic">Instrucciones / Detalles</label>
+                    <textarea id="task-instruction" class="input-classic h-24 resize-none" placeholder="Escribe aquí las instrucciones para el alumno..."></textarea>
+                </div>
+                <button id="btn-save-task" onclick="saveTask()" class="w-full py-3 rounded-xl font-bold text-white bg-orange-500 hover:bg-orange-600 transition-colors shadow-lg shadow-orange-500/20">Asignar Tarea</button>
+            </div>
+        </div>
+    </div>
+
     <div id="card-modal" class="hidden fixed inset-0 bg-slate-900/80 flex items-center justify-center z-[60] p-4 backdrop-blur-sm transition-opacity" onclick="closeModal()">
         <div class="relative transform transition-all scale-100" onclick="event.stopPropagation()">
             <button onclick="closeModal()" class="absolute -top-10 right-0 text-white hover:text-slate-200 transition-colors"><i data-lucide="x" class="w-8 h-8"></i></button>
@@ -566,11 +623,14 @@
         window.classrooms = [];
         window.attendanceData = {};
         window.otherIncomes = []; 
+        window.tasks = {}; // Estructura: { classroomId: { taskId: { ... } } }
+
         window.currentModality = 'GRUPAL';
         window.hasDiscount = false;
         window.selectedClassroomId = null;
         window.classroomViewFilter = 'GRUPAL';
         window.currentFinanceMonth = new Date().toISOString().slice(0, 7); 
+        window.activeClassroomTab = 'attendance'; // 'attendance' or 'tasks'
 
         const DEPARTAMENTOS = ["Amazonas", "Áncash", "Apurímac", "Arequipa", "Ayacucho", "Cajamarca", "Callao", "Cusco", "Huancavelica", "Huánuco", "Ica", "Junín", "La Libertad", "Lambayeque", "Lima", "Loreto", "Madre de Dios", "Moquegua", "Pasco", "Piura", "Puno", "San Martín", "Tacna", "Tumbes", "Ucayali"];
         const INITIAL_CLASSROOMS = [
@@ -595,6 +655,7 @@
                 window.attendanceData = data.attendanceData || {};
                 window.classrooms = data.classrooms || JSON.parse(JSON.stringify(INITIAL_CLASSROOMS));
                 window.otherIncomes = data.otherIncomes || []; 
+                window.tasks = data.tasks || {};
             } else {
                 window.classrooms = JSON.parse(JSON.stringify(INITIAL_CLASSROOMS));
                 saveToFirebase();
@@ -607,7 +668,8 @@
                 students: window.students,
                 classrooms: window.classrooms,
                 attendanceData: window.attendanceData,
-                otherIncomes: window.otherIncomes 
+                otherIncomes: window.otherIncomes,
+                tasks: window.tasks
             });
         }
 
@@ -618,7 +680,10 @@
             renderMonthlyFinance();
             renderGeneralAnalytics();
             renderStudentDatabase(); 
-            if(selectedClassroomId) renderAttendanceTable();
+            if(selectedClassroomId) {
+                renderAttendanceTable();
+                renderTasks();
+            }
             updateScheduleOptions();
         }
 
@@ -629,6 +694,7 @@
             document.getElementById('startDate').value = new Date().toISOString().split('T')[0];
             document.getElementById('renew-date').value = new Date().toISOString().split('T')[0];
             document.getElementById('income-date').value = new Date().toISOString().split('T')[0]; 
+            document.getElementById('task-date').value = new Date().toISOString().split('T')[0];
             lucide.createIcons();
         };
 
@@ -1127,10 +1193,38 @@
             document.getElementById('detail-schedule-display').innerText = cls.schedule;
             document.getElementById('detail-meet-btn').href = cls.meetLink || '#';
             document.getElementById('detail-link-input').value = cls.meetLink || '';
-            // --- NUEVO: Cargar Link Drive ---
             document.getElementById('detail-drive-input').value = cls.driveLink || '';
             
-            renderAttendanceTable();
+            // Re-render current tab
+            if (window.activeClassroomTab === 'attendance') {
+                renderAttendanceTable();
+            } else {
+                renderTasks();
+            }
+            updateTasksBadge();
+        }
+
+        // --- MANEJO DE TABS (ASISTENCIA / TAREAS) ---
+        window.switchClassroomTab = function(tab) {
+            window.activeClassroomTab = tab;
+            const btnAtt = document.getElementById('tab-btn-attendance');
+            const btnTask = document.getElementById('tab-btn-tasks');
+            const viewAtt = document.getElementById('view-attendance');
+            const viewTask = document.getElementById('view-tasks');
+
+            if(tab === 'attendance') {
+                btnAtt.className = "px-4 py-2 text-sm font-bold text-blue-600 border-b-2 border-blue-600 transition-colors";
+                btnTask.className = "px-4 py-2 text-sm font-bold text-slate-500 border-b-2 border-transparent hover:text-slate-700 transition-colors";
+                viewAtt.classList.remove('hidden');
+                viewTask.classList.add('hidden');
+                renderAttendanceTable();
+            } else {
+                btnTask.className = "px-4 py-2 text-sm font-bold text-orange-600 border-b-2 border-orange-600 transition-colors";
+                btnAtt.className = "px-4 py-2 text-sm font-bold text-slate-500 border-b-2 border-transparent hover:text-slate-700 transition-colors";
+                viewTask.classList.remove('hidden');
+                viewAtt.classList.add('hidden');
+                renderTasks();
+            }
         }
 
         window.updateClassroomLink = function() {
@@ -1140,7 +1234,6 @@
             if(cls) { cls.meetLink = newLink; document.getElementById('detail-meet-btn').href = newLink; saveToFirebase(); }
         }
 
-        // --- NUEVA FUNCIÓN: Actualizar Link Drive ---
         window.updateClassroomDriveLink = function() {
             if(!selectedClassroomId) return;
             const newLink = document.getElementById('detail-drive-input').value;
@@ -1178,6 +1271,279 @@
             window.attendanceData[date][studentId] = status;
             saveToFirebase(); 
             renderAttendanceTable();
+        }
+
+        // --- FUNCIONES DE TAREAS (ACTUALIZADO: EDITAR / ELIMINAR / INSTRUCCIONES) ---
+        
+        // Abrir modal (acepta un taskId opcional para editar)
+        window.openTaskModal = function(taskId = null) {
+            document.getElementById('modal-task').classList.remove('hidden');
+            const modalTitle = document.getElementById('modal-task-title');
+            const btnSave = document.getElementById('btn-save-task');
+            
+            if (taskId) {
+                // Modo Edición
+                const task = window.tasks[selectedClassroomId][taskId];
+                document.getElementById('task-edit-id').value = taskId;
+                document.getElementById('task-title').value = task.title;
+                document.getElementById('task-date').value = task.date;
+                document.getElementById('task-instruction').value = task.instruction || ''; // Cargar instrucción
+                
+                modalTitle.innerHTML = '<i data-lucide="edit-3" class="w-5 h-5"></i> Editar Tarea';
+                btnSave.innerText = "Guardar Cambios";
+            } else {
+                // Modo Creación
+                document.getElementById('task-edit-id').value = '';
+                document.getElementById('task-title').value = '';
+                document.getElementById('task-date').value = new Date().toISOString().split('T')[0];
+                document.getElementById('task-instruction').value = '';
+                
+                modalTitle.innerHTML = '<i data-lucide="file-plus" class="w-5 h-5"></i> Crear Nueva Tarea';
+                btnSave.innerText = "Asignar Tarea";
+            }
+            lucide.createIcons();
+        }
+
+        window.closeTaskModal = function() { document.getElementById('modal-task').classList.add('hidden'); }
+
+        window.saveTask = function() {
+            const title = document.getElementById('task-title').value;
+            const date = document.getElementById('task-date').value;
+            const instruction = document.getElementById('task-instruction').value;
+            const editId = document.getElementById('task-edit-id').value;
+
+            if(!title || !date) { alert("El título y la fecha son obligatorios."); return; }
+            if(!selectedClassroomId) return;
+
+            if(!window.tasks[selectedClassroomId]) window.tasks[selectedClassroomId] = {};
+            
+            let taskId;
+            let submissions = {};
+
+            if (editId) {
+                // Actualizar existente
+                taskId = editId;
+                submissions = window.tasks[selectedClassroomId][taskId].submissions || {}; // Mantener notas
+                alert("Tarea actualizada correctamente.");
+            } else {
+                // Crear nueva
+                taskId = 'task-' + Date.now();
+                alert("Tarea asignada correctamente.");
+            }
+
+            window.tasks[selectedClassroomId][taskId] = {
+                id: taskId,
+                title: title,
+                date: date,
+                instruction: instruction, // Guardar la instrucción
+                submissions: submissions
+            };
+
+            saveToFirebase();
+            closeTaskModal();
+            renderTasks();
+            updateTasksBadge();
+        }
+
+        window.deleteTask = function(taskId, event) {
+            if(event) event.stopPropagation();
+            if(confirm("¿Estás seguro de eliminar esta tarea? Se perderán todas las notas asociadas.")) {
+                delete window.tasks[selectedClassroomId][taskId];
+                saveToFirebase();
+                renderTasks();
+                updateTasksBadge();
+            }
+        }
+
+        window.renderTasks = function() {
+            if(!selectedClassroomId) return;
+            const container = document.getElementById('tasks-list');
+            container.innerHTML = '';
+            
+            const tasksMap = window.tasks[selectedClassroomId] || {};
+            const taskIds = Object.keys(tasksMap).sort().reverse();
+
+            if(taskIds.length === 0) {
+                document.getElementById('no-tasks-msg').classList.remove('hidden');
+            } else {
+                document.getElementById('no-tasks-msg').classList.add('hidden');
+                taskIds.forEach(taskId => {
+                    const task = tasksMap[taskId];
+                    const submissions = task.submissions || {};
+                    const totalStudents = students.filter(s => (classrooms.find(c=>c.id===selectedClassroomId).enrolled||[]).includes(s.id) && s.active).length;
+                    const reviewedCount = Object.values(submissions).filter(s => s.status && s.status !== 'PENDIENTE').length;
+                    
+                    const el = document.createElement('div');
+                    el.className = "bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm";
+                    
+                    // Renderizamos la instrucción si existe, si no, un mensaje por defecto
+                    const instructionHtml = task.instruction 
+                        ? `<div class="bg-blue-50 p-3 rounded-lg border border-blue-100 mb-4 text-xs text-blue-800">
+                             <strong class="block uppercase text-[10px] text-blue-500 mb-1">Instrucción para el Alumno:</strong>
+                             ${task.instruction.replace(/\n/g, '<br>')}
+                           </div>`
+                        : '';
+
+                    el.innerHTML = `
+                        <div class="p-4 flex items-center justify-between cursor-pointer hover:bg-slate-50 transition-colors group" onclick="toggleTaskAccordion('${taskId}')">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-lg bg-orange-50 text-orange-600 flex items-center justify-center shrink-0">
+                                    <i data-lucide="book-open" class="w-5 h-5"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-slate-800 text-sm">${task.title}</h4>
+                                    <span class="text-xs text-slate-500 font-medium">Vence: ${task.date}</span>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-4">
+                                <div class="text-right">
+                                    <div class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Avance</div>
+                                    <div class="text-xs font-bold text-slate-700">${reviewedCount}/${totalStudents} Revisados</div>
+                                </div>
+                                <div class="flex items-center gap-2" onclick="event.stopPropagation()">
+                                    <button onclick="openTaskModal('${taskId}')" class="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors" title="Editar Tarea">
+                                        <i data-lucide="pencil" class="w-4 h-4"></i>
+                                    </button>
+                                    <button onclick="deleteTask('${taskId}', event)" class="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors" title="Eliminar Tarea">
+                                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                    </button>
+                                </div>
+                                <i data-lucide="chevron-down" class="w-5 h-5 text-slate-300 transition-transform" id="icon-${taskId}"></i>
+                            </div>
+                        </div>
+                        <div id="content-${taskId}" class="hidden border-t border-slate-100 bg-slate-50/50 p-4">
+                            ${instructionHtml}
+                            <!-- Student List for Grading -->
+                            <div class="space-y-2" id="grading-list-${taskId}"></div>
+                        </div>
+                    `;
+                    container.appendChild(el);
+                    renderGradingList(taskId);
+                });
+            }
+            lucide.createIcons();
+        }
+
+        window.toggleTaskAccordion = function(taskId) {
+            const content = document.getElementById(`content-${taskId}`);
+            const icon = document.getElementById(`icon-${taskId}`);
+            if(content.classList.contains('hidden')) {
+                content.classList.remove('hidden');
+                icon.classList.add('rotate-180');
+            } else {
+                content.classList.add('hidden');
+                icon.classList.remove('rotate-180');
+            }
+        }
+
+        window.renderGradingList = function(taskId) {
+            const container = document.getElementById(`grading-list-${taskId}`);
+            if(!container) return;
+            container.innerHTML = '';
+            
+            const cls = classrooms.find(c => c.id === selectedClassroomId);
+            const classStudents = students.filter(s => (cls.enrolled || []).includes(s.id) && s.active);
+            const task = window.tasks[selectedClassroomId][taskId];
+            const submissions = task.submissions || {};
+
+            if(classStudents.length === 0) {
+                container.innerHTML = '<p class="text-center py-4 text-xs text-slate-400">No hay alumnos en este salón.</p>';
+                return;
+            }
+
+            classStudents.forEach(s => {
+                const sub = submissions[s.id] || { status: 'PENDIENTE', grade: '', feedback: '', fileUrl: null };
+                const hasFile = sub.fileUrl ? true : false; // Simulate if they uploaded something
+
+                const row = document.createElement('div');
+                row.className = "bg-white p-3 rounded-lg border border-slate-200 shadow-sm flex flex-col md:flex-row gap-4 items-start md:items-center";
+                
+                // Status Color Logic
+                let statusColor = "bg-slate-100 text-slate-500 border-slate-200";
+                if(sub.status === 'APROBADO') statusColor = "bg-emerald-50 text-emerald-600 border-emerald-200";
+                if(sub.status === 'OBSERVADO') statusColor = "bg-red-50 text-red-600 border-red-200";
+
+                row.innerHTML = `
+                    <div class="flex-1 min-w-[150px]">
+                        <div class="font-bold text-sm text-slate-800">${s.studentLastName}, ${s.studentName}</div>
+                        <div class="flex items-center gap-2 mt-1">
+                             <span class="text-[10px] px-2 py-0.5 rounded border font-bold uppercase tracking-wider ${statusColor}">${sub.status}</span>
+                             ${hasFile ? `<a href="${sub.fileUrl}" target="_blank" class="text-[10px] text-blue-600 font-bold hover:underline flex items-center gap-1"><i data-lucide="image" class="w-3 h-3"></i> Ver Imagen</a>` : `<span class="text-[10px] text-slate-400 italic">Sin archivo</span>`}
+                             <!-- Simular subida (Solo para Demo) -->
+                             <button onclick="simulateUpload('${taskId}', ${s.id})" class="text-[9px] text-slate-300 hover:text-slate-500 underline ml-2" title="Simular que el alumno subió tarea">(Simular Subida)</button>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2 w-full md:w-auto">
+                        <div class="w-20">
+                            <label class="block text-[9px] font-bold text-slate-400 uppercase mb-0.5">Nota</label>
+                            <input type="number" value="${sub.grade}" onchange="updateGrade('${taskId}', ${s.id}, this.value, null, null)" class="w-full text-xs p-1.5 border border-slate-200 rounded font-bold text-center focus:ring-2 focus:ring-orange-100 outline-none" placeholder="-">
+                        </div>
+                        <div class="flex-1 md:w-48">
+                            <label class="block text-[9px] font-bold text-slate-400 uppercase mb-0.5">Feedback</label>
+                            <input type="text" value="${sub.feedback}" onchange="updateGrade('${taskId}', ${s.id}, null, this.value, null)" class="w-full text-xs p-1.5 border border-slate-200 rounded focus:ring-2 focus:ring-orange-100 outline-none" placeholder="Comentario...">
+                        </div>
+                        <div class="flex flex-col gap-1">
+                            <label class="block text-[9px] font-bold text-slate-400 uppercase mb-0.5 text-center">Acción</label>
+                            <div class="flex gap-1">
+                                <button onclick="updateGrade('${taskId}', ${s.id}, null, null, 'APROBADO')" class="p-1.5 rounded bg-emerald-100 text-emerald-600 hover:bg-emerald-200 transition-colors" title="Aprobar"><i data-lucide="check" class="w-3 h-3"></i></button>
+                                <button onclick="updateGrade('${taskId}', ${s.id}, null, null, 'OBSERVADO')" class="p-1.5 rounded bg-red-100 text-red-600 hover:bg-red-200 transition-colors" title="Marcar Mal / Observado"><i data-lucide="x" class="w-3 h-3"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(row);
+            });
+            lucide.createIcons();
+        }
+
+        window.simulateUpload = function(taskId, studentId) {
+            // Mock function to simulate a student uploading a file
+            if(!window.tasks[selectedClassroomId][taskId].submissions) window.tasks[selectedClassroomId][taskId].submissions = {};
+            const current = window.tasks[selectedClassroomId][taskId].submissions[studentId] || {};
+            
+            window.tasks[selectedClassroomId][taskId].submissions[studentId] = {
+                ...current,
+                fileUrl: 'https://via.placeholder.com/600x800?text=Tarea+de+Alumno', // Placeholder image
+                status: current.status === 'PENDIENTE' ? 'ENTREGADO' : current.status
+            };
+            saveToFirebase();
+            renderGradingList(taskId);
+        }
+
+        window.updateGrade = function(taskId, studentId, grade, feedback, status) {
+            if(!window.tasks[selectedClassroomId][taskId].submissions) window.tasks[selectedClassroomId][taskId].submissions = {};
+            
+            const current = window.tasks[selectedClassroomId][taskId].submissions[studentId] || { status: 'PENDIENTE', grade: '', feedback: '', fileUrl: null };
+            
+            if (grade !== null) current.grade = grade;
+            if (feedback !== null) current.feedback = feedback;
+            if (status !== null) current.status = status;
+
+            // Auto-update status if grade is entered and status is still pending/delivered
+            if (grade !== null && grade !== '' && (current.status === 'PENDIENTE' || current.status === 'ENTREGADO')) {
+                current.status = parseInt(grade) >= 11 ? 'APROBADO' : 'OBSERVADO';
+            }
+
+            window.tasks[selectedClassroomId][taskId].submissions[studentId] = current;
+            saveToFirebase();
+            
+            // Only re-render if status changed to avoid losing focus on inputs
+            if(status !== null) renderGradingList(taskId);
+        }
+
+        window.updateTasksBadge = function() {
+            const badge = document.getElementById('tasks-badge');
+            if(!selectedClassroomId) { badge.classList.add('hidden'); return; }
+            
+            const tasksMap = window.tasks[selectedClassroomId] || {};
+            const count = Object.keys(tasksMap).length;
+            
+            if(count > 0) {
+                badge.innerText = count;
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
         }
 
         window.showCard = function(id) {
