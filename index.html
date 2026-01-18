@@ -599,6 +599,22 @@
         </div>
     </div>
 
+    <!-- Modal para ver archivos (Imágenes) -->
+    <div id="modal-preview" class="hidden fixed inset-0 z-[100] bg-slate-900/90 flex items-center justify-center p-4 backdrop-blur-sm" onclick="closePreviewModal()">
+        <div class="relative w-full max-w-4xl h-full max-h-[90vh] flex flex-col items-center justify-center" onclick="event.stopPropagation()">
+            <button onclick="closePreviewModal()" class="absolute top-0 right-0 m-4 p-2 bg-black/50 hover:bg-black/80 text-white rounded-full transition-colors z-50">
+                <i data-lucide="x" class="w-6 h-6"></i>
+            </button>
+            <img id="preview-image" src="" class="max-w-full max-h-full object-contain rounded-lg shadow-2xl hidden">
+            <iframe id="preview-frame" src="" class="w-full h-full bg-white rounded-lg shadow-2xl hidden"></iframe>
+            <div id="preview-error" class="hidden text-white text-center">
+                <i data-lucide="file-warning" class="w-16 h-16 mx-auto mb-4 text-slate-500"></i>
+                <p class="text-xl font-bold">No se puede previsualizar este archivo.</p>
+                <a id="preview-fallback-link" href="#" target="_blank" class="mt-4 inline-block px-6 py-2 bg-blue-600 rounded-lg font-bold hover:bg-blue-700">Abrir en nueva pestaña</a>
+            </div>
+        </div>
+    </div>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
@@ -1436,7 +1452,65 @@
             }
         }
 
-        // --- FUNCIÓN CORREGIDA PARA MOSTRAR ARCHIVOS ---
+        // --- FUNCIÓN MEJORADA: AGREGAR LINK MANUALMENTE ---
+        window.editSubmissionLink = function(taskId, studentId) {
+            const currentUrl = window.tasks[selectedClassroomId][taskId].submissions?.[studentId]?.fileUrl || '';
+            const newUrl = prompt("Ingrese el enlace de la tarea (Drive, Imagen, PDF):", currentUrl);
+            
+            if(newUrl !== null) { // Si no canceló
+                if(!window.tasks[selectedClassroomId][taskId].submissions) window.tasks[selectedClassroomId][taskId].submissions = {};
+                const current = window.tasks[selectedClassroomId][taskId].submissions[studentId] || { status: 'PENDIENTE', grade: '', feedback: '' };
+                
+                window.tasks[selectedClassroomId][taskId].submissions[studentId] = {
+                    ...current,
+                    fileUrl: newUrl,
+                    status: (current.status === 'PENDIENTE' && newUrl) ? 'ENTREGADO' : current.status
+                };
+                saveToFirebase();
+                renderGradingList(taskId);
+            }
+        }
+
+        // --- NUEVA FUNCIÓN: VISOR DE ARCHIVOS ---
+        window.previewFile = function(url) {
+            if(!url) return;
+
+            const modal = document.getElementById('modal-preview');
+            const img = document.getElementById('preview-image');
+            const frame = document.getElementById('preview-frame');
+            const err = document.getElementById('preview-error');
+            const fallback = document.getElementById('preview-fallback-link');
+
+            modal.classList.remove('hidden');
+            img.classList.add('hidden');
+            frame.classList.add('hidden');
+            err.classList.add('hidden');
+
+            // Detectar si es imagen (data URI o extensión)
+            const isImage = url.startsWith('data:image') || /\.(jpeg|jpg|gif|png|webp|bmp|svg)$/i.test(url);
+            
+            if (isImage) {
+                img.src = url;
+                img.classList.remove('hidden');
+            } else {
+                // Intentar iframe para PDFs o texto, si falla mostramos error y botón externo
+                try {
+                    frame.src = url;
+                    frame.classList.remove('hidden');
+                    // Fallback visual si el iframe falla en cargar (difícil de detectar cross-origin, pero el usuario verá blanco o error del navegador dentro del frame)
+                } catch (e) {
+                    fallback.href = url;
+                    err.classList.remove('hidden');
+                }
+            }
+        }
+
+        window.closePreviewModal = function() {
+            document.getElementById('modal-preview').classList.add('hidden');
+            document.getElementById('preview-image').src = '';
+            document.getElementById('preview-frame').src = '';
+        }
+
         window.renderGradingList = function(taskId) {
             const container = document.getElementById(`grading-list-${taskId}`);
             if(!container) return;
@@ -1455,28 +1529,46 @@
             classStudents.forEach(s => {
                 const sub = submissions[s.id] || { status: 'PENDIENTE', grade: '', feedback: '', fileUrl: null };
                 
-                // --- CORRECCIÓN DE DETECCIÓN DE ARCHIVO ---
-                // Intentamos leer el archivo con múltiples nombres posibles
-                const finalFileUrl = sub.fileUrl || sub.file || sub.url || sub.link || sub.archivo || sub.evidence; 
+                // --- SMART SEARCH DE URL ---
+                let finalFileUrl = sub.fileUrl || sub.file || sub.url || sub.link || sub.archivo || sub.evidence || sub.imageUrl || sub.img || sub.attachment || sub.foto;
+                if (!finalFileUrl) {
+                    for (const key in sub) {
+                        const val = sub[key];
+                        if (typeof val === 'string' && (val.startsWith('http') || val.startsWith('data:image'))) {
+                            finalFileUrl = val; break;
+                        }
+                    }
+                }
+
                 const hasFile = finalFileUrl ? true : false; 
 
                 const row = document.createElement('div');
                 row.className = "bg-white p-3 rounded-lg border border-slate-200 shadow-sm flex flex-col md:flex-row gap-4 items-start md:items-center";
                 
-                // Lógica de colores del estado
                 let statusColor = "bg-slate-100 text-slate-500 border-slate-200";
                 if(sub.status === 'APROBADO') statusColor = "bg-emerald-50 text-emerald-600 border-emerald-200";
                 if(sub.status === 'OBSERVADO') statusColor = "bg-red-50 text-red-600 border-red-200";
                 if(sub.status === 'ENTREGADO') statusColor = "bg-blue-50 text-blue-600 border-blue-200";
 
+                // Botón VER ARCHIVO actualizado para usar previewFile()
+                const viewButton = hasFile 
+                    ? `<button onclick="previewFile('${finalFileUrl}')" class="text-[10px] text-blue-600 font-bold hover:underline flex items-center gap-1 bg-blue-50 px-2 py-0.5 rounded border border-blue-100 hover:bg-blue-100 transition-colors"><i data-lucide="eye" class="w-3 h-3"></i> Ver Archivo</button>` 
+                    : `<span class="text-[10px] text-slate-400 italic flex items-center gap-1"><i data-lucide="file-warning" class="w-3 h-3"></i> Sin archivo</span>`;
+
                 row.innerHTML = `
                     <div class="flex-1 min-w-[150px]">
                         <div class="font-bold text-sm text-slate-800">${s.studentLastName}, ${s.studentName}</div>
-                        <div class="flex items-center gap-2 mt-1">
+                        <div class="flex items-center gap-2 mt-1 flex-wrap">
                              <span class="text-[10px] px-2 py-0.5 rounded border font-bold uppercase tracking-wider ${statusColor}">${sub.status}</span>
-                             ${hasFile ? `<a href="${finalFileUrl}" target="_blank" class="text-[10px] text-blue-600 font-bold hover:underline flex items-center gap-1 bg-blue-50 px-2 py-0.5 rounded border border-blue-100 hover:bg-blue-100 transition-colors"><i data-lucide="paperclip" class="w-3 h-3"></i> Ver Archivo</a>` : `<span class="text-[10px] text-slate-400 italic flex items-center gap-1"><i data-lucide="file-warning" class="w-3 h-3"></i> Sin archivo</span>`}
-                             <!-- Simular subida (Solo para Demo) -->
-                             <button onclick="simulateUpload('${taskId}', ${s.id})" class="text-[9px] text-slate-300 hover:text-slate-500 underline ml-2 opacity-0 hover:opacity-100 transition-opacity" title="Simular que el alumno subió tarea">(Simular)</button>
+                             ${viewButton}
+                             
+                             <!-- Botón Nuevo: Adjuntar Link Real -->
+                             <button onclick="editSubmissionLink('${taskId}', ${s.id})" class="text-[9px] text-blue-500 hover:text-blue-700 underline ml-2" title="Editar o agregar enlace de tarea">
+                                ${hasFile ? '(Editar Link)' : '(Adjuntar Link)'}
+                             </button>
+                             
+                             <!-- Botón Simular (Backup seguro) -->
+                             <button onclick="simulateUpload('${taskId}', ${s.id})" class="text-[9px] text-slate-300 hover:text-slate-500 ml-1" title="Demo rápido">(Simular)</button>
                         </div>
                     </div>
                     <div class="flex items-center gap-2 w-full md:w-auto">
@@ -1503,17 +1595,21 @@
         }
 
         window.simulateUpload = function(taskId, studentId) {
-            // Mock function to simulate a student uploading a file
+            // IMAGEN SVG EN BASE64 - Genera un gráfico de "Tarea Adjunta" visualmente agradable
+            // Esto soluciona el problema de "placeholder" -> ahora verás una imagen real.
+            const mockImage = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MDAgMzAwIiBzdHlsZT0iYmFja2dyb3VuZC1jb2xvcjojZjhmOGY4Ij4KICA8cmVjdCB4PSI1MCIgeT0iMjAiIHdpZHRoPSIzMDAiIGhlaWdodD0iMjYwIiBmaWxsPSIjZmZmIiBzdHJva2U9IiNjY2MiIHN0cm9rZS13aWR0aD0iMiIvPgogIDxjaXJjbGUgY3g9IjIwMCIgY3k9IjEyMCIgcj0iNDAiIGZpbGw9IiNlM2YyZmQiIC8+CiAgPHBhdGggZD0iTTE2MCAxODAgQSA0MCA0MCAwIDAgMSAyNDAgMTgwIiBmaWxsPSJub25lIiBzdHJva2U9IiMzYjgyZjYiIHN0cm9rZS13aWR0aD0iNCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiAvPgogIDxyZWN0IHg9IjgwIiB5PSIyMjAiIHdpZHRoPSIyNDAiIGhlaWdodD0iMTAiIGZpbGw9IiNlMmU4ZjAiIC8+CiAgPHJlY3QgeD0iODAiIHk9IjI0MCIgd2lkdGg9IjE4MCIgaGVpZ2h0PSIxMCIgZmlsbD0iI2UyZThmMCIgLz4KICA8dGV4dCB4PSIyMDAiIHk9IjYwIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSIyMCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzMzMyI+VGFyZWEgQWRqdW50YTwvdGV4dD4KPC9zdmc+";
+
             if(!window.tasks[selectedClassroomId][taskId].submissions) window.tasks[selectedClassroomId][taskId].submissions = {};
             const current = window.tasks[selectedClassroomId][taskId].submissions[studentId] || {};
             
             window.tasks[selectedClassroomId][taskId].submissions[studentId] = {
                 ...current,
-                fileUrl: 'https://via.placeholder.com/600x800?text=Tarea+de+Alumno', // Placeholder image
+                fileUrl: mockImage,
                 status: current.status === 'PENDIENTE' ? 'ENTREGADO' : current.status
             };
             saveToFirebase();
             renderGradingList(taskId);
+            alert("Simulación exitosa: Se ha adjuntado una imagen de prueba.");
         }
 
         window.updateGrade = function(taskId, studentId, grade, feedback, status) {
