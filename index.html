@@ -1713,7 +1713,7 @@ window.renderGradingList = function(taskId) {
                 const cls = classrooms.find(c => c.id === s.assignedClassId);
                 const clsName = cls ? cls.name : '<span class="text-slate-400 italic">Sin salón</span>';
                 const statusBadge = s.active ? '<span class="status-badge status-active">Activo</span>' : '<span class="status-badge status-inactive">Inactivo</span>';
-                tr.innerHTML = `tr.innerHTML = `<td class="px-4 py-3 align-middle">${statusBadge}</td>
+                tr.innerHTML = `<td class="px-4 py-3 align-middle">${statusBadge}</td>
 <td class="px-4 py-3 align-middle">
     <div class="font-bold text-sm text-slate-700">${s.studentLastName}, ${s.studentName}</div>
     <div class="text-[10px] font-mono text-slate-400">${s.discountCode || 'STU-' + s.id}</div>
@@ -1738,7 +1738,7 @@ window.renderGradingList = function(taskId) {
         
         <button onclick="deleteStudent(${s.id})" class="p-1.5 text-red-500 hover:text-red-700 hover:bg-red-50 rounded transition-colors" title="Eliminar Alumno"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
     </div>
-</td>`;`;
+</td>`;
                 tbody.appendChild(tr);
             });
             lucide.createIcons();
