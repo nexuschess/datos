@@ -113,7 +113,7 @@
                                 <div class="md:col-span-2 bg-slate-50 p-4 rounded-xl border border-slate-200 mt-2">
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <div><label class="label-classic">Link del Voucher</label><input required id="paymentVoucherLink" placeholder="https://..." class="input-classic"></div>
-                                        <div><label class="label-classic">Monto Pagado (S/.)</label><input required id="paymentAmount" type="number" placeholder="0.00" oninput="checkAutoLogic()" class="input-classic font-bold text-slate-700"></div>
+                                        <div><label class="label-classic">Monto Pagado (S/.)</label><input required id="paymentAmount" type="number" step="0.01" placeholder="0.00" oninput="checkAutoLogic()" class="input-classic font-bold text-slate-700"></div>
                                     </div>
                                 </div>
                             </div>
@@ -669,7 +669,11 @@
                     return s;
                 });
                 window.attendanceData = data.attendanceData || {};
-                window.classrooms = data.classrooms || JSON.parse(JSON.stringify(INITIAL_CLASSROOMS));
+                // Asegurar que enrolled sea array
+                window.classrooms = (data.classrooms || JSON.parse(JSON.stringify(INITIAL_CLASSROOMS))).map(c => {
+                    if (!c.enrolled) c.enrolled = [];
+                    return c;
+                });
                 window.otherIncomes = data.otherIncomes || []; 
                 window.tasks = data.tasks || {};
             } else {
@@ -686,6 +690,11 @@
                 attendanceData: window.attendanceData,
                 otherIncomes: window.otherIncomes,
                 tasks: window.tasks
+            }).then(() => {
+                console.log("Datos sincronizados con Firebase correctamente.");
+            }).catch((error) => {
+                console.error("Error al guardar en Firebase:", error);
+                alert("Error de conexión: No se pudieron guardar los cambios. Verifique su internet.");
             });
         }
 
@@ -876,19 +885,65 @@
             resetForm();
         }
 
+        // --- FUNCIÓN UPDATE CORREGIDA ---
         function handleUpdate(updatedData) {
             const oldStudent = window.students.find(s => s.id === updatedData.id);
-            updatedData.assignedClassId = oldStudent.assignedClassId;
+            if (!oldStudent) return;
+
+            // 1. Detectar si cambió el horario o la modalidad para reasignar Salón
+            let newClassId = oldStudent.assignedClassId;
+            let classChanged = false;
+
+            if (updatedData.schedule !== oldStudent.schedule || updatedData.modality !== oldStudent.modality) {
+                // Buscar nuevo salón disponible
+                const clsIndex = classrooms.findIndex(c => c.type === updatedData.modality && c.schedule === updatedData.schedule);
+                
+                if (clsIndex !== -1) {
+                    newClassId = classrooms[clsIndex].id;
+                    classChanged = true;
+
+                    // A. Sacar del salón viejo
+                    const oldClsIndex = classrooms.findIndex(c => c.id === oldStudent.assignedClassId);
+                    if (oldClsIndex !== -1 && classrooms[oldClsIndex].enrolled) {
+                         classrooms[oldClsIndex].enrolled = classrooms[oldClsIndex].enrolled.filter(id => id !== updatedData.id);
+                    }
+
+                    // B. Meter en salón nuevo
+                    if (!classrooms[clsIndex].enrolled) classrooms[clsIndex].enrolled = [];
+                    classrooms[clsIndex].enrolled.push(updatedData.id);
+
+                } else {
+                    alert("⚠️ Advertencia: Has cambiado el horario/modalidad, pero no se encontró un salón disponible con esas características. El alumno se mantendrá en su salón anterior.");
+                }
+            }
+
+            updatedData.assignedClassId = newClassId;
+
+            // 2. Preservar datos que no vienen del formulario
             updatedData.discountCode = oldStudent.discountCode;
             updatedData.registrationDate = oldStudent.registrationDate;
             updatedData.active = oldStudent.active;
-            updatedData.payments = oldStudent.payments;
+            updatedData.payments = oldStudent.payments || [];
+
+            // 3. Actualizar el MONTO del primer pago si se editó en el formulario
+            // (Esto soluciona lo de "aumentarle cantidad de dinero")
+            if(updatedData.payments.length > 0) {
+                 updatedData.payments[0].amount = updatedData.paymentAmount;
+            } else {
+                 // Si no tenía pagos (caso raro), creamos uno
+                 updatedData.payments.push({ date: updatedData.startDate, amount: updatedData.paymentAmount });
+            }
+            
+            // Recalcular vencimiento por si cambió fecha o monto
             updatedData.renewalDate = calculateRenewalDate(updatedData.startDate, updatedData.paymentAmount);
-            if(updatedData.payments && updatedData.payments.length > 0) { updatedData.payments[0].amount = updatedData.paymentAmount; }
+
+            // 4. Actualizar Array Global y Guardar
             window.students = window.students.map(s => s.id === updatedData.id ? updatedData : s);
-            saveToFirebase();
-            alert("Datos actualizados.");
+            
+            saveToFirebase(); // Esto guarda TODO (students y classrooms modificados)
+            alert("✅ Datos actualizados correctamente (Salón y Pagos incluidos).");
             resetForm();
+            refreshAllUI();
         }
 
         window.resetForm = function() {
@@ -924,9 +979,17 @@
             document.getElementById('department').value = s.department;
             document.getElementById('startDate').value = s.startDate;
             checkAutoLogic();
+            
+            // Forzar actualización de horarios disponibles antes de seleccionar
             setModality(s.modality);
+            
+            // Esperar un micro-tick para que el select se llene
+            setTimeout(() => { 
+                document.getElementById('schedule').value = s.schedule; 
+            }, 50);
+
             if(s.hasDiscount !== window.hasDiscount) toggleDiscount();
-            setTimeout(() => { document.getElementById('schedule').value = s.schedule; }, 100);
+            
             document.getElementById('form-title').innerHTML = '<div class="p-1.5 bg-orange-50 rounded text-orange-500"><i data-lucide="edit-3" class="w-5 h-5"></i></div> Editar Alumno';
             document.getElementById('btn-submit').innerHTML = '<i data-lucide="refresh-cw" class="w-5 h-5"></i> GUARDAR CAMBIOS';
             document.getElementById('btn-submit').className = "w-full py-3.5 rounded-xl font-bold text-white shadow-lg shadow-orange-500/30 transform active:scale-[0.98] transition-all bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 flex items-center justify-center gap-2";
