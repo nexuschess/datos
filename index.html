@@ -113,7 +113,7 @@
                                 <div class="md:col-span-2 bg-slate-50 p-4 rounded-xl border border-slate-200 mt-2">
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <div><label class="label-classic">Link del Voucher</label><input required id="paymentVoucherLink" placeholder="https://..." class="input-classic"></div>
-                                        <div><label class="label-classic">Monto Pagado (S/.)</label><input required id="paymentAmount" type="number" step="0.01" placeholder="0.00" oninput="checkAutoLogic()" class="input-classic font-bold text-slate-700"></div>
+                                        <div><label class="label-classic">Monto Pagado (S/.)</label><input required id="paymentAmount" type="number" placeholder="0.00" oninput="checkAutoLogic()" class="input-classic font-bold text-slate-700"></div>
                                     </div>
                                 </div>
                             </div>
@@ -669,11 +669,7 @@
                     return s;
                 });
                 window.attendanceData = data.attendanceData || {};
-                // Asegurar que enrolled sea array
-                window.classrooms = (data.classrooms || JSON.parse(JSON.stringify(INITIAL_CLASSROOMS))).map(c => {
-                    if (!c.enrolled) c.enrolled = [];
-                    return c;
-                });
+                window.classrooms = data.classrooms || JSON.parse(JSON.stringify(INITIAL_CLASSROOMS));
                 window.otherIncomes = data.otherIncomes || []; 
                 window.tasks = data.tasks || {};
             } else {
@@ -690,11 +686,6 @@
                 attendanceData: window.attendanceData,
                 otherIncomes: window.otherIncomes,
                 tasks: window.tasks
-            }).then(() => {
-                console.log("Datos sincronizados con Firebase correctamente.");
-            }).catch((error) => {
-                console.error("Error al guardar en Firebase:", error);
-                alert("Error de conexión: No se pudieron guardar los cambios. Verifique su internet.");
             });
         }
 
@@ -885,65 +876,19 @@
             resetForm();
         }
 
-        // --- FUNCIÓN UPDATE CORREGIDA ---
         function handleUpdate(updatedData) {
             const oldStudent = window.students.find(s => s.id === updatedData.id);
-            if (!oldStudent) return;
-
-            // 1. Detectar si cambió el horario o la modalidad para reasignar Salón
-            let newClassId = oldStudent.assignedClassId;
-            let classChanged = false;
-
-            if (updatedData.schedule !== oldStudent.schedule || updatedData.modality !== oldStudent.modality) {
-                // Buscar nuevo salón disponible
-                const clsIndex = classrooms.findIndex(c => c.type === updatedData.modality && c.schedule === updatedData.schedule);
-                
-                if (clsIndex !== -1) {
-                    newClassId = classrooms[clsIndex].id;
-                    classChanged = true;
-
-                    // A. Sacar del salón viejo
-                    const oldClsIndex = classrooms.findIndex(c => c.id === oldStudent.assignedClassId);
-                    if (oldClsIndex !== -1 && classrooms[oldClsIndex].enrolled) {
-                         classrooms[oldClsIndex].enrolled = classrooms[oldClsIndex].enrolled.filter(id => id !== updatedData.id);
-                    }
-
-                    // B. Meter en salón nuevo
-                    if (!classrooms[clsIndex].enrolled) classrooms[clsIndex].enrolled = [];
-                    classrooms[clsIndex].enrolled.push(updatedData.id);
-
-                } else {
-                    alert("⚠️ Advertencia: Has cambiado el horario/modalidad, pero no se encontró un salón disponible con esas características. El alumno se mantendrá en su salón anterior.");
-                }
-            }
-
-            updatedData.assignedClassId = newClassId;
-
-            // 2. Preservar datos que no vienen del formulario
+            updatedData.assignedClassId = oldStudent.assignedClassId;
             updatedData.discountCode = oldStudent.discountCode;
             updatedData.registrationDate = oldStudent.registrationDate;
             updatedData.active = oldStudent.active;
-            updatedData.payments = oldStudent.payments || [];
-
-            // 3. Actualizar el MONTO del primer pago si se editó en el formulario
-            // (Esto soluciona lo de "aumentarle cantidad de dinero")
-            if(updatedData.payments.length > 0) {
-                 updatedData.payments[0].amount = updatedData.paymentAmount;
-            } else {
-                 // Si no tenía pagos (caso raro), creamos uno
-                 updatedData.payments.push({ date: updatedData.startDate, amount: updatedData.paymentAmount });
-            }
-            
-            // Recalcular vencimiento por si cambió fecha o monto
+            updatedData.payments = oldStudent.payments;
             updatedData.renewalDate = calculateRenewalDate(updatedData.startDate, updatedData.paymentAmount);
-
-            // 4. Actualizar Array Global y Guardar
+            if(updatedData.payments && updatedData.payments.length > 0) { updatedData.payments[0].amount = updatedData.paymentAmount; }
             window.students = window.students.map(s => s.id === updatedData.id ? updatedData : s);
-            
-            saveToFirebase(); // Esto guarda TODO (students y classrooms modificados)
-            alert("✅ Datos actualizados correctamente (Salón y Pagos incluidos).");
+            saveToFirebase();
+            alert("Datos actualizados.");
             resetForm();
-            refreshAllUI();
         }
 
         window.resetForm = function() {
@@ -979,17 +924,9 @@
             document.getElementById('department').value = s.department;
             document.getElementById('startDate').value = s.startDate;
             checkAutoLogic();
-            
-            // Forzar actualización de horarios disponibles antes de seleccionar
             setModality(s.modality);
-            
-            // Esperar un micro-tick para que el select se llene
-            setTimeout(() => { 
-                document.getElementById('schedule').value = s.schedule; 
-            }, 50);
-
             if(s.hasDiscount !== window.hasDiscount) toggleDiscount();
-            
+            setTimeout(() => { document.getElementById('schedule').value = s.schedule; }, 100);
             document.getElementById('form-title').innerHTML = '<div class="p-1.5 bg-orange-50 rounded text-orange-500"><i data-lucide="edit-3" class="w-5 h-5"></i></div> Editar Alumno';
             document.getElementById('btn-submit').innerHTML = '<i data-lucide="refresh-cw" class="w-5 h-5"></i> GUARDAR CAMBIOS';
             document.getElementById('btn-submit').className = "w-full py-3.5 rounded-xl font-bold text-white shadow-lg shadow-orange-500/30 transform active:scale-[0.98] transition-all bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 flex items-center justify-center gap-2";
@@ -1776,7 +1713,32 @@ window.renderGradingList = function(taskId) {
                 const cls = classrooms.find(c => c.id === s.assignedClassId);
                 const clsName = cls ? cls.name : '<span class="text-slate-400 italic">Sin salón</span>';
                 const statusBadge = s.active ? '<span class="status-badge status-active">Activo</span>' : '<span class="status-badge status-inactive">Inactivo</span>';
-                tr.innerHTML = `<td class="px-4 py-3 align-middle">${statusBadge}</td><td class="px-4 py-3 align-middle"><div class="font-bold text-sm text-slate-700">${s.studentLastName}, ${s.studentName}</div><div class="text-[10px] font-mono text-slate-400">${s.discountCode || 'STU-' + s.id}</div></td><td class="px-4 py-3 align-middle"><div class="text-xs text-slate-600 bg-slate-100 px-2 py-1 rounded inline-block">${clsName}</div></td><td class="px-4 py-3 align-middle font-mono text-xs font-bold ${s.active ? 'text-blue-600' : 'text-slate-400'}">${s.renewalDate || '---'}</td><td class="px-4 py-3 align-middle text-right"><div class="flex justify-end gap-1 relative"><button onclick="editStudent(${s.id})" class="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors" title="Editar"><i data-lucide="edit-2" class="w-4 h-4"></i></button><button onclick="openRenewModal(${s.id})" class="p-1.5 text-emerald-500 hover:bg-emerald-50 rounded transition-colors" title="Renovar / Pagar"><i data-lucide="credit-card" class="w-4 h-4"></i></button><button onclick="toggleStudentStatus(${s.id})" class="p-1.5 ${s.active ? 'text-red-400 hover:text-red-600 hover:bg-red-50' : 'text-green-400 hover:text-green-600 hover:bg-green-50'} rounded transition-colors" title="${s.active ? 'Inhabilitar' : 'Habilitar'}"><i data-lucide="${s.active ? 'user-x' : 'user-check'}" class="w-4 h-4"></i></button><div class="relative"><button onclick="toggleActionMenu(${s.id}, event)" class="p-1.5 text-cyan-500 hover:text-cyan-600 hover:bg-cyan-50 rounded transition-colors" title="Enviar Mensaje / Acciones"><i data-lucide="message-circle" class="w-4 h-4"></i></button><div id="action-menu-${s.id}" class="action-menu text-left" onclick="event.stopPropagation()"><button onclick="sendContinuityMessage(${s.id})" class="w-full px-4 py-3 text-xs font-bold text-slate-600 hover:bg-slate-50 hover:text-blue-600 transition-colors flex items-center gap-2 border-b border-slate-100"><i data-lucide="refresh-cw" class="w-3 h-3"></i> Continuidad del Curso</button></div></div><button onclick="showCard(${s.id})" class="p-1.5 text-indigo-400 hover:text-indigo-600 hover:bg-indigo-50 rounded transition-colors" title="Ver Carnet"><i data-lucide="id-card" class="w-4 h-4"></i></button><button onclick="copyCredentials(${s.id})" class="p-1.5 text-orange-400 hover:text-orange-600 hover:bg-orange-50 rounded transition-colors" title="Copiar Credenciales"><i data-lucide="clipboard-copy" class="w-4 h-4"></i></button></div></td>`;
+                tr.innerHTML = `tr.innerHTML = `<td class="px-4 py-3 align-middle">${statusBadge}</td>
+<td class="px-4 py-3 align-middle">
+    <div class="font-bold text-sm text-slate-700">${s.studentLastName}, ${s.studentName}</div>
+    <div class="text-[10px] font-mono text-slate-400">${s.discountCode || 'STU-' + s.id}</div>
+</td>
+<td class="px-4 py-3 align-middle">
+    <div class="text-xs text-slate-600 bg-slate-100 px-2 py-1 rounded inline-block">${clsName}</div>
+</td>
+<td class="px-4 py-3 align-middle font-mono text-xs font-bold ${s.active ? 'text-blue-600' : 'text-slate-400'}">${s.renewalDate || '---'}</td>
+<td class="px-4 py-3 align-middle text-right">
+    <div class="flex justify-end gap-1 relative">
+        <button onclick="editStudent(${s.id})" class="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors" title="Editar"><i data-lucide="edit-2" class="w-4 h-4"></i></button>
+        <button onclick="openRenewModal(${s.id})" class="p-1.5 text-emerald-500 hover:bg-emerald-50 rounded transition-colors" title="Renovar / Pagar"><i data-lucide="credit-card" class="w-4 h-4"></i></button>
+        <button onclick="toggleStudentStatus(${s.id})" class="p-1.5 ${s.active ? 'text-red-400 hover:text-red-600 hover:bg-red-50' : 'text-green-400 hover:text-green-600 hover:bg-green-50'} rounded transition-colors" title="${s.active ? 'Inhabilitar' : 'Habilitar'}"><i data-lucide="${s.active ? 'user-x' : 'user-check'}" class="w-4 h-4"></i></button>
+        <div class="relative">
+            <button onclick="toggleActionMenu(${s.id}, event)" class="p-1.5 text-cyan-500 hover:text-cyan-600 hover:bg-cyan-50 rounded transition-colors" title="Enviar Mensaje / Acciones"><i data-lucide="message-circle" class="w-4 h-4"></i></button>
+            <div id="action-menu-${s.id}" class="action-menu text-left" onclick="event.stopPropagation()">
+                <button onclick="sendContinuityMessage(${s.id})" class="w-full px-4 py-3 text-xs font-bold text-slate-600 hover:bg-slate-50 hover:text-blue-600 transition-colors flex items-center gap-2 border-b border-slate-100"><i data-lucide="refresh-cw" class="w-3 h-3"></i> Continuidad del Curso</button>
+            </div>
+        </div>
+        <button onclick="showCard(${s.id})" class="p-1.5 text-indigo-400 hover:text-indigo-600 hover:bg-indigo-50 rounded transition-colors" title="Ver Carnet"><i data-lucide="id-card" class="w-4 h-4"></i></button>
+        <button onclick="copyCredentials(${s.id})" class="p-1.5 text-orange-400 hover:text-orange-600 hover:bg-orange-50 rounded transition-colors" title="Copiar Credenciales"><i data-lucide="clipboard-copy" class="w-4 h-4"></i></button>
+        
+        <button onclick="deleteStudent(${s.id})" class="p-1.5 text-red-500 hover:text-red-700 hover:bg-red-50 rounded transition-colors" title="Eliminar Alumno"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+    </div>
+</td>`;`;
                 tbody.appendChild(tr);
             });
             lucide.createIcons();
@@ -1833,7 +1795,40 @@ window.renderGradingList = function(taskId) {
             }
         }
 
+        // ... (código anterior) ...
+
         window.closeModal = function() { document.getElementById('card-modal').classList.add('hidden'); }
-    </script>
-</body>
+
+        // --- PEGA LA SEGUNDA PARTE AQUÍ ABAJO ---
+        window.deleteStudent = function(id) {
+            const s = window.students.find(st => st.id === id);
+            if (!s) return;
+            // Confirmación de seguridad
+            if (confirm(`⚠️ ¿Estás seguro de ELIMINAR a:\n\n👤 ${s.studentName} ${s.studentLastName}?\n\nEsta acción borrará sus pagos y asistencias y NO se puede deshacer.`)) {
+                
+                // 1. Eliminar de la lista global
+                window.students = window.students.filter(st => st.id !== id);
+
+                // 2. Eliminar de su salón
+                if (s.assignedClassId) {
+                    const clsIndex = window.classrooms.findIndex(c => c.id === s.assignedClassId);
+                    if (clsIndex !== -1 && window.classrooms[clsIndex].enrolled) {
+                        window.classrooms[clsIndex].enrolled = window.classrooms[clsIndex].enrolled.filter(studentId => studentId !== id);
+                    }
+                }
+
+                // 3. Limpiar asistencias basura
+                Object.keys(window.attendanceData).forEach(date => {
+                    if (window.attendanceData[date][id]) delete window.attendanceData[date][id];
+                });
+
+                // 4. Guardar y actualizar
+                saveToFirebase();
+                refreshAllUI();
+                alert("✅ Alumno eliminado correctamente.");
+            }
+        }
+        // ----------------------------------------
+
+    </script> </body>
 </html>
