@@ -737,11 +737,17 @@
             });
         }
 
-        window.calculateRenewalDate = function(startDate, amount) {
+window.calculateRenewalDate = function(startDate, amount) {
             if (!startDate) return '---';
             const start = new Date(startDate);
-            let daysToAdd = 28; 
-            if (amount === 180 || amount === 360) daysToAdd = 56;
+            
+            let daysToAdd = 28; // Por defecto 1 ciclo (4 semanas)
+            
+            // Si el monto es 180, 360, 200 o 400, sumamos 56 días (8 semanas)
+            if (amount === 180 || amount === 360 || amount === 200 || amount === 400) {
+                daysToAdd = 56;
+            }
+            
             start.setDate(start.getDate() + daysToAdd);
             return start.toLocaleDateString('es-PE', { day: '2-digit', month: '2-digit', year: 'numeric' });
         }
@@ -806,15 +812,23 @@
             });
         }
 
-        window.checkAutoLogic = function() {
+window.checkAutoLogic = function() {
             const val = parseFloat(document.getElementById('paymentAmount').value);
             const preview = document.getElementById('duration-preview');
-            if(val === 180 || val === 360) {
-                if(!window.hasDiscount) toggleDiscount();
+            
+            // LÓGICA DE 8 SEMANAS (2 CICLOS)
+            // Agregamos 200 (Grupal Full) y 400 (Individual Full) a la lista
+            if(val === 180 || val === 360 || val === 200 || val === 400) {
+                // Solo activamos el check de descuento visualmente si es 180 o 360
+                if((val === 180 || val === 360) && !window.hasDiscount) toggleDiscount();
+                
                 preview.innerHTML = '<i data-lucide="clock" class="w-3 h-3"></i> Duración: 2 Ciclos (8 Semanas)';
-            } else if (val === 100 || val === 200) {
+            } 
+            // LÓGICA DE 4 SEMANAS (1 CICLO)
+            else if (val === 100) { 
                 preview.innerHTML = '<i data-lucide="clock" class="w-3 h-3"></i> Duración: 1 Ciclo (4 Semanas)';
-            } else {
+            } 
+            else {
                 preview.innerHTML = '';
             }
             lucide.createIcons();
