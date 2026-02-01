@@ -507,18 +507,27 @@
         </div>
     </div>
 
-    <div id="modal-renew" class="hidden fixed inset-0 bg-slate-900/60 flex items-center justify-center z-[70] p-4 backdrop-blur-sm" onclick="closeRenewModal()">
+<div id="modal-renew" class="hidden fixed inset-0 bg-slate-900/60 flex items-center justify-center z-[70] p-4 backdrop-blur-sm" onclick="closeRenewModal()">
         <div class="bg-white w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden animate-bounce-in" onclick="event.stopPropagation()">
             <div class="bg-emerald-600 px-6 py-4 flex justify-between items-center">
-                <h3 class="font-bold text-white flex items-center gap-2"><i data-lucide="refresh-ccw" class="w-5 h-5"></i> Renovar Suscripción</h3>
+                <h3 class="font-bold text-white flex items-center gap-2"><i data-lucide="refresh-ccw" class="w-5 h-5"></i> Renovar y Trasladar</h3>
                 <button onclick="closeRenewModal()" class="text-white/80 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
             <div class="p-6 space-y-4">
                 <input type="hidden" id="renew-student-id">
-                <p class="text-sm text-slate-600">Registrar nuevo pago para: <strong id="renew-student-name"></strong></p>
+                <p class="text-sm text-slate-600">Alumno: <strong id="renew-student-name" class="text-slate-800"></strong></p>
+                
+                <div>
+                    <label class="label-classic text-emerald-600">Salón de Destino</label>
+                    <select id="renew-classroom-select" class="input-classic font-semibold text-slate-700 bg-slate-50">
+                        </select>
+                    <p class="text-[10px] text-slate-400 mt-1">Si cambias el salón, se verificará que existan vacantes.</p>
+                </div>
+
                 <div><label class="label-classic">Nuevo Monto (S/.)</label><input type="number" id="renew-amount" class="input-classic font-bold text-emerald-600" placeholder="0.00"></div>
-                 <div><label class="label-classic">Nueva Fecha de Inicio</label><input type="date" id="renew-date" class="input-classic"><p class="text-[10px] text-slate-400 mt-1">La fecha de vencimiento se calculará automáticamente desde aquí.</p></div>
-                <button onclick="confirmRenewal()" class="w-full py-3 rounded-xl font-bold text-white bg-emerald-600 hover:bg-emerald-700 transition-colors shadow-lg shadow-emerald-500/20">Confirmar Pago</button>
+                <div><label class="label-classic">Nueva Fecha de Inicio</label><input type="date" id="renew-date" class="input-classic"></div>
+                
+                <button onclick="confirmRenewal()" class="w-full py-3 rounded-xl font-bold text-white bg-emerald-600 hover:bg-emerald-700 transition-colors shadow-lg shadow-emerald-500/20">Confirmar Renovación</button>
             </div>
         </div>
     </div>
@@ -969,32 +978,102 @@ window.checkAutoLogic = function() {
             alert("Ingreso registrado correctamente.");
         }
 
-        window.openRenewModal = function(id) {
+window.openRenewModal = function(id) {
             const s = students.find(st => st.id === id);
             if(!s) return;
+            
             document.getElementById('renew-student-id').value = s.id;
             document.getElementById('renew-student-name').innerText = `${s.studentName} ${s.studentLastName}`;
             document.getElementById('renew-amount').value = ''; 
             document.getElementById('renew-date').value = new Date().toISOString().split('T')[0];
+            
+            // --- NUEVA LÓGICA PASO 2: LLENAR EL SELECT DE SALONES ---
+            const select = document.getElementById('renew-classroom-select');
+            if(select) { // Verificamos que el select exista (por si acaso)
+                select.innerHTML = ''; 
+
+                const compatibleClassrooms = window.classrooms.filter(c => c.type === s.modality);
+
+                compatibleClassrooms.forEach(c => {
+                    const enrolledCount = (c.enrolled || []).length;
+                    const capacity = window.QUOTAS[c.type].classCapacity;
+                    const isFull = enrolledCount >= capacity;
+                    const isCurrent = c.id === s.assignedClassId;
+
+                    const opt = document.createElement('option');
+                    opt.value = c.id;
+                    opt.innerText = `${c.name} (${enrolledCount}/${capacity})`;
+                    
+                    if (isCurrent) {
+                        opt.selected = true;
+                        opt.innerText += " (Actual)";
+                    }
+                    
+                    if (isFull && !isCurrent) {
+                        opt.disabled = true;
+                        opt.innerText += " - LLENO";
+                    }
+
+                    select.appendChild(opt);
+                });
+            }
+            // ------------------------------------------------
+
             document.getElementById('modal-renew').classList.remove('hidden');
         }
+
         window.closeRenewModal = function() { document.getElementById('modal-renew').classList.add('hidden'); }
 
         window.confirmRenewal = function() {
             const id = parseInt(document.getElementById('renew-student-id').value);
             const amount = parseFloat(document.getElementById('renew-amount').value);
             const newDate = document.getElementById('renew-date').value;
+            const newClassId = document.getElementById('renew-classroom-select').value; // PASO 3
+
             if(!amount || !newDate) { alert("Por favor ingresa monto y fecha."); return; }
+
             const s = students.find(st => st.id === id);
             if(s) {
+                // --- LÓGICA DE TRASLADO DE SALÓN (PASO 3) ---
+                if (newClassId && newClassId !== s.assignedClassId) {
+                    const oldClass = window.classrooms.find(c => c.id === s.assignedClassId);
+                    const newClass = window.classrooms.find(c => c.id === newClassId);
+
+                    // Verificación de seguridad
+                    const currentEnrolled = (newClass.enrolled || []).length;
+                    const capacity = window.QUOTAS[newClass.type].classCapacity;
+                    
+                    if (currentEnrolled >= capacity) {
+                        alert(`⚠️ El salón "${newClass.name}" ya está lleno. No se puede realizar el traslado.`);
+                        return; 
+                    }
+
+                    // Sacar del viejo
+                    if (oldClass && oldClass.enrolled) {
+                        oldClass.enrolled = oldClass.enrolled.filter(stId => stId !== s.id);
+                    }
+
+                    // Meter al nuevo
+                    if (!newClass.enrolled) newClass.enrolled = [];
+                    newClass.enrolled.push(s.id);
+
+                    // Actualizar alumno
+                    s.assignedClassId = newClassId;
+                    s.schedule = newClass.schedule;
+                }
+                // ------------------------------------
+
                 if(!s.payments) s.payments = [];
                 s.payments.push({ date: newDate, amount: amount });
                 s.renewalDate = calculateRenewalDate(newDate, amount);
                 s.active = true; 
+                
                 saveToFirebase();
                 closeRenewModal();
                 refreshAllUI();
-                alert(`Pago registrado. Nueva fecha de vencimiento: ${s.renewalDate}`);
+                
+                const clsName = window.classrooms.find(c => c.id === s.assignedClassId)?.name || 'Nuevo Salón';
+                alert(`✅ Renovación exitosa.\n📅 Vence: ${s.renewalDate}\n🏫 Aula: ${clsName}`);
             }
         }
 
