@@ -524,10 +524,27 @@
                     <p class="text-[10px] text-slate-400 mt-1">Si cambias el salón, se verificará que existan vacantes.</p>
                 </div>
 
-                <div><label class="label-classic">Nuevo Monto (S/.)</label><input type="number" id="renew-amount" class="input-classic font-bold text-emerald-600" placeholder="0.00"></div>
-                <div><label class="label-classic">Nueva Fecha de Inicio</label><input type="date" id="renew-date" class="input-classic"></div>
+              <div><label class="label-classic">Nuevo Monto (S/.)</label><input type="number" id="renew-amount" class="input-classic font-bold text-emerald-600" placeholder="0.00"></div>
                 
-                <button onclick="confirmRenewal()" class="w-full py-3 rounded-xl font-bold text-white bg-emerald-600 hover:bg-emerald-700 transition-colors shadow-lg shadow-emerald-500/20">Confirmar Renovación</button>
+<div class="grid grid-cols-2 gap-4">
+    <div><label class="label-classic">Fecha de Inicio</label><input type="date" id="renew-date" class="input-classic"></div>
+    <div><label class="label-classic">Meses a Renovar</label><input type="number" id="renew-months" class="input-classic font-bold text-slate-700" value="1" min="1"></div>
+</div>
+
+<div>
+    <label class="label-classic mb-2">Días de Clases</label>
+    <div class="flex flex-wrap gap-2" id="renew-days">
+        <label class="flex items-center gap-1 text-xs text-slate-600 cursor-pointer hover:text-emerald-600"><input type="checkbox" value="Lun" class="accent-emerald-600 w-4 h-4"> Lun</label>
+        <label class="flex items-center gap-1 text-xs text-slate-600 cursor-pointer hover:text-emerald-600"><input type="checkbox" value="Mar" class="accent-emerald-600 w-4 h-4"> Mar</label>
+        <label class="flex items-center gap-1 text-xs text-slate-600 cursor-pointer hover:text-emerald-600"><input type="checkbox" value="Mié" class="accent-emerald-600 w-4 h-4"> Mié</label>
+        <label class="flex items-center gap-1 text-xs text-slate-600 cursor-pointer hover:text-emerald-600"><input type="checkbox" value="Jue" class="accent-emerald-600 w-4 h-4"> Jue</label>
+        <label class="flex items-center gap-1 text-xs text-slate-600 cursor-pointer hover:text-emerald-600"><input type="checkbox" value="Vie" class="accent-emerald-600 w-4 h-4"> Vie</label>
+        <label class="flex items-center gap-1 text-xs text-slate-600 cursor-pointer hover:text-emerald-600"><input type="checkbox" value="Sáb" class="accent-emerald-600 w-4 h-4"> Sáb</label>
+        <label class="flex items-center gap-1 text-xs text-slate-600 cursor-pointer hover:text-emerald-600"><input type="checkbox" value="Dom" class="accent-emerald-600 w-4 h-4"> Dom</label>
+    </div>
+</div>
+
+<button onclick="confirmRenewal()" class="w-full py-3 rounded-xl font-bold text-white bg-emerald-600 hover:bg-emerald-700 transition-colors shadow-lg shadow-emerald-500/20 mt-2">Confirmar Renovación</button> 
             </div>
         </div>
     </div>
@@ -811,8 +828,12 @@ window.calculateRenewalDate = function(startDate, amount) {
                  return;
             }
 
-            uniqueSchedules.forEach(sch => {
-                const hasSpace = filtered.some(c => c.schedule === sch && (c.enrolled || []).length < QUOTAS[c.type].classCapacity);
+uniqueSchedules.forEach(sch => {
+                // Nuevo: Filtramos para verificar el espacio real basado en activos
+                const hasSpace = filtered.some(c => c.schedule === sch && (c.enrolled || []).filter(id => {
+                    const st = window.students.find(s => s.id === id);
+                    return st && st.active;
+                }).length < QUOTAS[c.type].classCapacity);
                 if (hasSpace) {
                     const opt = document.createElement('option');
                     opt.value = sch; opt.innerText = sch;
@@ -885,7 +906,11 @@ window.checkAutoLogic = function() {
             const max = QUOTAS[data.modality][data.hasDiscount ? 'discount' : 'regular'];
             const key = data.modality === 'GRUPAL' ? (data.hasDiscount ? 'grupalDiscount' : 'grupalRegular') : (data.hasDiscount ? 'individualDiscount' : 'individualRegular');
             if(counts[key] >= max) { alert("¡Alerta de Cupos! Se ha alcanzado el límite para esta categoría."); return; }
-            const clsIndex = classrooms.findIndex(c => c.type === data.modality && c.schedule === data.schedule && (c.enrolled || []).length < QUOTAS[data.modality].classCapacity);
+            // Nuevo: Validación interna de cupos considerando solo activos
+            const clsIndex = classrooms.findIndex(c => c.type === data.modality && c.schedule === data.schedule && (c.enrolled || []).filter(id => {
+                const st = window.students.find(s => s.id === id);
+                return st && st.active;
+            }).length < QUOTAS[data.modality].classCapacity);
             if (clsIndex === -1) { alert("Lo sentimos, no hay salones disponibles en este horario específico."); return; }
             const discountCode = data.hasDiscount ? `NX-${Math.random().toString(36).substr(2,4).toUpperCase()}` : null;
             const renewalDate = calculateRenewalDate(data.startDate, data.paymentAmount);
@@ -994,8 +1019,12 @@ window.openRenewModal = function(id) {
 
                 const compatibleClassrooms = window.classrooms.filter(c => c.type === s.modality);
 
-                compatibleClassrooms.forEach(c => {
-                    const enrolledCount = (c.enrolled || []).length;
+compatibleClassrooms.forEach(c => {
+                    // Nuevo: Conteo de activos para el select de traslado
+                    const enrolledCount = (c.enrolled || []).filter(id => {
+                        const st = window.students.find(s => s.id === id);
+                        return st && st.active;
+                    }).length;
                     const capacity = window.QUOTAS[c.type].classCapacity;
                     const isFull = enrolledCount >= capacity;
                     const isCurrent = c.id === s.assignedClassId;
@@ -1028,19 +1057,27 @@ window.openRenewModal = function(id) {
             const id = parseInt(document.getElementById('renew-student-id').value);
             const amount = parseFloat(document.getElementById('renew-amount').value);
             const newDate = document.getElementById('renew-date').value;
-            const newClassId = document.getElementById('renew-classroom-select').value; // PASO 3
+            const newClassId = document.getElementById('renew-classroom-select').value;
+            const months = parseInt(document.getElementById('renew-months').value) || 1;
+            
+            // Recoger los días seleccionados
+            const selectedDays = Array.from(document.querySelectorAll('#renew-days input:checked')).map(cb => cb.value);
 
             if(!amount || !newDate) { alert("Por favor ingresa monto y fecha."); return; }
+            if(selectedDays.length === 0) { alert("Por favor selecciona al menos un día de clases."); return; }
 
             const s = students.find(st => st.id === id);
             if(s) {
-                // --- LÓGICA DE TRASLADO DE SALÓN (PASO 3) ---
-                if (newClassId && newClassId !== s.assignedClassId) {
+                // --- LÓGICA DE TRASLADO DE SALÓN ---
+if (newClassId && newClassId !== s.assignedClassId) {
                     const oldClass = window.classrooms.find(c => c.id === s.assignedClassId);
                     const newClass = window.classrooms.find(c => c.id === newClassId);
 
-                    // Verificación de seguridad
-                    const currentEnrolled = (newClass.enrolled || []).length;
+                    // Nuevo: Validación interna de traslado considerando solo activos
+                    const currentEnrolled = (newClass.enrolled || []).filter(id => {
+                        const st = window.students.find(s => s.id === id);
+                        return st && st.active;
+                    }).length;
                     const capacity = window.QUOTAS[newClass.type].classCapacity;
                     
                     if (currentEnrolled >= capacity) {
@@ -1048,24 +1085,26 @@ window.openRenewModal = function(id) {
                         return; 
                     }
 
-                    // Sacar del viejo
                     if (oldClass && oldClass.enrolled) {
                         oldClass.enrolled = oldClass.enrolled.filter(stId => stId !== s.id);
                     }
-
-                    // Meter al nuevo
                     if (!newClass.enrolled) newClass.enrolled = [];
                     newClass.enrolled.push(s.id);
 
-                    // Actualizar alumno
                     s.assignedClassId = newClassId;
                     s.schedule = newClass.schedule;
                 }
-                // ------------------------------------
+
+                // --- CALCULAR NUEVA FECHA DE VENCIMIENTO ---
+                // Mantenemos tu formato base: 1 ciclo de ajedrez = 4 semanas (28 días)
+                const startDateObj = new Date(newDate);
+                startDateObj.setDate(startDateObj.getDate() + (months * 28));
+                const newRenewalDate = startDateObj.toLocaleDateString('es-PE', { day: '2-digit', month: '2-digit', year: 'numeric' });
 
                 if(!s.payments) s.payments = [];
                 s.payments.push({ date: newDate, amount: amount });
-                s.renewalDate = calculateRenewalDate(newDate, amount);
+                s.renewalDate = newRenewalDate;
+                s.classDays = selectedDays; // Guardamos los días seleccionados por si los necesitas a futuro
                 s.active = true; 
                 
                 saveToFirebase();
@@ -1073,10 +1112,9 @@ window.openRenewModal = function(id) {
                 refreshAllUI();
                 
                 const clsName = window.classrooms.find(c => c.id === s.assignedClassId)?.name || 'Nuevo Salón';
-                alert(`✅ Renovación exitosa.\n📅 Vence: ${s.renewalDate}\n🏫 Aula: ${clsName}`);
+                alert(`✅ Renovación exitosa.\n📅 Vence: ${s.renewalDate}\n🏫 Aula: ${clsName}\n📆 Días: ${selectedDays.join(', ')}`);
             }
         }
-
         window.updateFinanceMonthOptions = function() {
             const monthSet = new Set();
             monthSet.add(new Date().toISOString().slice(0, 7));
@@ -1234,11 +1272,15 @@ window.openRenewModal = function(id) {
             renderClassrooms();
         }
 
-        window.renderClassrooms = function() {
+window.renderClassrooms = function() {
             const list = document.getElementById('classroom-list');
             list.innerHTML = '';
             window.classrooms.filter(c => c.type === classroomViewFilter).forEach(c => {
-                const enrolledCount = (c.enrolled || []).length;
+                // Nuevo: Filtramos para contar solo a los alumnos activos
+                const enrolledCount = (c.enrolled || []).filter(id => {
+                    const st = window.students.find(s => s.id === id);
+                    return st && st.active;
+                }).length;
                 const capacity = QUOTAS[c.type] ? QUOTAS[c.type].classCapacity : 10;
                 const isFull = enrolledCount >= capacity;
                 const isSelected = selectedClassroomId === c.id;
