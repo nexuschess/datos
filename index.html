@@ -529,26 +529,32 @@
                     </select>
                     <p class="text-[10px] text-slate-400 mt-1">Si cambias el salón, se verificará que existan vacantes.</p>
                 </div>
-              <div><label class="label-classic">Nuevo Monto (S/.)</label><input type="number" id="renew-amount" class="input-classic font-bold text-emerald-600" placeholder="0.00"></div>
-                
-<div class="grid grid-cols-2 gap-4">
-    <div><label class="label-classic">Fecha de Inicio</label><input type="date" id="renew-date" class="input-classic"></div>
-    <div><label class="label-classic">Meses a Renovar</label><input type="number" id="renew-months" class="input-classic font-bold text-slate-700" value="1" min="1"></div>
-</div>
+             <div class="flex items-center gap-2 mb-2 bg-slate-50 p-2.5 rounded-lg border border-slate-200 cursor-pointer hover:bg-slate-100 transition-colors" onclick="toggleTransferOnly(event)">
+                    <input type="checkbox" id="transfer-only-checkbox" class="accent-emerald-600 w-4 h-4 cursor-pointer">
+                    <label for="transfer-only-checkbox" class="text-xs font-bold text-slate-700 cursor-pointer select-none">Solo trasladar (Mantener pagos y fechas)</label>
+                </div>
 
-<div>
-    <label class="label-classic mb-2">Días de Clases</label>
-    <div class="flex flex-wrap gap-2" id="renew-days">
-        <label class="flex items-center gap-1 text-xs text-slate-600 cursor-pointer hover:text-emerald-600"><input type="checkbox" value="Lun" class="accent-emerald-600 w-4 h-4"> Lun</label>
-        <label class="flex items-center gap-1 text-xs text-slate-600 cursor-pointer hover:text-emerald-600"><input type="checkbox" value="Mar" class="accent-emerald-600 w-4 h-4"> Mar</label>
-        <label class="flex items-center gap-1 text-xs text-slate-600 cursor-pointer hover:text-emerald-600"><input type="checkbox" value="Mié" class="accent-emerald-600 w-4 h-4"> Mié</label>
-        <label class="flex items-center gap-1 text-xs text-slate-600 cursor-pointer hover:text-emerald-600"><input type="checkbox" value="Jue" class="accent-emerald-600 w-4 h-4"> Jue</label>
-        <label class="flex items-center gap-1 text-xs text-slate-600 cursor-pointer hover:text-emerald-600"><input type="checkbox" value="Vie" class="accent-emerald-600 w-4 h-4"> Vie</label>
-        <label class="flex items-center gap-1 text-xs text-slate-600 cursor-pointer hover:text-emerald-600"><input type="checkbox" value="Sáb" class="accent-emerald-600 w-4 h-4"> Sáb</label>
-        <label class="flex items-center gap-1 text-xs text-slate-600 cursor-pointer hover:text-emerald-600"><input type="checkbox" value="Dom" class="accent-emerald-600 w-4 h-4"> Dom</label>
-    </div>
-</div>
+                <div id="renew-payment-section" class="space-y-4">
+                    <div><label class="label-classic">Nuevo Monto (S/.)</label><input type="number" id="renew-amount" class="input-classic font-bold text-emerald-600" placeholder="0.00"></div>
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <div><label class="label-classic">Fecha de Inicio</label><input type="date" id="renew-date" class="input-classic"></div>
+                        <div><label class="label-classic">Meses a Renovar</label><input type="number" id="renew-months" class="input-classic font-bold text-slate-700" value="1" min="1"></div>
+                    </div>
 
+                    <div>
+                        <label class="label-classic mb-2">Días de Clases</label>
+                        <div class="flex flex-wrap gap-2" id="renew-days">
+                            <label class="flex items-center gap-1 text-xs text-slate-600 cursor-pointer hover:text-emerald-600"><input type="checkbox" value="Lun" class="accent-emerald-600 w-4 h-4"> Lun</label>
+                            <label class="flex items-center gap-1 text-xs text-slate-600 cursor-pointer hover:text-emerald-600"><input type="checkbox" value="Mar" class="accent-emerald-600 w-4 h-4"> Mar</label>
+                            <label class="flex items-center gap-1 text-xs text-slate-600 cursor-pointer hover:text-emerald-600"><input type="checkbox" value="Mié" class="accent-emerald-600 w-4 h-4"> Mié</label>
+                            <label class="flex items-center gap-1 text-xs text-slate-600 cursor-pointer hover:text-emerald-600"><input type="checkbox" value="Jue" class="accent-emerald-600 w-4 h-4"> Jue</label>
+                            <label class="flex items-center gap-1 text-xs text-slate-600 cursor-pointer hover:text-emerald-600"><input type="checkbox" value="Vie" class="accent-emerald-600 w-4 h-4"> Vie</label>
+                            <label class="flex items-center gap-1 text-xs text-slate-600 cursor-pointer hover:text-emerald-600"><input type="checkbox" value="Sáb" class="accent-emerald-600 w-4 h-4"> Sáb</label>
+                            <label class="flex items-center gap-1 text-xs text-slate-600 cursor-pointer hover:text-emerald-600"><input type="checkbox" value="Dom" class="accent-emerald-600 w-4 h-4"> Dom</label>
+                        </div>
+                    </div>
+                </div>
 <button onclick="confirmRenewal()" class="w-full py-3 rounded-xl font-bold text-white bg-emerald-600 hover:bg-emerald-700 transition-colors shadow-lg shadow-emerald-500/20 mt-2">Confirmar Renovación</button> 
             </div>
         </div>
@@ -1059,6 +1065,21 @@ window.changeRenewModality = function(mod) {
             });
         }
 
+        window.toggleTransferOnly = function(event) {
+            // Permitir clic en el contenedor sin disparar doble click en el checkbox
+            if(event && event.target.tagName !== 'INPUT' && event.target.tagName !== 'LABEL') {
+                const cb = document.getElementById('transfer-only-checkbox');
+                cb.checked = !cb.checked;
+            }
+            const isChecked = document.getElementById('transfer-only-checkbox').checked;
+            const paymentSection = document.getElementById('renew-payment-section');
+            if(isChecked) {
+                paymentSection.classList.add('hidden');
+            } else {
+                paymentSection.classList.remove('hidden');
+            }
+        }
+
         window.openRenewModal = function(id) {
             const s = students.find(st => st.id === id);
             if(!s) return;
@@ -1071,6 +1092,13 @@ window.changeRenewModality = function(mod) {
             // Iniciar mostrando la modalidad actual del alumno
             changeRenewModality(s.modality || 'GRUPAL');
 
+            // Resetear el checkbox de "solo traslado"
+            const transferCheck = document.getElementById('transfer-only-checkbox');
+            if(transferCheck) {
+                transferCheck.checked = false;
+                window.toggleTransferOnly();
+            }
+
             document.getElementById('modal-renew').classList.remove('hidden');
         }
 
@@ -1078,48 +1106,57 @@ window.changeRenewModality = function(mod) {
 
         window.confirmRenewal = function() {
             const id = parseInt(document.getElementById('renew-student-id').value);
-            const amount = parseFloat(document.getElementById('renew-amount').value);
-            const newDate = document.getElementById('renew-date').value;
             const newClassId = document.getElementById('renew-classroom-select').value;
-            const months = parseInt(document.getElementById('renew-months').value) || 1;
+            const isTransferOnly = document.getElementById('transfer-only-checkbox')?.checked;
             
-            // Recoger los días seleccionados
-            const selectedDays = Array.from(document.querySelectorAll('#renew-days input:checked')).map(cb => cb.value);
-
-            if(!amount || !newDate) { alert("Por favor ingresa monto y fecha."); return; }
-            if(selectedDays.length === 0) { alert("Por favor selecciona al menos un día de clases."); return; }
-
             const s = students.find(st => st.id === id);
-            if(s) {
-                // --- LÓGICA DE TRASLADO DE SALÓN ---
-if (newClassId && newClassId !== s.assignedClassId) {
-                    const oldClass = window.classrooms.find(c => c.id === s.assignedClassId);
-                    const newClass = window.classrooms.find(c => c.id === newClassId);
+            if(!s) return;
 
-                    // Nuevo: Validación interna de traslado considerando solo activos
-                    const currentEnrolled = (newClass.enrolled || []).filter(id => {
-                        const st = window.students.find(s => s.id === id);
-                        return st && st.active;
-                    }).length;
-                    const capacity = window.QUOTAS[newClass.type].classCapacity;
-                    
-                    if (currentEnrolled >= capacity) {
-                        alert(`⚠️ El salón "${newClass.name}" ya está lleno. No se puede realizar el traslado.`);
-                        return; 
-                    }
+            let amount, newDate, months, selectedDays;
 
-                    if (oldClass && oldClass.enrolled) {
-                        oldClass.enrolled = oldClass.enrolled.filter(stId => stId !== s.id);
-                    }
-                    if (!newClass.enrolled) newClass.enrolled = [];
-                    newClass.enrolled.push(s.id);
+            // Si NO es solo traslado, validamos campos financieros
+            if(!isTransferOnly) {
+                amount = parseFloat(document.getElementById('renew-amount').value);
+                newDate = document.getElementById('renew-date').value;
+                months = parseInt(document.getElementById('renew-months').value) || 1;
+                selectedDays = Array.from(document.querySelectorAll('#renew-days input:checked')).map(cb => cb.value);
 
-                    s.assignedClassId = newClassId;
-                    s.schedule = newClass.schedule;
-                    s.modality = newClass.type; // <-- ACTUALIZA LA MODALIDAD AL CAMBIAR DE AULA
+                if(!amount || !newDate) { alert("Por favor ingresa monto y fecha."); return; }
+                if(selectedDays.length === 0) { alert("Por favor selecciona al menos un día de clases."); return; }
+            }
+
+            // --- LÓGICA DE TRASLADO DE SALÓN ---
+            if (newClassId && newClassId !== s.assignedClassId) {
+                const oldClass = window.classrooms.find(c => c.id === s.assignedClassId);
+                const newClass = window.classrooms.find(c => c.id === newClassId);
+
+                const currentEnrolled = (newClass.enrolled || []).filter(stId => {
+                    const student = window.students.find(x => x.id === stId);
+                    return student && student.active;
+                }).length;
+                const capacity = window.QUOTAS[newClass.type].classCapacity;
+                
+                if (currentEnrolled >= capacity) {
+                    alert(`⚠️ El salón "${newClass.name}" ya está lleno. No se puede realizar el traslado.`);
+                    return; 
                 }
-                // --- CALCULAR NUEVA FECHA DE VENCIMIENTO ---
-                // Mantenemos tu formato base: 1 ciclo de ajedrez = 4 semanas (28 días)
+
+                if (oldClass && oldClass.enrolled) {
+                    oldClass.enrolled = oldClass.enrolled.filter(stId => stId !== s.id);
+                }
+                if (!newClass.enrolled) newClass.enrolled = [];
+                newClass.enrolled.push(s.id);
+
+                s.assignedClassId = newClassId;
+                s.schedule = newClass.schedule;
+                s.modality = newClass.type; // <-- ACTUALIZA LA MODALIDAD AL CAMBIAR DE AULA
+            } else if (isTransferOnly) {
+                alert("El alumno ya se encuentra en este salón. No se realizaron cambios.");
+                return;
+            }
+
+            // --- SI ES RENOVACIÓN (NUEVO PAGO) ---
+            if(!isTransferOnly) {
                 const startDateObj = new Date(newDate);
                 startDateObj.setDate(startDateObj.getDate() + (months * 28));
                 const newRenewalDate = startDateObj.toLocaleDateString('es-PE', { day: '2-digit', month: '2-digit', year: 'numeric' });
@@ -1127,14 +1164,20 @@ if (newClassId && newClassId !== s.assignedClassId) {
                 if(!s.payments) s.payments = [];
                 s.payments.push({ date: newDate, amount: amount });
                 s.renewalDate = newRenewalDate;
-                s.classDays = selectedDays; // Guardamos los días seleccionados por si los necesitas a futuro
-                s.active = true; 
-                
-                saveToFirebase();
-                closeRenewModal();
-                refreshAllUI();
-                
-                const clsName = window.classrooms.find(c => c.id === s.assignedClassId)?.name || 'Nuevo Salón';
+                s.classDays = selectedDays; 
+            }
+            
+            s.active = true; 
+            
+            saveToFirebase();
+            closeRenewModal();
+            refreshAllUI();
+            
+            const clsName = window.classrooms.find(c => c.id === s.assignedClassId)?.name || 'Nuevo Salón';
+            
+            if(isTransferOnly) {
+                alert(`✅ Traslado exitoso.\n🏫 Nueva Aula: ${clsName}\n(Mantiene sus fechas y pagos actuales)`);
+            } else {
                 alert(`✅ Renovación exitosa.\n📅 Vence: ${s.renewalDate}\n🏫 Aula: ${clsName}\n📆 Días: ${selectedDays.join(', ')}`);
             }
         }
