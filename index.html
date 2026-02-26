@@ -517,13 +517,18 @@
                 <input type="hidden" id="renew-student-id">
                 <p class="text-sm text-slate-600">Alumno: <strong id="renew-student-name" class="text-slate-800"></strong></p>
                 
-                <div>
-                    <label class="label-classic text-emerald-600">Salón de Destino</label>
-                    <select id="renew-classroom-select" class="input-classic font-semibold text-slate-700 bg-slate-50">
-                        </select>
+<div>
+                    <div class="flex justify-between items-end mb-1">
+                        <label class="label-classic text-emerald-600 mb-0">Salón de Destino</label>
+                        <div class="flex bg-slate-100 p-0.5 rounded-lg border border-slate-200">
+                            <button type="button" onclick="changeRenewModality('GRUPAL')" id="btn-renew-mod-grupal" class="px-3 py-1 rounded text-[10px] font-bold transition-all bg-white text-emerald-700 shadow-sm">GRUPAL</button>
+                            <button type="button" onclick="changeRenewModality('INDIVIDUAL')" id="btn-renew-mod-individual" class="px-3 py-1 rounded text-[10px] font-bold transition-all text-slate-500 hover:text-slate-700">INDIV.</button>
+                        </div>
+                    </div>
+                    <select id="renew-classroom-select" class="input-classic font-semibold text-slate-700 bg-slate-50 mt-1">
+                    </select>
                     <p class="text-[10px] text-slate-400 mt-1">Si cambias el salón, se verificará que existan vacantes.</p>
                 </div>
-
               <div><label class="label-classic">Nuevo Monto (S/.)</label><input type="number" id="renew-amount" class="input-classic font-bold text-emerald-600" placeholder="0.00"></div>
                 
 <div class="grid grid-cols-2 gap-4">
@@ -1003,7 +1008,58 @@ window.checkAutoLogic = function() {
             alert("Ingreso registrado correctamente.");
         }
 
-window.openRenewModal = function(id) {
+window.changeRenewModality = function(mod) {
+            document.getElementById('btn-renew-mod-grupal').className = `px-3 py-1 rounded text-[10px] font-bold transition-all ${mod === 'GRUPAL' ? 'bg-white text-emerald-700 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`;
+            document.getElementById('btn-renew-mod-individual').className = `px-3 py-1 rounded text-[10px] font-bold transition-all ${mod === 'INDIVIDUAL' ? 'bg-white text-emerald-700 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`;
+            
+            const studentId = parseInt(document.getElementById('renew-student-id').value);
+            renderRenewClassroomSelect(studentId, mod);
+        }
+
+        window.renderRenewClassroomSelect = function(studentId, modality) {
+            const select = document.getElementById('renew-classroom-select');
+            if(!select) return;
+            select.innerHTML = '';
+            
+            const s = window.students.find(st => st.id === studentId);
+            const compatibleClassrooms = window.classrooms.filter(c => c.type === modality);
+
+            if (compatibleClassrooms.length === 0) {
+                 const opt = document.createElement('option');
+                 opt.innerText = "No hay salones disponibles";
+                 opt.disabled = true;
+                 select.appendChild(opt);
+                 return;
+            }
+
+            compatibleClassrooms.forEach(c => {
+                const enrolledCount = (c.enrolled || []).filter(id => {
+                    const st = window.students.find(s => s.id === id);
+                    return st && st.active;
+                }).length;
+                const capacity = window.QUOTAS[c.type].classCapacity;
+                const isFull = enrolledCount >= capacity;
+                const isCurrent = s && c.id === s.assignedClassId;
+
+                const opt = document.createElement('option');
+                opt.value = c.id;
+                opt.innerText = `${c.name} (${enrolledCount}/${capacity})`;
+                
+                if (isCurrent) {
+                    opt.selected = true;
+                    opt.innerText += " (Actual)";
+                }
+                
+                if (isFull && !isCurrent) {
+                    opt.disabled = true;
+                    opt.innerText += " - LLENO";
+                }
+
+                select.appendChild(opt);
+            });
+        }
+
+        window.openRenewModal = function(id) {
             const s = students.find(st => st.id === id);
             if(!s) return;
             
@@ -1012,41 +1068,8 @@ window.openRenewModal = function(id) {
             document.getElementById('renew-amount').value = ''; 
             document.getElementById('renew-date').value = new Date().toISOString().split('T')[0];
             
-            // --- NUEVA LÓGICA PASO 2: LLENAR EL SELECT DE SALONES ---
-            const select = document.getElementById('renew-classroom-select');
-            if(select) { // Verificamos que el select exista (por si acaso)
-                select.innerHTML = ''; 
-
-                const compatibleClassrooms = window.classrooms.filter(c => c.type === s.modality);
-
-compatibleClassrooms.forEach(c => {
-                    // Nuevo: Conteo de activos para el select de traslado
-                    const enrolledCount = (c.enrolled || []).filter(id => {
-                        const st = window.students.find(s => s.id === id);
-                        return st && st.active;
-                    }).length;
-                    const capacity = window.QUOTAS[c.type].classCapacity;
-                    const isFull = enrolledCount >= capacity;
-                    const isCurrent = c.id === s.assignedClassId;
-
-                    const opt = document.createElement('option');
-                    opt.value = c.id;
-                    opt.innerText = `${c.name} (${enrolledCount}/${capacity})`;
-                    
-                    if (isCurrent) {
-                        opt.selected = true;
-                        opt.innerText += " (Actual)";
-                    }
-                    
-                    if (isFull && !isCurrent) {
-                        opt.disabled = true;
-                        opt.innerText += " - LLENO";
-                    }
-
-                    select.appendChild(opt);
-                });
-            }
-            // ------------------------------------------------
+            // Iniciar mostrando la modalidad actual del alumno
+            changeRenewModality(s.modality || 'GRUPAL');
 
             document.getElementById('modal-renew').classList.remove('hidden');
         }
@@ -1093,8 +1116,8 @@ if (newClassId && newClassId !== s.assignedClassId) {
 
                     s.assignedClassId = newClassId;
                     s.schedule = newClass.schedule;
+                    s.modality = newClass.type; // <-- ACTUALIZA LA MODALIDAD AL CAMBIAR DE AULA
                 }
-
                 // --- CALCULAR NUEVA FECHA DE VENCIMIENTO ---
                 // Mantenemos tu formato base: 1 ciclo de ajedrez = 4 semanas (28 días)
                 const startDateObj = new Date(newDate);
