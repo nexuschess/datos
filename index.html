@@ -455,9 +455,15 @@
                             <div class="p-1.5 bg-indigo-50 rounded text-indigo-600"><i data-lucide="database" class="w-5 h-5"></i></div>
                             Base de Datos de Alumnos
                         </h3>
-                        <div class="relative w-full md:w-96">
-                            <i data-lucide="search" class="absolute left-3 top-2.5 text-slate-400 w-4 h-4"></i>
-                            <input id="db-search" onkeyup="renderStudentDatabase()" placeholder="Buscar por Nombre, Apellido o Código..." class="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:bg-white focus:ring-2 focus:ring-indigo-100 outline-none">
+                        <div class="w-full md:w-96 flex flex-col gap-2">
+                            <div class="relative w-full">
+                                <i data-lucide="search" class="absolute left-3 top-2.5 text-slate-400 w-4 h-4"></i>
+                                <input id="db-search" onkeyup="renderStudentDatabase()" placeholder="Buscar por Nombre, Apellido o Código..." class="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:bg-white focus:ring-2 focus:ring-indigo-100 outline-none">
+                            </div>
+                            <select id="db-status-filter" onchange="renderStudentDatabase()" class="w-full py-1.5 px-3 bg-slate-50 border border-slate-200 rounded-lg text-xs font-medium text-slate-600 focus:bg-white focus:ring-2 focus:ring-indigo-100 outline-none cursor-pointer">
+                                <option value="active">🟢 Activos</option>
+                                <option value="inactive">🔴 Inactivos</option>
+                            </select>
                         </div>
                     </div>
                     
@@ -1902,11 +1908,24 @@ window.renderGradingList = function(taskId) {
 
         window.renderStudentDatabase = function() {
             const term = document.getElementById('db-search').value.toLowerCase();
+            const statusFilter = document.getElementById('db-status-filter').value;
             const tbody = document.getElementById('db-tbody');
             tbody.innerHTML = '';
-            let filtered = window.students.filter(s => s.studentName.toLowerCase().includes(term) || s.studentLastName.toLowerCase().includes(term) || (s.discountCode && s.discountCode.toLowerCase().includes(term)) || (!s.discountCode && `stu-${s.id}`.includes(term)));
-            document.getElementById('db-count').innerText = filtered.length;
-            if(filtered.length === 0) { document.getElementById('db-empty').classList.remove('hidden'); return; }
+            
+            let filtered = window.students.filter(s => {
+                const matchTerm = s.studentName.toLowerCase().includes(term) || 
+                                  s.studentLastName.toLowerCase().includes(term) || 
+                                  (s.discountCode && s.discountCode.toLowerCase().includes(term)) || 
+                                  (!s.discountCode && `stu-${s.id}`.includes(term));
+                
+                let matchStatus = true;
+                if (statusFilter === 'active') matchStatus = s.active === true;
+                if (statusFilter === 'inactive') matchStatus = s.active === false;
+                
+                return matchTerm && matchStatus;
+            });
+            
+            document.getElementById('db-count').innerText = filtered.length;            if(filtered.length === 0) { document.getElementById('db-empty').classList.remove('hidden'); return; }
             document.getElementById('db-empty').classList.add('hidden');
             filtered.forEach(s => {
                 const tr = document.createElement('tr');
